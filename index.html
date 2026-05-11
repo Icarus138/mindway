@@ -1,0 +1,2667 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<title>Mindway</title>
+<meta name="description" content="Mindway — système cognitif anti-procrastination. Capture spontanée, MIT, état d'esprit, plans If-Then. 100% local, sans backend."/>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#080A0F">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mindway">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   MINDWAY v2 — Cognitive organization journal
+   Guard-exact palette · DM Mono · mobile-first · no emojis
+============================================================ */
+:root {
+  /* ============================================================
+     CHARTE GRAPHIQUE v3.3 — Inspirée de Guard_vX
+     Base gris-bleu nuit · Ombres BLANCHES (pas violettes)
+     6 atomes : noir · surface · blanc-haut · gris · accent · signal
+     Les essentiels ressortent par luminescence blanche neutre.
+  ============================================================ */
+  --bg:#0F1115;          /* 1. Gris-bleu nuit (Guard bg0) */
+  --bg-card:#16191f;     /* 2. Surface élevée (Guard bg2) */
+  --bg-2:#121518;        /* lift 1 (bg1) */
+  --bg-3:#1a1e26;        /* lift 2 (bg3) */
+  --bg-4:#1e232c;        /* lift 3 (bg4) */
+
+  --border:rgba(255,255,255,.045);
+  --border-hi:rgba(255,255,255,.09);
+  --border-lo:rgba(255,255,255,.022);
+
+  /* Texte — palette Guard, neutre */
+  --t1:rgba(230,230,230,.92);     /* 3. Blanc-haut */
+  --t2:rgba(138,144,158,.85);     /* 4. Gris-bleu mid */
+  --t3:rgba(107,114,128,.7);
+  --t4:rgba(80,86,98,.7);
+
+  /* Accent neutre — blanc (plus aucun violet dans l'UI hors states spécifiques)
+     Le bleu-violet reste pour le hover de la carte cognitive uniquement (CSS local). */
+  --accent:rgba(230,232,238,.92);
+  --violet:rgba(230,232,238,.92);
+  --vio-d:rgba(230,232,238,.05);
+  --vio-b:rgba(230,232,238,.12);
+
+  /* Signal chaud — ambre Guard désaturé */
+  --signal:#b8923a;
+  --be:#b8923a;       --be-d:rgba(184,146,58,.09);
+  --amber:#b8923a;    --amb-d:rgba(184,146,58,.09); --amb-b:rgba(184,146,58,.16);
+
+  /* Sémantique Win/Loss — Guard's muted greens/roses */
+  --win:#5a9e7a;     --win-d:rgba(90,158,122,.09);  --win-b:rgba(90,158,122,.16);
+  --loss:#9e5a5a;    --loss-d:rgba(158,90,90,.09);  --loss-b:rgba(158,90,90,.16);  --loss-l:#b87070;
+
+  --font:'DM Mono','SF Mono','Fira Code',monospace;
+  --r:6px; --rl:10px; --tr:140ms ease;
+
+  /* ── OMBRES BLANCHES — la signature lumineuse de Guard ── */
+  --neon-violet:rgba(255,255,255,.18); --neon-teal:rgba(255,255,255,.14); --neon-amber:rgba(255,255,255,.12);
+  --neon-red:rgba(255,255,255,.1);     --neon-blue:rgba(255,255,255,.16);
+  --glow-v:drop-shadow(0 0 6px rgba(255,255,255,.18)) drop-shadow(0 0 14px rgba(200,210,255,.06));
+  --glow-t:drop-shadow(0 0 5px rgba(255,255,255,.14));
+  --glow-a:drop-shadow(0 0 5px rgba(255,255,255,.12));
+  --glow-r:drop-shadow(0 0 4px rgba(255,255,255,.1));
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{font-size:14px;-webkit-text-size-adjust:100%;}
+body{background:#080A0F;color:var(--t1);font-family:var(--font);font-weight:300;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;z-index:0;opacity:.52;}
+body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-50%);width:65vw;height:60vh;background:radial-gradient(ellipse,rgba(255,255,255,.025) 0%,transparent 70%);pointer-events:none;z-index:0;}
+::-webkit-scrollbar{width:2px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06);border-radius:2px;}
+.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 18px;height:50px;background:rgba(8,10,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(18px);position:sticky;top:0;z-index:100;}
+.nav::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:40%;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,.18),transparent);pointer-events:none;}
+.nav-brand{display:flex;align-items:center;gap:9px;}
+.nav-logo{width:19px;height:19px;stroke:var(--t1);fill:none;stroke-width:1.4;stroke-linecap:round;flex-shrink:0;filter:drop-shadow(0 0 4px rgba(255,255,255,.18));}
+.nav-name{font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--t1);}
+.nav-sub{font-size:.48rem;letter-spacing:.08em;color:var(--t3);}
+.nav-date{font-size:.54rem;color:var(--t3);text-align:right;line-height:1.5;}
+
+/* TAB BAR — 4 tabs */
+.tab-bar{display:flex;align-items:stretch;position:fixed;bottom:0;left:0;right:0;height:54px;background:rgba(8,10,15,.97);border-top:1px solid var(--border);backdrop-filter:blur(20px);z-index:100;padding-bottom:env(safe-area-inset-bottom,0);}
+.tab-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:none;color:var(--t3);font-family:var(--font);font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;transition:color var(--tr);}
+.tab-btn svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;}
+.tab-btn.on{color:var(--violet);}
+.tab-btn.on svg{stroke:var(--violet);}
+
+/* PAGES */
+.main{flex:1;padding-bottom:66px;}
+.page{display:none;padding:15px 14px;max-width:680px;margin:0 auto;}
+.page.on{display:block;}
+
+/* DATE HEADER */
+.dh{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border-lo);}
+.dh-dow{font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:2px;}
+.dh-full{font-size:.82rem;color:var(--t1);}
+
+/* QUOTE STRIP */
+.qs{background:linear-gradient(135deg,rgba(255,255,255,.04) 0%,var(--bg-card) 80%);border:1px solid rgba(255,255,255,.1);border-left:2px solid rgba(255,255,255,.22);border-radius:var(--rl);padding:13px 14px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start;transition:filter 250ms ease,border-color 250ms ease;}
+.qs:hover{filter:drop-shadow(0 0 6px rgba(255,255,255,.14));border-color:rgba(255,255,255,.22);}
+.qs-icon svg{width:11px;height:11px;fill:rgba(210,214,222,.55);}
+.qs-text{font-size:.74rem;line-height:1.75;color:rgba(225,230,240,.88);font-style:italic;}
+.qs-auth{font-size:.58rem;color:rgba(180,188,200,.65);margin-top:5px;letter-spacing:.02em;}
+
+/* CONCEPT HINT */
+.hint-wrap{margin-top:5px;padding:6px 10px;background:rgba(255,255,255,.018);border-left:2px solid var(--border);border-radius:0 var(--r) var(--r) 0;font-size:.6rem;color:var(--t2);line-height:1.65;}
+.hint-btn{background:none;border:1px solid var(--border);border-radius:50%;color:var(--t3);width:14px;height:14px;font-family:var(--font);font-size:.48rem;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-left:5px;flex-shrink:0;transition:all var(--tr);}
+.hint-btn:hover{border-color:var(--violet);color:var(--violet);}
+
+/* CHECK-IN */
+.ci-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;}
+.ci-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;cursor:pointer;user-select:none;}
+.ci-hdr-l{display:flex;align-items:center;gap:7px;}
+.ci-hdr-ico{width:12px;height:12px;stroke:var(--t3);fill:none;stroke-width:1.4;stroke-linecap:round;}
+.ci-hdr-lbl{font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t2);}
+.ci-tags-prev{display:flex;gap:3px;}
+.ci-tp{font-size:.48rem;padding:1px 6px;border-radius:20px;background:var(--vio-d);color:var(--violet);border:1px solid rgba(91,110,232,.18);}
+.chevron{width:12px;height:12px;stroke:var(--t3);fill:none;stroke-width:1.4;stroke-linecap:round;transition:transform var(--tr);}
+.ci-card.open .chevron{transform:rotate(180deg);}
+.ci-body{display:none;padding:0 12px 12px;}
+.ci-card.open .ci-body{display:block;}
+.ci-sep{height:1px;background:var(--border-lo);margin-bottom:10px;}
+.mrow{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.mlbl{font-size:.57rem;color:var(--t2);width:108px;flex-shrink:0;}
+.mbtns{display:flex;gap:3px;}
+.mbtn{width:25px;height:25px;border-radius:5px;border:1px solid var(--border);background:transparent;color:var(--t3);font-family:var(--font);font-size:.57rem;cursor:pointer;transition:all var(--tr);}
+.mbtn.on{background:rgba(255,255,255,.05);border-color:rgba(230,232,238,.45);color:rgba(230,232,238,.92);}
+.tags-lbl{font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin:9px 0 5px;}
+.tags-row{display:flex;flex-wrap:wrap;gap:4px;}
+.tpill{font-size:.52rem;padding:2px 7px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t3);cursor:pointer;transition:all var(--tr);font-family:var(--font);}
+.tpill.on{background:rgba(255,255,255,.04);border-color:rgba(230,232,238,.34);color:rgba(230,232,238,.88);}
+.note-ta{width:100%;margin-top:9px;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:var(--r);padding:7px 9px;font-family:var(--font);font-size:.62rem;font-weight:300;color:var(--t1);resize:none;min-height:48px;line-height:1.6;}
+.note-ta:focus{outline:none;border-color:rgba(91,110,232,.24);}
+
+/* SECTION HEADERS */
+.sec-h{display:flex;align-items:center;gap:6px;margin-bottom:7px;}
+.sec-h svg{width:10px;height:10px;stroke:var(--t3);fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;}
+.sec-lbl{font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);}
+.sec-cnt{font-size:.5rem;color:var(--t4);margin-left:auto;}
+
+/* TASK CARDS */
+.tsec{margin-bottom:14px;}
+.tcard{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;margin-bottom:4px;display:flex;gap:8px;align-items:flex-start;transition:border-color var(--tr),opacity var(--tr);}
+.tcard.done{opacity:.36;}
+.tcard.mit{border-color:rgba(195,150,90,.18);background:rgba(195,150,90,.018);}
+.tcard.mit.done{opacity:.33;}
+.tchk{width:16px;height:16px;flex-shrink:0;margin-top:1px;border:1px solid var(--border);border-radius:50%;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--tr);}
+.tchk svg{width:8px;height:8px;stroke:transparent;fill:none;stroke-width:2.5;stroke-linecap:round;transition:stroke var(--tr);}
+.tcard.done .tchk{background:var(--win-d);border-color:var(--win);}
+.tcard.done .tchk svg{stroke:var(--win);}
+.tcard.mit .tchk{border-color:rgba(195,150,90,.32);}
+.tcard.mit.done .tchk{background:var(--amb-d);border-color:var(--amber);}
+.tcard.mit.done .tchk svg{stroke:var(--amber);}
+.tbody{flex:1;min-width:0;}
+.tinp{width:100%;background:transparent;border:none;border-bottom:1px solid transparent;font-family:var(--font);font-size:.67rem;font-weight:300;color:var(--t1);outline:none;line-height:1.5;transition:border-color var(--tr);}
+.tinp:focus{border-color:var(--border);}
+.tcard.done .tinp{text-decoration:line-through;color:var(--t3);}
+.tmeta{display:flex;align-items:center;gap:5px;margin-top:4px;}
+.tdot{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
+.tdot.MIT{background:var(--amber);} .tdot.SECONDARY{background:rgba(91,110,232,.55);} .tdot.MICRO{background:var(--t4);}
+.tbadge{font-size:.5rem;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,.03);color:var(--t4);border:1px solid var(--border-lo);}
+.tcap{font-size:.5rem;color:var(--t3);letter-spacing:.04em;padding:3px 6px;border:1px dashed var(--border-lo);border-radius:3px;background:transparent;cursor:default;font-family:var(--font);white-space:nowrap;}
+.budget-line{margin-top:8px;padding-top:7px;border-top:1px solid var(--border-lo);display:flex;justify-content:space-between;align-items:center;font-size:.54rem;color:var(--t3);letter-spacing:.04em;}
+.budget-line strong{color:var(--t1);font-weight:400;}
+.budget-line.over strong{color:rgba(195,150,90,.9);}
+.tsort-hint{font-size:.48rem;color:var(--t4);margin-bottom:5px;letter-spacing:.06em;}
+.tctrl{display:flex;gap:3px;flex-shrink:0;align-items:center;}
+.iusel{background:transparent;border:1px solid var(--border-lo);border-radius:3px;color:var(--t3);font-family:var(--font);font-size:.5rem;padding:2px 3px;cursor:pointer;}
+.iusel:focus{outline:none;}
+.tdel{background:none;border:none;cursor:pointer;color:var(--t3);display:flex;align-items:center;padding:2px;transition:color var(--tr);}
+.tdel:hover{color:var(--loss);}
+.tdel svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;}
+.mit-empty{border:1px dashed rgba(195,150,90,.16);border-radius:var(--r);padding:18px 12px;text-align:center;cursor:pointer;background:rgba(195,150,90,.01);transition:border-color var(--tr);margin-bottom:4px;}
+.mit-empty:hover{border-color:rgba(195,150,90,.3);}
+.mit-empty-ico{width:19px;height:19px;stroke:var(--t4);fill:none;stroke-width:1;stroke-linecap:round;margin:0 auto 6px;display:block;}
+.mit-empty-txt{font-size:.6rem;color:var(--t3);}
+.mit-empty-sub{font-size:.52rem;color:var(--t4);margin-top:2px;line-height:1.5;}
+.add-btn{width:100%;padding:7px 10px;background:transparent;border:1px dashed var(--border);border-radius:var(--r);color:var(--t3);font-family:var(--font);font-size:.56rem;cursor:pointer;text-align:left;display:flex;align-items:center;gap:5px;transition:all var(--tr);}
+.add-btn:hover{border-color:var(--border-hi);color:var(--t2);}
+.add-btn svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;}
+
+/* SCORE CARD */
+.score-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);padding:12px;margin-top:5px;}
+.score-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.score-lbl{font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);}
+.sbadge{font-size:.5rem;letter-spacing:.07em;text-transform:uppercase;padding:2px 8px;border-radius:20px;}
+.sb-win{color:var(--win);background:var(--win-d);border:1px solid rgba(91,110,232,.12);}
+.sb-opt{color:var(--violet);background:var(--vio-d);border:1px solid rgba(91,110,232,.12);}
+.sb-part{color:var(--be);background:var(--be-d);border:1px solid rgba(195,150,90,.12);}
+.sb-go{color:var(--t3);background:transparent;border:1px solid var(--border);}
+.sb-af{color:var(--amber);background:var(--amb-d);border:1px solid rgba(195,150,90,.16);}
+.score-bar-bg{background:rgba(255,255,255,.04);border-radius:2px;height:3px;margin-bottom:6px;}
+.score-bar{height:100%;border-radius:2px;transition:width .4s ease;}
+.score-bar.win{background:var(--win);} .score-bar.opt{background:var(--violet);} .score-bar.part,.score-bar.go{background:var(--be);} .score-bar.af{background:var(--amber);}
+.score-nums{display:flex;justify-content:space-between;font-size:.54rem;color:var(--t3);margin-bottom:7px;}
+.score-msg{font-size:.63rem;color:var(--t2);line-height:1.65;padding:7px 10px;border-radius:var(--r);border-left:2px solid;}
+.sm-win{border-color:var(--win);background:var(--win-d);} .sm-opt{border-color:var(--violet);background:var(--vio-d);} .sm-part{border-color:var(--be);background:var(--be-d);} .sm-af{border-color:var(--amber);background:var(--amb-d);} .sm-go{border-color:var(--t4);background:rgba(255,255,255,.01);}
+.rec-row{display:flex;align-items:center;gap:7px;margin-top:8px;padding-top:7px;border-top:1px solid var(--border-lo);}
+.rec-lbl{font-size:.52rem;color:var(--t3);}
+.rec-dots{display:flex;gap:3px;}
+.rec-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--border);}
+.rec-dot.f{background:var(--violet);border-color:var(--violet);}
+.rec-note{font-size:.5rem;color:var(--t3);}
+
+/* IF THEN */
+.ifthen-strip{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:12px;overflow:hidden;}
+.ifthen-strip-hdr{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;user-select:none;}
+.ifthen-strip-hdr-l{display:flex;align-items:center;gap:7px;}
+.ifthen-strip-hdr-ico{width:12px;height:12px;stroke:var(--t3);fill:none;stroke-width:1.4;stroke-linecap:round;}
+.ifthen-strip-lbl{font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t2);}
+.ifthen-strip-body{display:none;padding:0 12px 12px;}
+.ifthen-strip.open .ifthen-strip-body{display:block;}
+.ifthen-strip.open .chevron2{transform:rotate(180deg);}
+.chevron2{width:12px;height:12px;stroke:var(--t3);fill:none;stroke-width:1.4;stroke-linecap:round;transition:transform var(--tr);}
+.strat-act-card{background:rgba(255,255,255,.018);border:1px solid var(--border-lo);border-radius:var(--r);padding:8px 10px;margin-bottom:5px;}
+.strat-act-card.used{border-color:rgba(91,110,232,.22);background:var(--vio-d);}
+.sa-trigger{font-size:.6rem;color:var(--t2);margin-bottom:2px;}
+.sa-trigger em{font-style:italic;color:var(--t1);}
+.sa-response{font-size:.58rem;color:var(--violet);margin-bottom:6px;}
+.sa-ctrl{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.sa-activate{font-size:.52rem;padding:3px 8px;background:transparent;border:1px solid rgba(91,110,232,.22);color:var(--violet);border-radius:20px;cursor:pointer;font-family:var(--font);transition:all var(--tr);}
+.sa-activate:hover{background:var(--vio-d);}
+.sa-eff-lbl{font-size:.5rem;color:var(--t3);}
+.eff-btns{display:flex;gap:2px;}
+.eff-btn{width:22px;height:22px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--t3);font-family:var(--font);font-size:.5rem;cursor:pointer;transition:all var(--tr);}
+.eff-btn.on{background:var(--vio-d);border-color:var(--violet);color:var(--violet);}
+.sa-helped{font-size:.5rem;padding:2px 7px;border:1px solid var(--border);background:transparent;color:var(--t3);border-radius:20px;cursor:pointer;font-family:var(--font);transition:all var(--tr);}
+.sa-helped.on{background:var(--win-d);border-color:rgba(91,110,232,.2);color:var(--win);}
+.no-strat-note{font-size:.6rem;color:var(--t3);text-align:center;padding:12px;line-height:1.6;}
+
+/* SI-ALORS PAGE */
+.strat-lib-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.strat-lib-body{flex:1;min-width:0;}
+.strat-lib-trigger{font-size:.62rem;color:var(--t2);margin-bottom:2px;}
+.strat-lib-trigger em{font-style:italic;color:var(--t1);}
+.strat-lib-response{font-size:.6rem;color:var(--violet);}
+.strat-lib-meta{font-size:.5rem;color:var(--t3);margin-top:4px;}
+.strat-del{background:none;border:none;cursor:pointer;color:var(--t3);flex-shrink:0;display:flex;align-items:center;padding:3px;transition:color var(--tr);}
+.strat-del:hover{color:var(--loss);}
+.strat-del svg{width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;}
+.add-strat-form{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);padding:13px;margin-top:12px;}
+.add-strat-lbl{font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:5px;display:block;}
+.strat-inp{width:100%;background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:var(--r);padding:7px 9px;font-family:var(--font);font-size:.64rem;font-weight:300;color:var(--t1);outline:none;margin-bottom:8px;}
+.strat-inp:focus{border-color:rgba(91,110,232,.24);}
+.strat-add-btn{padding:6px 14px;background:var(--vio-d);border:1px solid rgba(91,110,232,.22);color:var(--violet);border-radius:20px;cursor:pointer;font-family:var(--font);font-size:.58rem;transition:all var(--tr);}
+.explain-card{background:var(--bg-card);border:1px solid var(--border-lo);border-radius:var(--rl);padding:12px;margin-bottom:14px;}
+.explain-title{font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:7px;}
+.explain-txt{font-size:.64rem;line-height:1.72;color:var(--t2);}
+
+/* HISTORY */
+.frow{display:flex;gap:5px;margin-bottom:12px;}
+.fbtn{font-size:.54rem;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:20px;border:1px solid var(--border);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--font);transition:all var(--tr);}
+.fbtn.on{background:rgba(255,255,255,.04);border-color:rgba(230,232,238,.4);color:rgba(230,232,238,.92);}
+.hcard{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;margin-bottom:5px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:border-color var(--tr);}
+.hcard:hover{border-color:var(--border-hi);}
+.hdate{font-size:.62rem;color:var(--t1);margin-bottom:2px;}
+.hmeta{font-size:.52rem;color:var(--t3);display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.hdot{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
+.hright{text-align:right;flex-shrink:0;}
+.hpct{font-size:.74rem;font-weight:500;}
+
+/* DASHBOARD */
+.kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:16px;}
+.kpi-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);padding:10px;}
+.kpi-lbl{font-size:.48rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:4px;}
+.kpi-val{font-size:1.25rem;font-weight:500;color:var(--t1);line-height:1;margin-bottom:2px;}
+.kpi-sub{font-size:.52rem;color:var(--t3);}
+
+/* INSIGHT CARDS */
+.ins-sec-lbl{font-size:.52rem;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:7px;}
+.ins-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);padding:12px;margin-bottom:8px;}
+.ins-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px;}
+.ins-title{font-size:.62rem;color:var(--t1);}
+.ins-n{font-size:.5rem;color:var(--t4);}
+.ins-txt{font-size:.63rem;line-height:1.72;color:var(--t2);margin-bottom:7px;}
+.ins-bar-row{display:flex;gap:5px;align-items:center;margin-bottom:4px;}
+.ib-lbl{font-size:.5rem;color:var(--t3);width:50px;text-align:right;flex-shrink:0;}
+.ib-track{flex:1;background:rgba(255,255,255,.04);border-radius:2px;height:4px;}
+.ib-fill{height:100%;border-radius:2px;transition:width .5s ease;}
+.ib-val{font-size:.54rem;color:var(--t2);width:28px;flex-shrink:0;}
+.ins-q{margin-top:9px;padding:7px 10px;background:linear-gradient(135deg,rgba(91,110,232,.038) 0%,transparent 100%);border-left:1px solid rgba(91,110,232,.18);border-radius:0 4px 4px 0;font-size:.59rem;font-style:italic;color:rgba(200,205,215,.58);line-height:1.65;}
+.ins-q-auth{font-size:.5rem;color:rgba(91,110,232,.38);margin-top:3px;}
+.tag-chips{display:flex;flex-wrap:wrap;gap:4px;margin:5px 0;}
+.tc-win{font-size:.54rem;padding:2px 7px;border-radius:20px;background:rgba(255,255,255,.05);color:rgba(230,232,238,.85);border:1px solid rgba(230,232,238,.18);}
+/* tc-loss : ambre désaturé — signal "à travailler" sans agressivité (jamais de rouge) */
+.tc-loss{font-size:.54rem;padding:2px 7px;border-radius:20px;background:rgba(195,150,90,.06);color:rgba(210,180,140,.82);border:1px solid rgba(195,150,90,.24);}
+.tc-loss::before{content:"○ ";color:rgba(195,150,90,.55);font-size:.5rem;letter-spacing:0;margin-right:1px;}
+.tc-cnt{opacity:.5;}
+
+/* PATTERN MAP */
+.pmap{display:flex;flex-direction:column;gap:5px;}
+.pmap-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+.pmap-node{padding:4px 8px;border-radius:var(--r);font-size:.54rem;flex-shrink:0;}
+.pmap-cause{background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--t2);}
+.pmap-arrow{font-size:.6rem;color:var(--t4);}
+.pmap-eff-pos{background:var(--win-d);border:1px solid rgba(91,110,232,.14);color:var(--win);}
+.pmap-eff-neg{background:var(--loss-d);border:1px solid rgba(150,158,172,.1);color:rgba(215,130,110,.72);}
+.pmap-pct{font-size:.5rem;color:var(--t3);padding:2px 6px;background:rgba(255,255,255,.03);border-radius:20px;}
+
+/* DONUT CHART */
+.donut-wrap{display:flex;gap:14px;align-items:center;}
+.donut-legend{display:flex;flex-direction:column;gap:5px;flex:1;}
+.dl-item{display:flex;align-items:center;gap:5px;font-size:.52rem;color:var(--t2);}
+.dl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dl-val{font-size:.5rem;color:var(--t3);margin-left:auto;}
+
+/* IMPACT DIST */
+.imp-bar{margin-bottom:7px;}
+.imp-bar-hdr{display:flex;justify-content:space-between;margin-bottom:3px;}
+.imp-bar-lbl{font-size:.54rem;color:var(--t2);}
+.imp-bar-val{font-size:.52rem;color:var(--t3);}
+.imp-bar-track{background:rgba(255,255,255,.04);border-radius:2px;height:4px;}
+.imp-bar-fill{height:100%;border-radius:2px;transition:width .5s;}
+
+/* CALENDAR */
+.cal-wrap{margin-bottom:16px;}
+.cal-lbl{font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;}
+.cal-grid{display:flex;gap:3px;flex-wrap:wrap;}
+.ccell{width:23px;height:23px;border-radius:4px;cursor:pointer;transition:opacity var(--tr);border:1px solid transparent;}
+.ccell:hover{opacity:.75;}
+.ccell.empty{background:rgba(255,255,255,.024);border-color:var(--border-lo);}
+.ccell.winning{background:rgba(91,110,232,.2);} .ccell.optimized{background:rgba(91,110,232,.2);} .ccell.partial{background:rgba(195,150,90,.18);} .ccell.ongoing{background:rgba(255,255,255,.05);}
+.ccell.istoday{border-color:var(--border-hi) !important;}
+.cal-leg{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.cl-item{display:flex;align-items:center;gap:4px;}
+.cl-dot{width:7px;height:7px;border-radius:2px;}
+.cl-txt{font-size:.48rem;color:var(--t3);}
+
+/* SPARKLINE */
+.spark-wrap{margin-bottom:16px;}
+.spark-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
+.spark-lbl{font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);}
+.spark-cur{font-size:.64rem;color:var(--violet);}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(2,3,9,.97);display:none;flex-direction:column;animation:ov-in .16s ease;}
+.overlay.open{display:flex;}
+@keyframes ov-in{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+.ov-hdr{display:flex;align-items:center;justify-content:space-between;padding:0 14px;height:50px;border-bottom:1px solid var(--border);background:rgba(8,10,15,.98);flex-shrink:0;}
+.ov-title{font-size:.6rem;letter-spacing:.1em;color:var(--t2);}
+.ov-close{background:none;border:none;cursor:pointer;color:var(--t3);display:flex;align-items:center;}
+.ov-close svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;}
+.ov-body{flex:1;overflow-y:auto;padding:14px;max-width:680px;margin:0 auto;width:100%;}
+
+/* MISC */
+.toast{position:fixed;bottom:68px;left:50%;transform:translateX(-50%) translateY(8px);background:rgba(10,13,22,.97);border:1px solid var(--border-hi);border-radius:20px;padding:6px 14px;font-size:.58rem;color:var(--t1);z-index:300;opacity:0;transition:all .18s ease;pointer-events:none;white-space:nowrap;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.demo-bar{background:rgba(91,110,232,.05);border:1px solid rgba(91,110,232,.1);border-radius:var(--r);padding:6px 10px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}
+.demo-txt{font-size:.54rem;color:var(--t3);}
+.demo-rst{font-size:.54rem;color:var(--loss);background:none;border:none;cursor:pointer;font-family:var(--font);text-decoration:underline;}
+.empty-st{text-align:center;padding:36px 20px;color:var(--t3);font-size:.6rem;line-height:1.9;}
+.sec-title{font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:6px;}
+.section-sep{height:1px;background:var(--border-lo);margin:14px 0;}
+.pgrav-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);padding:14px 12px;margin-bottom:8px;}
+.pgrav-sub{font-size:.52rem;color:var(--t3);letter-spacing:.04em;margin-bottom:6px;}
+.pgrav-leg{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+.pgrav-ins{border-top:1px solid var(--border-lo);margin-top:10px;padding-top:9px;}
+.pgrav-ins-line{font-size:.6rem;color:var(--t2);line-height:1.7;margin-bottom:5px;padding-left:10px;position:relative;}
+.pgrav-ins-line::before{content:'·';color:var(--t3);position:absolute;left:0;}
+/* Map tooltip */
+.cmap-tt{background:rgba(6,8,16,.97);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:9px 11px;font-family:var(--font);font-size:.58rem;color:var(--t1);line-height:1.6;max-width:260px;margin:6px auto 0;display:none;backdrop-filter:blur(8px);}
+.cmap-tt.show{display:block;}
+.cmap-tt-lbl{font-size:.6rem;color:var(--t1);margin-bottom:2px;}
+.cmap-tt-short{font-size:.54rem;color:var(--violet);margin-bottom:5px;}
+.cmap-tt-full{font-size:.56rem;color:var(--t3);}
+/* Map legend collapsible */
+.pgrav-leg-wrap{margin-top:8px;}
+.pgrav-leg-toggle{background:none;border:none;color:var(--t3);font-family:var(--font);font-size:.54rem;letter-spacing:.06em;cursor:pointer;padding:0;display:flex;align-items:center;gap:4px;}
+.pgrav-leg-toggle:hover{color:var(--t2);}
+.pgrav-leg-body{display:none;margin-top:7px;font-size:.57rem;color:var(--t3);line-height:1.7;border-top:1px solid var(--border-lo);padding-top:7px;}
+.pgrav-leg-body.open{display:block;}
+/* Depth system */
+.depth-1{filter:drop-shadow(0 0 6px rgba(255,255,255,.3));}
+.depth-2{filter:drop-shadow(0 0 3px rgba(255,255,255,.18));}
+.depth-3{opacity:.75;}
+.depth-4{opacity:.42;filter:blur(.4px);}
+/* Timeline */
+.tl-toggles{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;}
+.tl-tog{background:none;border:1px solid var(--border);border-radius:3px;padding:3px 8px;font-family:var(--font);font-size:.52rem;color:var(--t4);cursor:pointer;letter-spacing:.05em;transition:color .15s,border-color .15s;}
+.tl-tog.on{color:var(--mc,var(--t2));}
+.tl-tt{background:rgba(6,8,16,.97);border:1px solid rgba(255,255,255,.07);border-radius:6px;padding:9px 11px;font-family:var(--font);margin-top:8px;backdrop-filter:blur(8px);}
+/* Cognitive map: STATIC by /autoplan principle — no pulsing nodes, no orbital floating. */
+@keyframes qBr{0%,100%{opacity:.88;transform:translateY(0)}50%{opacity:1;transform:translateY(-2.5px)}}
+@media (prefers-reduced-motion: no-preference){
+  .qs{animation:qBr 14s ease-in-out infinite;transform-origin:center;}
+}
+/* Neon flow utility */
+.neon-flow{transition:all 220ms ease;}
+.neon-flow:hover,.neon-flow:active{transform:translateY(-1px) scale(1.012);filter:var(--glow-v);}
+/* Cognitive map node hover */
+/* Cognitive map — monochrome au repos, glow révélateur au hover (v3.8.4) */
+.cog-nd{cursor:pointer;transition:filter 260ms ease;}
+.cog-nd[data-active="0"]{pointer-events:auto;}
+.cog-nd[data-active="1"][data-tint="cool"]:hover{filter:drop-shadow(0 0 6px rgba(91,110,232,.55)) drop-shadow(0 0 14px rgba(91,110,232,.22)) brightness(1.12);}
+.cog-nd[data-active="1"][data-tint="warm"]:hover{filter:drop-shadow(0 0 6px rgba(210,120,80,.55)) drop-shadow(0 0 14px rgba(210,120,80,.22)) brightness(1.12);}
+.cog-nd[data-active="1"][data-tint="neutral"]:hover{filter:drop-shadow(0 0 6px rgba(255,255,255,.35)) brightness(1.15);}
+.cog-nd[data-active="0"]:hover{filter:brightness(1.18);}
+/* Antifragile ring chauffe à l'orange au hover du parent */
+.cog-nd[data-tint="warm"]:hover .af-ring{stroke:rgba(210,120,80,.85);transition:stroke 260ms ease;}
+.ccore{cursor:pointer;transition:filter 200ms ease;}
+.ccore:hover{filter:brightness(1.1);}
+/* Insight card subtle hover */
+.ins-card{transition:border-color 200ms ease;}
+.ins-card:hover{border-color:rgba(91,110,232,.08);}
+/* Dashboard layout — hierarchy */
+.dash-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.dash-row.main{grid-template-columns:1.2fr .8fr;}
+@media(max-width:640px){.dash-row,.dash-row.main{grid-template-columns:1fr;}}
+/* KPI strip compact */
+.kpi-strip{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+.kpi-pill{flex:1;min-width:68px;background:var(--bg-card);border:1px solid var(--border-lo);border-radius:var(--r);padding:6px 8px;text-align:center;}
+.kpi-pill-val{font-size:.82rem;color:var(--t1);line-height:1.1;}
+.kpi-pill-lbl{font-size:.48rem;color:var(--t4);margin-top:2px;letter-spacing:.08em;text-transform:uppercase;}
+/* Dashboard quote card */
+.dash-quote{background:linear-gradient(140deg,rgba(255,255,255,.05) 0%,rgba(8,10,15,.96) 100%);border:1px solid rgba(255,255,255,.12);border-left:2px solid rgba(255,255,255,.28);border-radius:var(--rl);padding:18px 16px 14px;position:relative;overflow:hidden;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;transition:border-color 220ms ease,box-shadow 220ms ease;box-shadow:0 0 40px -20px rgba(255,255,255,.06);}
+.dash-quote:hover{border-color:rgba(255,255,255,.24);box-shadow:0 0 56px -20px rgba(255,255,255,.14);}
+.dash-quote::after{content:'';position:absolute;top:-30px;right:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(255,255,255,.05) 0%,transparent 70%);pointer-events:none;}
+.dq-mark{font-size:3.4rem;line-height:1;color:rgba(210,214,222,.32);font-family:Georgia,serif;position:absolute;top:4px;left:12px;user-select:none;}
+.dq-body{padding-left:2px;margin-top:18px;flex:1;}
+.dq-text{font-size:.82rem;line-height:1.8;color:rgba(228,232,242,.94);font-style:italic;font-weight:300;}
+.dq-author{font-size:.62rem;color:rgba(180,188,200,.78);margin-top:9px;letter-spacing:.04em;}
+.dq-pattern{font-size:.48rem;color:var(--t4);margin-top:3px;letter-spacing:.08em;text-transform:uppercase;border-top:1px solid var(--border-lo);padding-top:5px;}
+/* Pattern mini-cards */
+.patt-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.patt-card{background:var(--bg-card);border:1px solid var(--border-lo);border-radius:var(--r);padding:10px;transition:border-color 200ms ease;}
+.patt-card:hover{border-color:rgba(91,110,232,.1);}
+.patt-icon{width:20px;height:20px;margin-bottom:5px;display:block;opacity:.62;}
+.patt-lbl{font-size:.58rem;color:var(--t2);line-height:1.45;margin-bottom:3px;}
+.patt-val{font-size:.72rem;color:var(--t1);margin-bottom:4px;}
+.patt-bar-wrap{height:2px;background:rgba(255,255,255,.05);border-radius:1px;margin-bottom:4px;}
+.patt-fill{height:100%;border-radius:1px;}
+.patt-sub{font-size:.52rem;color:var(--t3);line-height:1.5;}
+/* Cognitive card — height dictated by content (was min-height:380px) */
+.cognitive-dash{min-height:0;}
+/* Timeline dots */
+.tl-dot{pointer-events:none;}
+
+/* ============================================================
+   V3.1 — Action-first hierarchy (P0)
+============================================================ */
+/* Pattern strip — Level 2, sits above MIT when a pattern is detected */
+.pattern-strip{display:flex;align-items:center;gap:8px;padding:7px 11px;margin-bottom:10px;background:rgba(91,110,232,.025);border:1px solid var(--border-lo);border-left:2px solid rgba(91,110,232,.28);border-radius:0 var(--r) var(--r) 0;font-size:.56rem;color:var(--t2);letter-spacing:.04em;}
+.pattern-strip-lbl{font-size:.48rem;color:var(--t3);letter-spacing:.14em;text-transform:uppercase;}
+.pattern-strip-val{color:var(--t1);}
+
+/* MIT hero — the Level-1 action surface */
+.mit-hero{background:linear-gradient(180deg,rgba(91,110,232,.045) 0%,var(--bg-card) 90%);border:1px solid rgba(91,110,232,.14);border-radius:var(--rl);padding:14px 14px 12px;margin-bottom:14px;position:relative;transition:border-color 300ms ease,box-shadow 300ms ease;}
+.mit-hero[data-friction="medium"]{border-color:rgba(255,255,255,.16);box-shadow:0 0 60px -32px rgba(255,255,255,.22);}
+.mit-hero[data-friction="high"]{border-color:rgba(255,255,255,.22);box-shadow:0 0 80px -28px rgba(255,255,255,.32),0 0 24px -12px rgba(200,210,255,.12);}
+.mit-hero-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;}
+.mit-hero-lbl{font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);}
+.mit-hero-date{font-size:.5rem;color:var(--t4);letter-spacing:.04em;}
+.mit-hero-empty{padding:14px 4px 8px;text-align:left;cursor:pointer;}
+.mit-hero-empty-q{font-size:.78rem;color:var(--t1);line-height:1.5;margin-bottom:6px;}
+.mit-hero-empty-sub{font-size:.55rem;color:var(--t3);line-height:1.55;}
+
+/* ════════════════════════════════════════════════════════════
+   Guided Brain Dump — modal flow (v3.11)
+   Sober, dark, mobile-first. No emojis. Subtle animations.
+════════════════════════════════════════════════════════════ */
+.guided-overlay{position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.66);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;padding:0;animation:guided-fadein .32s ease;}
+.guided-overlay.open{display:flex;}
+@media(min-width:540px){.guided-overlay{align-items:center;padding:24px;}}
+.guided-modal{width:100%;max-width:520px;background:#16191f;border:1px solid rgba(255,255,255,.08);border-radius:18px 18px 0 0;padding:22px 20px 26px;box-shadow:0 -8px 60px -20px rgba(255,255,255,.06),0 -24px 80px -40px rgba(0,0,0,.6);position:relative;max-height:92vh;overflow-y:auto;animation:guided-slide .42s cubic-bezier(.2,.7,.3,1);}
+@media(min-width:540px){.guided-modal{border-radius:14px;padding:26px 24px 28px;}}
+@keyframes guided-fadein{from{opacity:0}to{opacity:1}}
+@keyframes guided-slide{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
+.guided-close{position:absolute;top:14px;right:14px;width:24px;height:24px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--t3);cursor:pointer;font-family:var(--font);font-size:.7rem;line-height:1;display:flex;align-items:center;justify-content:center;transition:all 180ms ease;}
+.guided-close:hover{color:var(--t1);border-color:var(--border-hi);}
+.guided-eyebrow{font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:10px;}
+.guided-title{font-size:.94rem;color:rgba(235,238,245,.92);line-height:1.42;margin-bottom:8px;font-weight:400;}
+.guided-sub{font-size:.64rem;color:var(--t2);line-height:1.65;margin-bottom:18px;}
+.guided-input-row{display:flex;gap:8px;margin-bottom:10px;}
+.guided-input{flex:1;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:11px 13px;font-family:var(--font);font-size:.72rem;color:rgba(235,238,245,.92);font-weight:300;transition:border-color 180ms ease;}
+.guided-input:focus{outline:none;border-color:rgba(235,238,245,.32);background:rgba(255,255,255,.04);}
+.guided-input::placeholder{color:var(--t4);font-style:italic;}
+.guided-add-btn{padding:0 14px;border-radius:8px;border:1px solid rgba(235,238,245,.22);background:rgba(255,255,255,.04);color:rgba(235,238,245,.88);font-family:var(--font);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all 180ms ease;}
+.guided-add-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(235,238,245,.36);}
+.guided-drafts{display:flex;flex-direction:column;gap:5px;margin-bottom:18px;max-height:32vh;overflow-y:auto;padding-right:3px;}
+.guided-task-row{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.025);border:1px solid var(--border-lo);border-radius:7px;font-size:.66rem;color:var(--t1);animation:guided-row-in .26s ease;}
+@keyframes guided-row-in{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:translateX(0)}}
+.guided-task-row-idx{font-size:.5rem;color:var(--t4);min-width:14px;text-align:right;letter-spacing:.04em;}
+.guided-task-row-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.guided-task-row-del{background:none;border:none;color:var(--t4);cursor:pointer;padding:2px 4px;font-family:var(--font);font-size:.7rem;line-height:1;transition:color 160ms ease;}
+.guided-task-row-del:hover{color:rgba(195,150,90,.8);}
+.guided-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.guided-btn{flex:1;min-width:90px;padding:11px 14px;font-family:var(--font);font-size:.58rem;letter-spacing:.12em;text-transform:uppercase;border-radius:8px;cursor:pointer;transition:all 180ms ease;border:1px solid var(--border);background:transparent;color:var(--t2);}
+.guided-btn:hover{border-color:rgba(235,238,245,.28);color:var(--t1);}
+.guided-btn.primary{background:rgba(235,238,245,.08);border-color:rgba(235,238,245,.32);color:rgba(235,238,245,.94);}
+.guided-btn.primary:hover{background:rgba(235,238,245,.14);border-color:rgba(235,238,245,.48);}
+.guided-btn.ghost{flex:0 0 auto;background:transparent;border:none;color:var(--t3);padding:11px 8px;}
+.guided-btn.ghost:hover{color:var(--t2);}
+.guided-progress{display:flex;align-items:center;gap:8px;margin-bottom:14px;font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);}
+.guided-progress-bar{flex:1;height:2px;background:rgba(255,255,255,.05);border-radius:1px;overflow:hidden;}
+.guided-progress-fill{height:100%;background:rgba(235,238,245,.4);transition:width 280ms ease;}
+
+/* Step 2 — clarification chips */
+.guided-clarify-task{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:9px;padding:13px 14px;margin-bottom:14px;}
+.guided-clarify-title{font-size:.78rem;color:rgba(235,238,245,.94);line-height:1.4;margin-bottom:13px;}
+.guided-chip-group{margin-bottom:14px;}
+.guided-chip-lbl{font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:6px;display:flex;justify-content:space-between;align-items:baseline;}
+.guided-chip-lbl-val{color:var(--t1);text-transform:none;letter-spacing:0;font-size:.58rem;}
+.guided-chips{display:flex;gap:5px;flex-wrap:wrap;}
+.guided-chip{flex:1;min-width:62px;padding:9px 8px;font-family:var(--font);font-size:.56rem;color:var(--t3);background:transparent;border:1px solid var(--border);border-radius:7px;cursor:pointer;transition:all 160ms ease;text-align:center;}
+.guided-chip:hover{border-color:var(--border-hi);color:var(--t2);}
+.guided-chip.on{background:rgba(235,238,245,.06);border-color:rgba(235,238,245,.36);color:rgba(235,238,245,.94);}
+.guided-chip-sub{display:block;font-size:.46rem;color:var(--t4);margin-top:2px;letter-spacing:.04em;}
+
+/* Step 3 — MIT choice list */
+.guided-mit-help{font-size:.58rem;color:var(--t3);line-height:1.6;margin-bottom:12px;font-style:italic;}
+.guided-mit-list{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;max-height:46vh;overflow-y:auto;padding-right:3px;}
+.guided-mit-card{display:flex;align-items:center;gap:11px;padding:11px 13px;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all 180ms ease;text-align:left;}
+.guided-mit-card:hover{background:rgba(255,255,255,.05);border-color:rgba(235,238,245,.24);}
+.guided-mit-card.top{border-color:rgba(235,238,245,.22);background:rgba(235,238,245,.04);box-shadow:0 0 24px -12px rgba(255,255,255,.18);}
+.guided-mit-body{flex:1;min-width:0;}
+.guided-mit-title{font-size:.7rem;color:var(--t1);line-height:1.4;margin-bottom:4px;}
+.guided-mit-meta{font-size:.5rem;color:var(--t3);letter-spacing:.04em;display:flex;gap:10px;flex-wrap:wrap;}
+.guided-mit-score{font-size:.64rem;color:rgba(235,238,245,.85);font-variant-numeric:tabular-nums;padding:4px 9px;border-radius:6px;border:1px solid var(--border-hi);background:rgba(255,255,255,.03);letter-spacing:.04em;}
+.guided-mit-card.top .guided-mit-score{color:rgba(235,238,245,.96);border-color:rgba(235,238,245,.32);}
+
+/* Step 4 — mood quick check */
+.guided-mood-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;font-size:.62rem;color:var(--t2);}
+.guided-mood-lbl{color:var(--t2);}
+.guided-mood-btns{display:flex;gap:4px;}
+.guided-mood-btn{width:27px;height:27px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--t3);font-family:var(--font);font-size:.58rem;cursor:pointer;transition:all 160ms ease;}
+.guided-mood-btn.on{background:rgba(235,238,245,.06);border-color:rgba(235,238,245,.42);color:rgba(235,238,245,.94);}
+
+/* Intro pill in Today (the "Clarifier ta journée ?" prompt) */
+.guided-invite{background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(8,10,15,.96));border:1px solid rgba(255,255,255,.12);border-left:2px solid rgba(255,255,255,.32);border-radius:var(--rl);padding:13px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;animation:guided-row-in .4s ease;}
+.guided-invite-text{flex:1;min-width:140px;}
+.guided-invite-q{font-size:.7rem;color:rgba(235,238,245,.88);line-height:1.45;}
+.guided-invite-sub{font-size:.52rem;color:var(--t3);margin-top:3px;letter-spacing:.04em;}
+.guided-invite-actions{display:flex;gap:6px;}
+.guided-invite-btn{padding:7px 12px;font-family:var(--font);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--t2);cursor:pointer;transition:all 160ms ease;}
+.guided-invite-btn:hover{color:var(--t1);border-color:rgba(235,238,245,.28);}
+.guided-invite-btn.primary{background:rgba(235,238,245,.06);border-color:rgba(235,238,245,.3);color:rgba(235,238,245,.94);}
+.guided-invite-btn.primary:hover{background:rgba(235,238,245,.12);}
+
+/* Permanent "Clarifier" link */
+.guided-trigger-link{display:inline-flex;align-items:center;gap:6px;background:transparent;border:1px solid var(--border);border-radius:20px;padding:5px 11px;font-family:var(--font);font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);cursor:pointer;transition:all 160ms ease;}
+.guided-trigger-link:hover{color:var(--t1);border-color:rgba(235,238,245,.28);}
+
+/* Friction signal — single line under MIT, only when friction detected */
+.friction-line{margin-top:11px;padding-top:9px;border-top:1px solid var(--border-lo);font-size:.58rem;color:var(--t2);line-height:1.6;letter-spacing:.02em;}
+.friction-line strong{color:rgba(190,140,90,.85);font-weight:300;}
+.friction-line.high strong{color:rgba(195,150,90,.82);}
+
+/* Suggested If-Then plan — appears inline when friction is high */
+.friction-plan{margin-top:8px;padding:8px 10px;background:rgba(91,110,232,.04);border:1px solid rgba(91,110,232,.14);border-radius:var(--r);}
+.friction-plan-trig{font-size:.56rem;color:var(--t2);margin-bottom:3px;}
+.friction-plan-trig em{color:var(--t1);font-style:italic;}
+.friction-plan-resp{font-size:.6rem;color:var(--violet);margin-bottom:6px;line-height:1.5;}
+.friction-plan-cta{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;font-family:var(--font);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);background:transparent;border:1px solid rgba(91,110,232,.28);border-radius:20px;cursor:pointer;transition:all 180ms ease;}
+.friction-plan-cta:hover{background:var(--vio-d);border-color:rgba(91,110,232,.5);}
+
+/* Primary action CTA — one per view, attached to MIT */
+.mit-cta-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-lo);}
+.mit-cta{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-family:var(--font);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(220,222,235,.92);background:rgba(91,110,232,.14);border:1px solid rgba(91,110,232,.32);border-radius:var(--r);cursor:pointer;transition:all 200ms ease;}
+.mit-cta:hover{background:rgba(91,110,232,.22);border-color:rgba(91,110,232,.52);}
+.mit-cta svg{width:9px;height:9px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;}
+.mit-cta-note{font-size:.5rem;color:var(--t3);letter-spacing:.04em;}
+
+/* Compact mood — 2 quick rows always visible, rest behind toggle */
+.mood-compact{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);padding:10px 12px;margin-bottom:12px;}
+.mood-compact-hdr{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
+.mood-compact-hdr-lbl{font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);}
+.mood-quick-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px;}
+.mood-quick-lbl{font-size:.56rem;color:var(--t2);}
+.mood-more-toggle{margin-top:8px;padding-top:8px;border-top:1px solid var(--border-lo);background:none;border:none;color:var(--t3);font-family:var(--font);font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:5px;width:100%;justify-content:space-between;}
+.mood-more-toggle:hover{color:var(--t2);}
+.mood-more{display:none;padding-top:8px;}
+.mood-compact.open .mood-more{display:block;}
+.mood-compact.open .mood-more-toggle .chevron{transform:rotate(180deg);}
+
+/* Quote footer — demoted from top to bottom */
+.quote-footer{margin-top:20px;padding:14px 14px 12px;border-top:1px solid var(--border);background:linear-gradient(180deg,transparent,rgba(91,110,232,.04));border-radius:0 0 var(--rl) var(--rl);font-size:.7rem;line-height:1.75;color:rgba(225,230,240,.78);font-style:italic;text-align:center;}
+.quote-footer-auth{display:block;margin-top:6px;color:rgba(155,170,220,.65);font-style:normal;font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;}
+
+/* Analytics segmented bar — Activité vs impact (v3.9) */
+.seg-bar{display:flex;height:8px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.04);margin:10px 0 6px;}
+.seg-bar-cell{position:relative;transition:filter 220ms ease,opacity 220ms ease;}
+.seg-bar-cell.high{background:linear-gradient(180deg,rgba(91,110,232,.65),rgba(91,110,232,.45));}
+.seg-bar-cell.mid {background:linear-gradient(180deg,rgba(210,214,222,.42),rgba(210,214,222,.25));}
+.seg-bar-cell.low {background:linear-gradient(180deg,rgba(195,150,90,.6),rgba(195,150,90,.4));}
+.seg-bar-cell:hover{filter:brightness(1.18);}
+.seg-bar-cell:not(:last-child){border-right:1px solid rgba(8,10,15,.7);}
+.seg-legend{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:6px;font-family:var(--font);font-size:.54rem;letter-spacing:.04em;}
+.seg-legend-item{display:flex;align-items:center;gap:5px;color:var(--t2);}
+.seg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.seg-dot.high{background:rgba(91,110,232,.7);}
+.seg-dot.mid{background:rgba(210,214,222,.45);}
+.seg-dot.low{background:rgba(195,150,90,.65);}
+.seg-pct{color:var(--t3);margin-left:auto;font-variant-numeric:tabular-nums;}
+
+/* Patterns comparison cards — high vs low state with delta (v3.9) */
+.pcomp{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);padding:11px 12px;margin-bottom:6px;transition:border-color 200ms ease;}
+.pcomp:hover{border-color:rgba(255,255,255,.14);}
+.pcomp-hdr{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.pcomp-title{font-size:.66rem;color:var(--t1);letter-spacing:.02em;}
+.pcomp-n{margin-left:auto;font-size:.5rem;color:var(--t4);letter-spacing:.06em;}
+.pcomp-delta{font-size:.5rem;padding:1px 6px;border-radius:10px;letter-spacing:.04em;font-variant-numeric:tabular-nums;border:1px solid var(--border-hi);background:rgba(255,255,255,.03);color:var(--t2);}
+.pcomp-delta.pos{color:rgba(91,110,232,.92);border-color:rgba(91,110,232,.32);background:rgba(91,110,232,.06);}
+.pcomp-delta.neg{color:rgba(210,160,100,.92);border-color:rgba(195,150,90,.34);background:rgba(195,150,90,.06);}
+.pcomp-rows{display:flex;flex-direction:column;gap:4px;margin-top:5px;}
+.pcomp-row{display:grid;grid-template-columns:54px 1fr 38px;align-items:center;gap:8px;font-size:.54rem;color:var(--t3);letter-spacing:.04em;}
+.pcomp-row-lbl{text-transform:uppercase;letter-spacing:.1em;color:var(--t4);}
+.pcomp-row-track{height:5px;border-radius:2px;background:rgba(255,255,255,.04);overflow:hidden;}
+.pcomp-row-fill{height:100%;transition:filter 200ms ease;}
+.pcomp[data-tint="cool"] .pcomp-row.high .pcomp-row-fill{background:linear-gradient(90deg,rgba(210,214,222,.35),rgba(91,110,232,.7));}
+.pcomp[data-tint="cool"] .pcomp-row.low  .pcomp-row-fill{background:rgba(210,214,222,.22);}
+.pcomp[data-tint="warm"] .pcomp-row.high .pcomp-row-fill{background:linear-gradient(90deg,rgba(210,214,222,.35),rgba(195,150,90,.7));}
+.pcomp[data-tint="warm"] .pcomp-row.low  .pcomp-row-fill{background:rgba(210,214,222,.22);}
+.pcomp-row-val{text-align:right;color:var(--t2);font-variant-numeric:tabular-nums;}
+.pcomp-row.high .pcomp-row-val{color:var(--t1);}
+.pcomp-insight{font-size:.55rem;color:var(--t2);line-height:1.55;margin-top:7px;letter-spacing:.02em;}
+.pcomp-insight strong{color:var(--t1);font-weight:500;}
+
+/* If-Then autonomous section (v3.7) — separated from MIT-hero */
+.ifthen-section{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rl);padding:12px 14px;margin-bottom:14px;}
+.ifthen-section-hdr{display:flex;align-items:center;gap:7px;margin-bottom:10px;}
+.ifthen-section-hdr svg{width:11px;height:11px;stroke:var(--t3);}
+.ifthen-section-lbl{font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--t2);}
+.ifthen-count-pill{margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:.5rem;padding:2px 4px 2px 9px;border-radius:20px;background:rgba(255,255,255,.04);color:var(--t1);border:1px solid rgba(230,232,238,.18);letter-spacing:.02em;}
+.ifthen-count-pill strong{font-weight:500;}
+.ifthen-undo{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;border:1px solid var(--border-hi);background:transparent;color:var(--t2);font-family:var(--font);font-size:.7rem;line-height:1;cursor:pointer;padding:0;transition:all 160ms ease;margin-left:2px;}
+.ifthen-undo:hover{border-color:rgba(195,150,90,.5);color:rgba(195,150,90,.92);background:rgba(195,150,90,.06);}
+.ifthen-empty{font-size:.58rem;color:var(--t3);line-height:1.6;padding:6px 0;font-style:italic;}
+
+/* Info bubbles — discreet rule reminders per section (v3.6) */
+.info-bubble{position:relative;display:inline-flex;align-items:center;justify-content:center;width:13px;height:13px;border-radius:50%;border:1px solid var(--border-hi);background:transparent;color:var(--t3);font-family:var(--font);font-size:.5rem;cursor:help;margin-left:6px;transition:color 160ms ease,border-color 160ms ease;flex-shrink:0;vertical-align:middle;}
+.info-bubble:hover,.info-bubble:focus{color:var(--t1);border-color:rgba(255,255,255,.22);outline:none;}
+.info-bubble[data-tip]:hover::after,.info-bubble[data-tip]:focus::after{content:attr(data-tip);position:absolute;top:calc(100% + 6px);left:50%;transform:translateX(-50%);background:rgba(8,10,15,.97);border:1px solid var(--border-hi);border-radius:4px;padding:7px 10px;font-size:.58rem;line-height:1.55;font-family:var(--font);font-style:normal;color:rgba(228,232,242,.86);white-space:normal;width:max-content;max-width:220px;text-align:left;letter-spacing:0;text-transform:none;z-index:50;pointer-events:none;box-shadow:0 4px 18px rgba(0,0,0,.42);}
+.info-bubble[data-tip]:hover::before,.info-bubble[data-tip]:focus::before{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%) translateY(2px);border:5px solid transparent;border-bottom-color:rgba(255,255,255,.09);z-index:51;pointer-events:none;}
+
+/* Recovery pip — STATIC, green-only, win indicator (never shame) */
+.nav-pip-slot{display:inline-flex;align-items:center;justify-content:center;width:8px;height:8px;margin-left:6px;vertical-align:middle;}
+.nav-pip{width:6px;height:6px;border-radius:50%;background:var(--win);box-shadow:0 0 6px rgba(255,255,255,.35);}
+.nav-pip[hidden]{display:none;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <svg class="nav-logo" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/><line x1="12" y1="2.5" x2="12" y2="8.5"/><line x1="12" y1="15.5" x2="12" y2="21.5"/><line x1="2.5" y1="12" x2="8.5" y2="12"/><line x1="15.5" y1="12" x2="21.5" y2="12"/></svg>
+    <div><div class="nav-name">Mindway<span class="nav-pip-slot" aria-label="État de récupération"><span class="nav-pip" id="nav-pip" hidden role="img" aria-label="Journée gagnante"></span></span></div><div class="nav-sub">organize your mind without pressure</div></div>
+  </div>
+  <div class="nav-date" id="nav-date"></div>
+</nav>
+
+<!-- PAGES -->
+<main class="main">
+  <div id="pg-today"   class="page on"><div id="today-in"></div></div>
+  <div id="pg-plans"   class="page"><div id="plans-in"></div></div>
+  <div id="pg-hist"    class="page"><div id="hist-in"></div></div>
+  <div id="pg-dash"    class="page"><div id="dash-in"></div></div>
+</main>
+
+<!-- TAB BAR -->
+<nav class="tab-bar">
+  <button class="tab-btn on" data-pg="pg-today" onclick="goPage('pg-today')">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span>Jour</span>
+  </button>
+  <button class="tab-btn" data-pg="pg-plans" onclick="goPage('pg-plans')">
+    <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><span>Plans</span>
+  </button>
+  <button class="tab-btn" data-pg="pg-hist" onclick="goPage('pg-hist')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>Hist.</span>
+  </button>
+  <button class="tab-btn" data-pg="pg-dash" onclick="goPage('pg-dash')">
+    <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span>Patterns</span>
+  </button>
+</nav>
+
+<!-- OVERLAY -->
+<div id="day-ov" class="overlay">
+  <div class="ov-hdr">
+    <div class="ov-title" id="ov-title">—</div>
+    <button class="ov-close" onclick="closeOv()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  </div>
+  <div class="ov-body" id="ov-body"></div>
+</div>
+<div id="toast" class="toast"></div>
+<div id="guided-root" class="guided-overlay" onclick="guidedOverlayClick(event)"></div>
+</div>
+
+<script>
+/* ============================================================
+   MINDWAY v2 — Enhanced cognitive journal
+   Additions: If-Then, anti-dispersion score, recovery score,
+   pattern detection, concept hints, charts, auto-sort tasks
+============================================================ */
+
+/* ============================================================
+   PRINCIPLES — DO NOT REINTRODUCE (locked by /autoplan review)
+   • No streak counter — chain anxiety reinforces procrastination
+   • No notifications / push — Mindway is opened intentionally
+   • No AI MIT suggestions — defining priority IS the cognitive work
+   • No weekly/monthly email reports — passive observation isn't the product
+   These guardrails came from CEO + Design + Eng review (2026-05-11).
+   See ~/.gstack/projects/mindway/autoplan-plan-*-APPROVED.md
+============================================================ */
+
+/* ── STORAGE KEYS ── */
+const SK = 'mindway_v1';
+const IT_SK = 'mindway_it_v1';
+
+/* ── STATE ── */
+let DAYS = {};
+let STRATEGIES = [];
+let OV_DATE = null;
+let CI_OPEN = false;
+let IT_OPEN = false;
+let HF = '30';
+let DF = '30';
+
+/* ── CONFIG ── */
+const METRICS = [
+  {k:'humeur',l:'Humeur'},{k:'energie',l:'Énergie'},{k:'stress',l:'Stress'},
+  {k:'clarte',l:'Clarté mentale'},{k:'motivation',l:'Motivation'},
+  {k:'optimisme',l:'Optimisme'},
+  {k:'dispersion',l:'Dispersion'}
+];
+
+/* MOOD definitions — sober one-liners shown via info-bubble on each metric (v3.7) */
+const MOOD_DEFS={
+  humeur:    "Ton état affectif global (1 péjoré · 5 top). Lecture brute, pas un jugement.",
+  energie:   "Disponibilité physique et mentale du moment (1 épuisé · 5 plein).",
+  stress:    "Tension cognitive ou émotionnelle ressentie maintenant.",
+  clarte:    "Capacité à voir nettement tes priorités. Levier le plus direct vers l'action.",
+  motivation:"Envie d'entamer ou de poursuivre. Distincte de la clarté.",
+  optimisme: "Confiance que l'effort en vaut la peine — sentiment que la journée peut aboutir.",
+  dispersion:"Attention fragmentée vs concentrée (1 focus · 5 éparpillé).",
+};
+const ALL_TAGS = ['fatigue','anxiété','brouillard mental','motivation élevée','surcharge cognitive','pression extérieure','tendance à éviter','bonne concentration','impulsivité','fatigue sociale','état créatif','besoin de récupération'];
+
+/* v3.10 — Tag → pattern de citation (utilisé par "Contextes associés") */
+const TAG_TO_PATTERN={
+  'fatigue':                'low_energy_mit_success',
+  'besoin de récupération': 'low_energy_mit_success',
+  'fatigue sociale':        'low_energy_mit_success',
+  'anxiété':                'antifragile_day',
+  'surcharge cognitive':    'high_dispersion_low_mit',
+  'pression extérieure':    'antifragile_day',
+  'tendance à éviter':      'high_impact_avoidance',
+  'impulsivité':            'micro_tasks_over_mit',
+  'brouillard mental':      'high_dispersion_low_mit',
+  'bonne concentration':    'high_clarity_success',
+  'motivation élevée':      'optimisme_high',
+  'état créatif':           'high_clarity_success',
+};
+const CONCEPTS = {
+  mit: {short:"La priorité du jour est la tâche qui rend la journée gagnante, même si rien d'autre n'est accompli.", full:"Une journée gagnante n'est pas une journée parfaite. C'est une journée où l'essentiel a été honoré. Les autres tâches sont du bonus."},
+  secondary: {short:"Trois tâches de 45 minutes représentent déjà plus de deux heures d'avancement réel.", full:"Elles permettent de construire une progression solide sans transformer la journée en surcharge. Triées automatiquement par impact + urgence."},
+  micro: {short:"Les micro-tâches maintiennent l'élan — mais ne doivent pas remplacer la priorité centrale.", full:"Elles réduisent la friction d'entrée dans l'action, surtout les jours où l'énergie ou la clarté sont plus faibles."},
+  impact: {short:"L'impact mesure ce qui fait réellement avancer ta journée ou tes objectifs.", full:"Une tâche à fort impact (I=3) change quelque chose d'important. Une tâche à faible impact (I=0) reste utile mais ne fait pas progresser l'essentiel."},
+  urgence: {short:"L'urgence mesure ce qui nécessite une attention rapide.", full:"Une tâche urgente sans impact fort peut être déléguée ou regroupée. La combinaison impact élevé + urgence élevée = priorité maximale."},
+  ifthen: {short:"Un If Then prépare une réponse simple à une dérive récurrente. L'objectif n'est pas d'éviter toute dispersion, mais de revenir plus vite à l'action.", full:"Si un comportement revient souvent, le plan aide à prévoir une action courte pour se recentrer. Le nombre d'activations n'est pas un signe d'échec — c'est une mesure de retour à l'action."},
+  mood: {short:"Évaluer ton état d'esprit permet de relier tes journées gagnantes à tes conditions mentales réelles.", full:"L'objectif n'est pas de juger ton humeur, mais d'observer quels états favorisent la clarté, la priorité et le retour à l'action. Ces données permettent ensuite d'identifier des patterns personnels."},
+  antifrg: {short:"Une journée antifragile est une journée où une difficulté a été traversée sans perdre l'essentiel.", full:"Le but n'est pas d'éviter toutes les dérives, mais de raccourcir leur durée, revenir à l'action et apprendre des patterns. La friction mentale devient une donnée utile."},
+  score: {short:"Le score aide à clarifier les priorités sans transformer la journée en compétition.", full:"Impact + Urgence = score de tâche (0–6). Le score de journée mesure la part des points possibles réellement accomplie."},
+};
+
+/* ── UTILS ── */
+const $ = id => document.getElementById(id);
+const uid = () => Math.random().toString(36).slice(2,9);
+const cl = (v,a,b) => Math.max(a,Math.min(b,v));
+const esc = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const todayISO = () => new Date().toISOString().slice(0,10);
+const fmtL = d => new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const fmtM = d => new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'});
+const fmtS = d => new Date(d+'T12:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+
+function toast(msg,ms=2000){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),ms);}
+function togHint(id){const e=$(id);if(e)e.style.display=e.style.display==='none'?'block':'none';}
+function hintBtn(id){return `<button class="hint-btn" onclick="togHint('hw-${id}')">i</button>`;}
+function hintWrap(id,text){return `<div class="hint-wrap" id="hw-${id}" style="display:none">${text}</div>`;}
+
+/* ── STORAGE ── */
+function saveDays(){localStorage.setItem(SK,JSON.stringify(DAYS));}
+function loadDays(){try{const r=localStorage.getItem(SK);if(r)DAYS=JSON.parse(r);}catch(e){DAYS={};setTimeout(()=>{try{toast("Données corrompues — sauvegarde introuvable");}catch(_){}}, 800);}}
+function saveStrategies(){localStorage.setItem(IT_SK,JSON.stringify(STRATEGIES));}
+function loadStrategies(){try{const r=localStorage.getItem(IT_SK);if(r)STRATEGIES=JSON.parse(r);}catch(e){STRATEGIES={};}}
+function getDay(date){if(!DAYS[date])DAYS[date]=mkDay(date);return DAYS[date];}
+function mkDay(date){return{id:date,date,mood:{humeur:3,energie:3,stress:3,clarte:3,motivation:3,optimisme:3,dispersion:3},tags:[],tasks:[],ifThens:[],dailyNote:'',quoteId:null,guidedDismissed:false,guidedCompleted:false,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};}
+/* Time caps & defaults (v3.6) — anti-procrastination via budget */
+const TIME_CAP={MIT:120, SECONDARY:45, MICRO:10};        // plafond max accepté
+const TIME_DEFAULT={MIT:60, SECONDARY:45, MICRO:10};     // valeur par défaut
+const MIT_TIME_OPTIONS=[30,45,60,90,120];                // sélecteur priorité
+
+function fmtMin(m){
+  if(!m||m<60)return `${m||0} min`;
+  const h=Math.floor(m/60),r=m%60;
+  return r? `${h}h${String(r).padStart(2,'0')}` : `${h}h`;
+}
+
+function migrateDays(){
+  // Backup before any structural migration
+  try{const raw=localStorage.getItem(SK);if(raw){const bk='mindway_backup_before_ifthen_migration_'+Date.now();localStorage.setItem(bk,raw);}}catch(e){}
+  // Migrate old ifThen entries: add count:1 if missing
+  Object.values(DAYS).forEach(d=>{
+    if(!d.ifThens)d.ifThens=[];
+    d.ifThens.forEach(a=>{
+      if(a.count===undefined)a.count=1;
+      if(a.lastActivatedAt===undefined)a.lastActivatedAt=a.activatedAt||new Date().toISOString();
+    });
+    // v3.6 — backfill timeEstimate on legacy tasks
+    (d.tasks||[]).forEach(t=>{
+      if(t.t===undefined||t.t===null) t.t=TIME_DEFAULT[t.type]||TIME_DEFAULT.SECONDARY;
+      // Enforce caps for SEC/MICRO (locked)
+      if(t.type==='SECONDARY'&&t.t>TIME_CAP.SECONDARY) t.t=TIME_CAP.SECONDARY;
+      if(t.type==='MICRO'&&t.t>TIME_CAP.MICRO) t.t=TIME_CAP.MICRO;
+    });
+    // v3.7 — backfill optimisme metric (default mid-range)
+    if(d.mood && d.mood.optimisme===undefined) d.mood.optimisme=3;
+    // v3.11 — backfill Guided Brain Dump flags
+    if(d.guidedDismissed===undefined) d.guidedDismissed=false;
+    if(d.guidedCompleted===undefined) d.guidedCompleted=false;
+  });
+}
+
+/* ── SCORE ── */
+function calcScore(day){
+  const tasks=day.tasks||[];
+  if(!tasks.length)return{tot:0,done:0,pct:0,mitDone:false,status:'empty',af:false};
+  const mit=tasks.find(t=>t.type==='MIT');
+  const mitDone=mit?mit.completed:false;
+  const tot=tasks.reduce((s,t)=>s+(t.impact||0)+(t.urgency||0),0);
+  const done=tasks.filter(t=>t.completed).reduce((s,t)=>s+(t.impact||0)+(t.urgency||0),0);
+  const pct=tot>0?Math.round(done/tot*100):0;
+  const af=mitDone&&(day.mood.energie<=2||day.mood.stress>=4||(day.mood.dispersion||0)>=4);
+  let status='empty';
+  if(tasks.length){if(!mitDone)status='ongoing';else if(pct>=80)status='optimized';else status='winning';}
+  return{tot,done,pct,mitDone,status,af};
+}
+
+function calcRecovery(day){
+  const sc=calcScore(day);
+  const acts=day.ifThens||[];
+  let s=0;
+  if(acts.length>0)s+=1;
+  if(acts.some(a=>a.effectivenessScore>=2))s+=1;
+  if(sc.mitDone&&(day.mood.dispersion>=4||day.mood.stress>=4))s+=1;
+  return s; // 0-3
+}
+
+function calcAntiDisp(day){
+  const acts=day.ifThens||[];
+  if(!acts.length)return null;
+  const eff=acts.filter(a=>(a.effectivenessScore||0)>=2).length;
+  const helped=acts.filter(a=>a.helpedReturnToAction).length;
+  return Math.min(100,Math.round((eff/acts.length)*80+(helped>0?20:0)));
+}
+
+/* ── TASK SORT ── */
+function sortTasks(tasks){
+  const mit=tasks.filter(t=>t.type==='MIT');
+  const sec=tasks.filter(t=>t.type==='SECONDARY').sort((a,b)=>((b.impact||0)+(b.urgency||0))-((a.impact||0)+(a.urgency||0)));
+  const micro=tasks.filter(t=>t.type==='MICRO').sort((a,b)=>((b.impact||0)+(b.urgency||0))-((a.impact||0)+(a.urgency||0)));
+  return[...mit,...sec,...micro];
+}
+
+/* ── PATTERN DETECTION ── */
+function detectPatterns(day){
+  const sc=calcScore(day),tasks=day.tasks||[],mood=day.mood,acts=day.ifThens||[],pats=[];
+  if(mood.clarte>=4&&sc.mitDone)pats.push('high_clarity_success');
+  if(mood.dispersion>=4&&!sc.mitDone)pats.push('high_dispersion_low_mit');
+  if(mood.dispersion>=4&&acts.length>0)pats.push('strategy_used_high_dispersion');
+  if(mood.energie<=2&&sc.mitDone)pats.push('low_energy_mit_success');
+  if(mood.energie<=2&&acts.length>0)pats.push('strategy_used_low_energy');
+  // resistance metric removed v3.8 — patterns no longer evaluated
+  const microDone=tasks.filter(t=>t.type==='MICRO'&&t.completed).length;
+  const mitAcc=tasks.find(t=>t.type==='MIT');
+  if(microDone>=3&&(!mitAcc||!mitAcc.completed))pats.push('micro_tasks_over_mit');
+  const doneTasks=tasks.filter(t=>t.completed);
+  const hiDone=doneTasks.filter(t=>(t.impact||0)>=2).length;
+  const loDone=doneTasks.filter(t=>(t.impact||0)<=1).length;
+  const hiNotDone=tasks.filter(t=>!t.completed&&(t.impact||0)>=2).length;
+  if(doneTasks.length>=3&&loDone>hiDone)pats.push('low_impact_productivity');
+  if(hiNotDone>=2&&loDone>=1)pats.push('high_impact_avoidance');
+  if(acts.length>0)pats.push('if_then_used');
+  if(!acts.length&&mood.dispersion>=4)pats.push('if_then_unused');
+  if(acts.some(a=>(a.effectivenessScore||0)>=2))pats.push('if_then_effective');
+  if(acts.some(a=>a.helpedReturnToAction)&&sc.mitDone)pats.push('strategy_helped_mit');
+  if(sc.af)pats.push('antifragile_day');
+  // Antifragile with If Then: high dispersion + strategy used + MIT done
+  if(mood.dispersion>=4&&acts.length>0&&sc.mitDone)pats.push('antifragile_ifthen');
+  return pats;
+}
+
+/* ── QUOTES — bibliothèque diversifiée ── */
+const QUOTES=[
+  /* ════════════════════════════════════════════════════════════
+     Dictionnaire v3.10 — 102 citations · 14 catégories
+     Patterns valides : high_clarity_success, high_dispersion_low_mit,
+       low_energy_mit_success, micro_tasks_over_mit, high_impact_avoidance,
+       low_impact_productivity, antifragile_day, if_then_effective,
+       if_then_used, strategy_helped_mit, strategy_used_high_dispersion,
+       strategy_used_low_energy, optimisme_high (v3.10)
+  ════════════════════════════════════════════════════════════ */
+
+  /* Stoïcisme · stabilité */
+  {id:'q01',text:"Qui poursuit deux lièvres n'en attrape aucun.",author:"Proverbe latin",cat:'stoicisme',p:['high_dispersion_low_mit','micro_tasks_over_mit']},
+  {id:'q02',text:"Ce qui fait obstacle à l'action fait avancer l'action.",author:"Marc Aurèle",cat:'stoicisme',p:['antifragile_day','high_impact_avoidance']},
+  {id:'q03',text:"Commence par le nécessaire, puis le possible. Bientôt tu feras l'impossible.",author:"François d'Assise",cat:'stoicisme',p:['high_impact_avoidance','low_energy_mit_success']},
+  {id:'q04',text:"Il n'y a pas de vents favorables pour celui qui ne sait pas où il va.",author:"Sénèque",cat:'stoicisme',p:['micro_tasks_over_mit','low_impact_productivity']},
+  {id:'q05',text:"Ne te bats pas contre ce que tu ne contrôles pas. Agis sur ce que tu peux.",author:"Épictète",cat:'stoicisme',p:['high_dispersion_low_mit']},
+  {id:'q06',text:"Aucun vent n'est bon pour qui ne sait où il va.",author:"Sénèque",cat:'stoicisme',p:['low_impact_productivity']},
+  {id:'q07',text:"Si tu veux quelque chose, accepte-le aussi tel qu'il vient.",author:"Épictète",cat:'stoicisme',p:[]},
+  {id:'q08',text:"L'âme se teint de la couleur de tes pensées.",author:"Marc Aurèle",cat:'stoicisme',p:[]},
+  {id:'q09',text:"Le plus pauvre n'est pas celui qui possède peu, mais celui qui désire trop.",author:"Sénèque",cat:'stoicisme',p:['high_dispersion_low_mit']},
+
+  /* Sagesse asiatique */
+  {id:'q10',text:"La nature ne se presse pas, pourtant tout est accompli.",author:"Lao Tseu",cat:'sagesse_asiatique',p:['low_energy_mit_success']},
+  {id:'q11',text:"Un voyage de mille lieues commence toujours par un premier pas.",author:"Lao Tseu",cat:'sagesse_asiatique',p:['high_impact_avoidance']},
+  {id:'q12',text:"Le repos fait partie du travail.",author:"Confucius",cat:'sagesse_asiatique',p:['low_energy_mit_success']},
+  {id:'q13',text:"Avancer, même lentement, vaut mieux que rester immobile.",author:"Confucius",cat:'sagesse_asiatique',p:['low_energy_mit_success']},
+  {id:'q14',text:"Pas d'acier toujours tranchant, pas d'humain toujours fort.",author:"Proverbe chinois",cat:'sagesse_asiatique',p:['low_energy_mit_success','antifragile_day']},
+  {id:'q15',text:"Le bambou plie, mais ne cède pas.",author:"Proverbe japonais",cat:'sagesse_asiatique',p:['antifragile_day']},
+  {id:'q16',text:"Tomber sept fois, se relever huit.",author:"Proverbe japonais",cat:'sagesse_asiatique',p:['antifragile_day','strategy_helped_mit']},
+  {id:'q17',text:"Connais ton ennemi, connais-toi toi-même. Cent batailles, aucun danger.",author:"Sun Tzu",cat:'sagesse_asiatique',p:['high_dispersion_low_mit']},
+  {id:'q18',text:"Sans stratégie, l'exécution est inutile. Sans exécution, la stratégie ne sert à rien.",author:"Morris Chang",cat:'sagesse_asiatique',p:['micro_tasks_over_mit','low_impact_productivity']},
+  {id:'q19',text:"L'eau ne lutte pas contre les pierres — elle les contourne et finit par les user.",author:"Miyamoto Musashi",cat:'sagesse_asiatique',p:['antifragile_day']},
+  {id:'q20',text:"Le mont Fuji ne se moque pas des passants qui marchent lentement.",author:"Proverbe japonais",cat:'sagesse_asiatique',p:['low_energy_mit_success']},
+
+  /* Poésie persane */
+  {id:'q21',text:"Lève-toi et agis avant que ta vie ne passe dans l'attente.",author:"Rûmî",cat:'poesie_persane',p:['high_impact_avoidance']},
+  {id:'q22',text:"N'épuise pas ton âme à pourchasser ce que le monde t'a refusé.",author:"Rûmî",cat:'poesie_persane',p:['high_dispersion_low_mit']},
+  {id:'q23',text:"L'instant présent est ta seule demeure.",author:"Omar Khayyam",cat:'poesie_persane',p:['high_dispersion_low_mit']},
+  {id:'q24',text:"Ce que tu cherches te cherche aussi.",author:"Rûmî",cat:'poesie_persane',p:['high_clarity_success']},
+  {id:'q25',text:"La blessure est l'endroit où la lumière entre.",author:"Rûmî",cat:'poesie_persane',p:['antifragile_day']},
+  {id:'q26',text:"Hier je voulais changer le monde. Aujourd'hui je me change moi-même.",author:"Rûmî",cat:'poesie_persane',p:['optimisme_high','high_clarity_success']},
+
+  /* Poésie arabe · francophone */
+  {id:'q27',text:"Je marche parce qu'il n'y a rien d'autre que le chemin.",author:"Mahmoud Darwich",cat:'poesie_arabe',p:['antifragile_day']},
+  {id:'q28',text:"Ton cœur connaît en silence les secrets de tes jours.",author:"Khalil Gibran",cat:'poesie_arabe',p:['high_clarity_success']},
+  {id:'q29',text:"La douleur brise la coquille qui entoure ta compréhension.",author:"Khalil Gibran",cat:'poesie_arabe',p:['antifragile_day']},
+  {id:'q30',text:"Si tu veux marcher vite, va seul. Si tu veux aller loin, marche avec d'autres.",author:"Proverbe africain",cat:'poesie_arabe',p:[]},
+
+  /* Science · exploration */
+  {id:'q31',text:"Dans la vie, rien n'est à craindre, tout est à comprendre.",author:"Marie Curie",cat:'science',p:['high_clarity_success','optimisme_high']},
+  {id:'q32',text:"Les erreurs ne sont pas des fautes — elles sont les conséquences du fait d'agir.",author:"Carl Sagan",cat:'science',p:['antifragile_day']},
+  {id:'q33',text:"Je préfère avoir des questions sans réponse que des réponses sans question.",author:"Richard Feynman",cat:'science',p:['high_clarity_success']},
+  {id:'q34',text:"L'imagination est plus importante que la connaissance.",author:"Einstein",cat:'science',p:['optimisme_high']},
+  {id:'q35',text:"Au milieu de l'hiver j'ai découvert en moi un invincible été.",author:"Albert Camus",cat:'science',p:['optimisme_high','antifragile_day']},
+
+  /* Création · art */
+  {id:'q36',text:"Un seul pas suffit à entrer dans la lumière.",author:"René Char",cat:'creation',p:['low_energy_mit_success','high_impact_avoidance']},
+  {id:'q37',text:"La clarté d'esprit est le luxe le plus rare.",author:"René Char",cat:'creation',p:['high_clarity_success']},
+  {id:'q38',text:"L'art n'est pas un miroir pour refléter le monde, mais un marteau pour le forger.",author:"Bertolt Brecht",cat:'creation',p:['antifragile_day']},
+  {id:'q39',text:"On ne voit bien qu'avec le cœur. L'essentiel est invisible pour les yeux.",author:"Saint-Exupéry",cat:'creation',p:['micro_tasks_over_mit']},
+  {id:'q40',text:"L'art lave notre âme de la poussière du quotidien.",author:"Picasso",cat:'creation',p:[]},
+  {id:'q41',text:"Inspire-toi de tout, n'imite personne.",author:"Léonard de Vinci",cat:'creation',p:['high_clarity_success']},
+
+  /* Philosophie humaniste */
+  {id:'q42',text:"On est souvent plus capable qu'on ne le croit, et souvent plus fatigué.",author:"Marcel Proust",cat:'philosophie',p:['low_energy_mit_success','antifragile_day']},
+  {id:'q43',text:"Fais ce que tu dois, advienne ce qui pourra.",author:"Montaigne",cat:'philosophie',p:['high_impact_avoidance']},
+  {id:'q44',text:"La vraie générosité envers l'avenir consiste à tout donner au présent.",author:"Albert Camus",cat:'philosophie',p:['high_dispersion_low_mit']},
+  {id:'q45',text:"Choisir, c'est renoncer.",author:"André Gide",cat:'philosophie',p:['high_dispersion_low_mit','low_impact_productivity']},
+  {id:'q46',text:"Trouver une raison de continuer — c'est le seul vrai problème.",author:"Albert Camus",cat:'philosophie',p:['antifragile_day']},
+  {id:'q47',text:"Ce qu'on appelle obstacle n'est souvent qu'une direction différente.",author:"Rainer Maria Rilke",cat:'philosophie',p:['antifragile_day']},
+  {id:'q48',text:"Vivre, c'est se transformer.",author:"Henri Bergson",cat:'philosophie',p:['optimisme_high']},
+
+  /* Psychologie · cognition */
+  {id:'q49',text:"Agis comme si ce que tu fais faisait une différence. Ça en fait une.",author:"William James",cat:'psychologie',p:['strategy_used_low_energy','strategy_helped_mit','optimisme_high']},
+  {id:'q50',text:"La connaissance de soi-même est le commencement de toute sagesse.",author:"Aristote",cat:'psychologie',p:[]},
+  {id:'q51',text:"Ce que tu résistes, tu le renforces. Ce que tu acceptes, tu peux le traverser.",author:"Carl Gustav Jung",cat:'psychologie',p:['antifragile_day']},
+  {id:'q52',text:"Entre le stimulus et la réponse, il y a un espace. Dans cet espace, notre liberté.",author:"Viktor Frankl",cat:'psychologie',p:['strategy_helped_mit','antifragile_day']},
+  {id:'q53',text:"L'attention est la forme la plus rare et la plus pure de la générosité.",author:"Simone Weil",cat:'psychologie',p:['high_clarity_success']},
+
+  /* Antifragilité */
+  {id:'q54',text:"Les grandes œuvres ne se font pas par la force, mais par la persévérance.",author:"Samuel Johnson",cat:'antifragilite',p:['antifragile_day']},
+  {id:'q55',text:"L'obstacle est le chemin.",author:"Zhuangzi",cat:'antifragilite',p:['antifragile_day']},
+  {id:'q56',text:"Les journées qui font peur au lever sont souvent les plus riches.",author:"Anonyme",cat:'antifragilite',p:['antifragile_day']},
+  {id:'q57',text:"Ce qui ne me détruit pas me rend plus fort.",author:"Friedrich Nietzsche",cat:'antifragilite',p:['antifragile_day','strategy_helped_mit']},
+  {id:'q58',text:"Le vent ne brise pas l'arbre qui sait plier.",author:"Proverbe africain",cat:'antifragilite',p:['antifragile_day']},
+
+  /* Proverbes */
+  {id:'q59',text:"La forêt ne serait pas si silencieuse si aucun oiseau n'osait chanter le premier.",author:"Proverbe africain",cat:'proverbes',p:['high_impact_avoidance']},
+  {id:'q60',text:"L'eau dormante creuse la roche.",author:"Proverbe arabe",cat:'proverbes',p:['low_energy_mit_success','antifragile_day']},
+  {id:'q61',text:"Petit à petit, l'oiseau fait son nid.",author:"Proverbe français",cat:'proverbes',p:['low_energy_mit_success']},
+  {id:'q62',text:"Mieux vaut allumer une bougie que maudire l'obscurité.",author:"Proverbe chinois",cat:'proverbes',p:['high_impact_avoidance','optimisme_high']},
+
+  /* ════ v3.10 — Voix contemporaines ════ */
+  {id:'q63',text:"Le présent est tout ce que nous avons à offrir. Et c'est bien suffisant.",author:"Christian Bobin",cat:'contemporain',p:['high_dispersion_low_mit']},
+  {id:'q64',text:"La beauté simple suffit. Le reste est commentaire.",author:"Christian Bobin",cat:'contemporain',p:[]},
+  {id:'q65',text:"Ce qui guérit la peur, c'est l'attention.",author:"Pascal Quignard",cat:'contemporain',p:['high_clarity_success']},
+  {id:'q66',text:"Quoi que vous fassiez, faites-le avec la sensation que c'est la dernière fois.",author:"Fernando Pessoa",cat:'contemporain',p:['high_clarity_success','high_impact_avoidance']},
+  {id:'q67',text:"Si tout est perdu, alors commençons par retrouver le silence.",author:"Pascal Quignard",cat:'contemporain',p:['antifragile_day']},
+  {id:'q68',text:"Cesse de courir, le monde te rattrapera.",author:"Christian Bobin",cat:'contemporain',p:['high_dispersion_low_mit','micro_tasks_over_mit']},
+  {id:'q69',text:"Le réel résiste, et c'est précisément ce qui le rend précieux.",author:"Fernando Pessoa",cat:'contemporain',p:['antifragile_day']},
+  {id:'q70',text:"La lenteur protège la pensée des bruits du monde.",author:"Christian Bobin",cat:'contemporain',p:['low_energy_mit_success']},
+
+  /* ════ Optimisme · confiance · élan ════ */
+  {id:'q71',text:"Ce qui compte n'est pas ce que la vie t'apporte, mais ce que tu y apportes.",author:"Antoine de Saint-Exupéry",cat:'optimisme',p:['optimisme_high']},
+  {id:'q72',text:"L'optimisme est la foi qui mène à la réussite. Rien ne peut se faire sans espoir.",author:"Helen Keller",cat:'optimisme',p:['optimisme_high']},
+  {id:'q73',text:"Garde ta capacité à t'émerveiller — c'est ton vrai capital.",author:"Mary Oliver",cat:'optimisme',p:['optimisme_high']},
+  {id:'q74',text:"Le pessimisme est d'humeur, l'optimisme est de volonté.",author:"Alain",cat:'optimisme',p:['optimisme_high','high_impact_avoidance']},
+  {id:'q75',text:"Crois en toi et tu seras à mi-chemin.",author:"Theodore Roosevelt",cat:'optimisme',p:['optimisme_high']},
+  {id:'q76',text:"L'espoir n'est pas la conviction qu'une chose va bien finir, mais la certitude qu'elle a un sens.",author:"Václav Havel",cat:'optimisme',p:['optimisme_high','antifragile_day']},
+  {id:'q77',text:"Là où vont mes pensées, mon énergie suit.",author:"Tony Robbins",cat:'optimisme',p:['optimisme_high']},
+
+  /* ════ Réveil · neutre · entrée de journée (jouent par défaut) ════ */
+  {id:'q78',text:"Le matin est plus sage que le soir.",author:"Proverbe russe",cat:'reveil',p:[]},
+  {id:'q79',text:"Aujourd'hui est la page blanche d'une histoire que tu écris en marchant.",author:"Mindway",cat:'reveil',p:[]},
+  {id:'q80',text:"Une journée commence comme une question. Laquelle veux-tu poser ?",author:"Mindway",cat:'reveil',p:[]},
+  {id:'q81',text:"Lever d'un jour : un seul choix suffit à l'orienter.",author:"Mindway",cat:'reveil',p:[]},
+  {id:'q82',text:"Le calme du début vaut mieux que la précipitation de toute la journée.",author:"Proverbe persan",cat:'reveil',p:[]},
+  {id:'q83',text:"Tu n'as pas besoin d'être prêt. Tu as juste besoin de commencer.",author:"Mindway",cat:'reveil',p:['high_impact_avoidance']},
+  {id:'q84',text:"Chaque matin est une seconde chance.",author:"Anonyme",cat:'reveil',p:['optimisme_high']},
+
+  /* ════ Victoire calme · MIT done, mood sobre ════ */
+  {id:'q85',text:"L'essentiel a été honoré. Le reste, c'est cadeau.",author:"Mindway",cat:'victoire',p:[]},
+  {id:'q86',text:"Pas spectaculaire. Juste accompli. C'est suffisant.",author:"Mindway",cat:'victoire',p:[]},
+  {id:'q87',text:"Une journée tenue vaut dix journées rêvées.",author:"Mindway",cat:'victoire',p:[]},
+  {id:'q88',text:"La régularité est un courage discret.",author:"Mindway",cat:'victoire',p:[]},
+
+  /* ════ Permission · journée vide, anti-shame ════ */
+  {id:'q89',text:"Ne rien faire est aussi une forme d'écoute.",author:"Christian Bobin",cat:'permission',p:[]},
+  {id:'q90',text:"Une journée vide n'est pas une journée perdue. C'est un sol qui se repose.",author:"Mindway",cat:'permission',p:[]},
+  {id:'q91',text:"Tu n'as rien à prouver à personne aujourd'hui — surtout pas à toi.",author:"Mindway",cat:'permission',p:[]},
+  {id:'q92',text:"S'arrêter n'est pas reculer. C'est se redresser.",author:"Mindway",cat:'permission',p:['low_energy_mit_success']},
+
+  /* ════ Mindway brand-voice — courtes, incisives ════ */
+  {id:'q93',text:"Les micro-actions maintiennent l'élan, mais le cap reste la priorité.",author:"Mindway",cat:'mindway',p:['micro_tasks_over_mit','low_impact_productivity']},
+  {id:'q94',text:"La reprise après une dérive est aussi une victoire.",author:"Mindway",cat:'mindway',p:['strategy_helped_mit','strategy_used_high_dispersion']},
+  {id:'q95',text:"Une journée difficile traversée reste une journée gagnante.",author:"Mindway",cat:'mindway',p:['antifragile_day','if_then_effective']},
+  {id:'q96',text:"Mieux vaut une priorité accomplie qu'une liste parfaite imaginée.",author:"Mindway",cat:'mindway',p:['micro_tasks_over_mit','low_impact_productivity']},
+  {id:'q97',text:"La friction n'est pas l'ennemi. L'évitement, si.",author:"Mindway",cat:'mindway',p:['high_impact_avoidance']},
+  {id:'q98',text:"Reviens à l'essentiel — chaque fois que tu peux, chaque fois que tu veux.",author:"Mindway",cat:'mindway',p:['if_then_used','strategy_helped_mit']},
+  {id:'q99',text:"Un plan If-Then n'est pas un échec — c'est un retour anticipé.",author:"Mindway",cat:'mindway',p:['if_then_used','if_then_effective']},
+  {id:'q100',text:"L'optimisme ici n'est pas une humeur. C'est une posture.",author:"Mindway",cat:'mindway',p:['optimisme_high']},
+  {id:'q101',text:"Ce qui se mesure se transforme. Ce qui s'observe se calme.",author:"Mindway",cat:'mindway',p:['high_clarity_success']},
+  {id:'q102',text:"Tu n'es pas tes journées. Tu es ce que tu en fais sur la durée.",author:"Mindway",cat:'mindway',p:['antifragile_day']},
+];
+
+function quoteForDay(date){const s=date.replace(/-/g,'').split('').reduce((a,c)=>a+c.charCodeAt(0),0);return QUOTES[s%QUOTES.length];}
+function quoteForPattern(pat){const m=QUOTES.filter(q=>q.p.includes(pat));if(!m.length)return null;const s=pat.split('').reduce((a,c)=>a+c.charCodeAt(0),0);return m[s%m.length];}
+function quoteForPatterns(pats){for(const p of pats){const q=quoteForPattern(p);if(q)return q;}return null;}
+
+/* ── DEMO DATA ── */
+const DEMO_STRATS=[
+  {id:'ds1',trigger:"je commence à scroller sans but",response:"je ferme l'app et ouvre ma liste de tâches",patternType:'high_dispersion',createdAt:'2026-04-11T08:00:00Z',updatedAt:'2026-04-11T08:00:00Z'},
+  {id:'ds2',trigger:"je procrastine une tâche importante",response:"je fais uniquement la première action physique (5 min)",patternType:'high_resistance',createdAt:'2026-04-11T08:00:00Z',updatedAt:'2026-04-11T08:00:00Z'},
+  {id:'ds3',trigger:"je me sens dépassé",response:"je réalise une micro-tâche simple pour reprendre l'élan",patternType:'high_stress',createdAt:'2026-04-11T08:00:00Z',updatedAt:'2026-04-11T08:00:00Z'},
+];
+
+function genDemo(){
+  let s=42;
+  const r=()=>{s=(s*1664525+1013904223)&0xffffffff;return(s>>>0)/0xffffffff;};
+  const ri=(a,b)=>Math.floor(r()*(b-a+1))+a;
+  const pk=a=>a[Math.floor(r()*a.length)];
+  const sh=a=>a.slice().sort(()=>r()-.5);
+  const rc=v=>Math.round(cl(v,1,5));
+  const MP=["Deep work 2h — projet principal","Rapport de performance hebdo","Appel stratégique client","Plan mensuel — rédaction","Revue et synthèse des notes","Session de concentration 90 min","Finaliser la proposition","Analyse complète de la semaine"];
+  const ME=["Répondre aux messages prioritaires","Mise à jour de la documentation","Préparer l'agenda","Lire 2 articles de fond","Organiser les fichiers","Revoir les priorités du mois","Préparer la réunion","Point sur les projets en cours"];
+  const MM=["Vider l'inbox","Méditation 10 min","Planifier demain","Lire 20 min","Nettoyer le bureau numérique","Boire 1,5L d'eau","Courte marche","Préparer la liste du lendemain"];
+  const data={};
+  for(let i=29;i>=0;i--){
+    const date=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
+    const dow=new Date(date+'T12:00:00').getDay();
+    const we=dow===0||dow===6;
+    const ws=Math.sin(((dow||7)/5)*Math.PI*.8);
+    const mp=(30-i)/30;
+    const mc=mp<.3?.8+mp:mp<.65?.6+Math.sin((mp-.3)*5)*.2:.7+mp*.3;
+    const be=we?2.2+r()*1.8:1.8+ws*1.4+mc*.8+r()*.9;
+    const bs=we?1.2+r()*1.2:2.8-ws*.6+(1-mc)*1.6+r()*.9;
+    const en=rc(be),st=rc(bs),dq=(en+(5-st))/10;
+    const tags=[];
+    if(en<=2)tags.push('fatigue');
+    if(st>=4){tags.push('anxiété');if(r()>.5)tags.push('surcharge cognitive');}
+    if(en>=4&&st<=2)tags.push('bonne concentration');
+    if(r()>.75)tags.push(pk(ALL_TAGS));
+    const utags=[...new Set(tags)].slice(0,3);
+    const mitDone=r()<.3+dq*.6;
+    const nm=we?ri(1,2):ri(1,3),nmm=we?ri(1,2):ri(2,3);
+    const q=quoteForDay(date);
+    const tasks=[{id:date+'_0',type:'MIT',title:pk(MP),impact:ri(2,3),urgency:ri(1,3),completed:mitDone,createdAt:date+'T08:00Z',completedAt:mitDone?date+'T14:00Z':null}];
+    sh(ME).slice(0,nm).forEach((t,j)=>{const d=r()<.3+dq*.55;tasks.push({id:date+'_1'+j,type:'SECONDARY',title:t,impact:ri(1,2),urgency:ri(1,2),completed:d,createdAt:date+'T08:00Z',completedAt:d?date+'T16:00Z':null});});
+    sh(MM).slice(0,nmm).forEach((t,j)=>{const d=r()<.5+dq*.4;tasks.push({id:date+'_2'+j,type:'MICRO',title:t,impact:ri(0,1),urgency:ri(0,1),completed:d,createdAt:date+'T08:00Z',completedAt:d?date+'T18:00Z':null});});
+    // Demo if-then activations (on high-dispersion days)
+    const ifThens=[];
+    if(bs>=3.5&&r()>.45){
+      const strat=pk(DEMO_STRATS);
+      const eff=r()>.35?ri(2,3):1;
+      const helped=eff>=2&&r()>.4;
+      const cnt=r()>.6?ri(1,3):1;
+      ifThens.push({strategyId:strat.id,count:cnt,activatedAt:date+'T10:00Z',lastActivatedAt:date+'T10:00Z',effectivenessScore:eff,helpedReturnToAction:helped,note:''});
+    }
+    data[date]={id:date,date,mood:{humeur:rc(be-.2+r()*.6),energie:en,stress:st,clarte:rc(be-bs*.25+r()*.7),motivation:rc(be-.4+r()*.8),optimisme:rc(be-.3+r()*.7),dispersion:rc(bs*.8+r()*.6)},tags:utags,tasks,ifThens,dailyNote:'',quoteId:q.id,createdAt:date+'T08:00Z',updatedAt:date+'T22:00Z'};
+  }
+  return data;
+}
+
+/* ── ANALYSIS ── */
+function filterDays(f){
+  const all=Object.values(DAYS).sort((a,b)=>a.date.localeCompare(b.date));
+  if(f==='7'){const c=new Date(Date.now()-7*86400000).toISOString().slice(0,10);return all.filter(d=>d.date>=c);}
+  if(f==='30'){const c=new Date(Date.now()-30*86400000).toISOString().slice(0,10);return all.filter(d=>d.date>=c);}
+  return all;
+}
+function mitRateOf(arr){const wm=arr.filter(d=>d.tasks.some(t=>t.type==='MIT'));if(!wm.length)return null;return Math.round(wm.filter(d=>{const m=d.tasks.find(t=>t.type==='MIT');return m&&m.completed;}).length/wm.length*100);}
+function avgScOf(arr){const wt=arr.filter(d=>d.tasks.length>0);if(!wt.length)return null;return Math.round(wt.reduce((s,d)=>s+calcScore(d).pct,0)/wt.length);}
+
+function buildInsights(days){
+  const wt=days.filter(d=>d.tasks.length>0);
+  if(wt.length<5)return[];
+  return[
+    {k:'clarte',l:'Clarté mentale',inv:false,pat:'high_clarity_success'},
+    {k:'energie',l:'Énergie',inv:false,pat:'low_energy_mit_success'},
+    {k:'dispersion',l:'Dispersion',inv:true,pat:'high_dispersion_low_mit'},
+    {k:'stress',l:'Stress',inv:true,pat:null},
+    {k:'motivation',l:'Motivation',inv:false,pat:null},
+  ].reduce((acc,s)=>{
+    const hi=wt.filter(d=>d.mood[s.k]>=4),lo=wt.filter(d=>d.mood[s.k]<=2);
+    if(hi.length>=3)acc.push({...s,mrH:mitRateOf(hi),mrL:lo.length>=2?mitRateOf(lo):null,scH:avgScOf(hi),scL:lo.length>=2?avgScOf(lo):null,nH:hi.length});
+    return acc;
+  },[]);
+}
+
+function buildTagIns(days){
+  const wt=days.filter(d=>d.tasks.length>0);if(wt.length<5)return null;
+  const win=wt.filter(d=>calcScore(d).mitDone),nw=wt.filter(d=>!calcScore(d).mitDone);
+  const cnt=arr=>{const c={};arr.forEach(d=>d.tags.forEach(t=>{c[t]=(c[t]||0)+1;}));return c;};
+  return{pos:Object.entries(cnt(win)).sort((a,b)=>b[1]-a[1]).slice(0,4),neg:Object.entries(cnt(nw)).sort((a,b)=>b[1]-a[1]).slice(0,4),nW:win.length,nN:nw.length};
+}
+
+function buildImpactDist(days){
+  const done=[];
+  days.forEach(d=>d.tasks.filter(t=>t.completed).forEach(t=>done.push(t)));
+  const hi=done.filter(t=>(t.impact||0)>=2).length;
+  const mid=done.filter(t=>(t.impact||0)===1).length;
+  const lo=done.filter(t=>(t.impact||0)===0).length;
+  const notDoneHi=days.reduce((s,d)=>s+d.tasks.filter(t=>!t.completed&&(t.impact||0)>=2).length,0);
+  return{hi,mid,lo,notDoneHi,total:done.length};
+}
+
+/* ── Stabilité émotionnelle ── */
+function calcStability(days){
+  const wt=days.filter(d=>d.tasks.length>0);
+  if(wt.length<5)return null;
+  const MK=['energie','stress','dispersion','clarte'];
+  const variations={};
+  MK.forEach(k=>{
+    const vals=wt.map(d=>d.mood[k]||3);
+    const mean=vals.reduce((s,v)=>s+v,0)/vals.length;
+    const sd=Math.sqrt(vals.reduce((s,v)=>s+Math.pow(v-mean,2),0)/vals.length);
+    variations[k]={mean:+mean.toFixed(1),sd:+sd.toFixed(1)};
+  });
+  const winning=wt.filter(d=>calcScore(d).mitDone);
+  const partial=wt.filter(d=>!calcScore(d).mitDone&&d.tasks.length>0);
+  const avgM=(arr,k)=>arr.length?(arr.reduce((s,d)=>s+(d.mood[k]||3),0)/arr.length).toFixed(1):null;
+  return{
+    variations,
+    winEnergy:avgM(winning,'energie'),  partEnergy:avgM(partial,'energie'),
+    winClarity:avgM(winning,'clarte'),  partClarity:avgM(partial,'clarte'),
+    winStress:avgM(winning,'stress'),   partStress:avgM(partial,'stress'),
+    winDisp:avgM(winning,'dispersion'), partDisp:avgM(partial,'dispersion'),
+    nWin:winning.length, nPart:partial.length
+  };
+}
+
+function buildIfThenStats(days){
+  const withActs=days.filter(d=>(d.ifThens||[]).length>0);
+  const allActs=days.flatMap(d=>d.ifThens||[]);
+  if(!allActs.length)return null;
+  // Use count for total activations
+  const totalUses=allActs.reduce((s,a)=>s+(a.count||1),0);
+  const eff=allActs.filter(a=>(a.effectivenessScore||0)>=2).length;
+  const helped=allActs.filter(a=>a.helpedReturnToAction).length;
+  const perStrat={};
+  allActs.forEach(a=>{
+    if(!perStrat[a.strategyId])perStrat[a.strategyId]={uses:0,effective:0,helped:0,days:0};
+    perStrat[a.strategyId].uses+=a.count||1;
+    perStrat[a.strategyId].days++;
+    if((a.effectivenessScore||0)>=2)perStrat[a.strategyId].effective+=(a.count||1);
+    if(a.helpedReturnToAction)perStrat[a.strategyId].helped++;
+  });
+  const withStratMIT=mitRateOf(withActs);
+  const withoutActs=days.filter(d=>!(d.ifThens||[]).length&&d.tasks.length>0);
+  const withoutStratMIT=mitRateOf(withoutActs);
+  return{total:totalUses,entries:allActs.length,eff,helped,withStratMIT,withoutStratMIT,perStrat,nWith:withActs.length};
+}
+
+/* ── CHARTS ── */
+function donutSVG(segs){
+  const total=segs.reduce((s,x)=>s+x.v,0);
+  if(!total)return '';
+  const R=32,C=40,SW=10,circ=2*Math.PI*R;
+  let cum=0;
+  const circles=segs.filter(s=>s.v>0).map(s=>{
+    const len=(s.v/total)*circ;
+    const off=(circ/4-cum).toFixed(2);
+    const el=`<circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="${s.c}" stroke-width="${SW}" stroke-dasharray="${len.toFixed(2)} ${(circ-len).toFixed(2)}" stroke-dashoffset="${off}" opacity=".85"/>`;
+    cum+=len;return el;
+  });
+  return`<svg viewBox="0 0 80 80" style="width:76px;height:76px;display:block;flex-shrink:0"><circle cx="${C}" cy="${C}" r="${R}" fill="none" stroke="rgba(255,255,255,.03)" stroke-width="${SW}"/>${circles.join('')}</svg>`;
+}
+
+function impactBarHTML(label,val,max,color){
+  const pct=max>0?Math.round(val/max*100):0;
+  return`<div class="imp-bar"><div class="imp-bar-hdr"><span class="imp-bar-lbl">${label}</span><span class="imp-bar-val">${val}</span></div><div class="imp-bar-track"><div class="imp-bar-fill" style="width:${pct}%;background:${color}"></div></div></div>`;
+}
+
+/* ── SVG ICONS ── */
+const I={
+  plus:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="width:10px;height:10px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`,
+  chk:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:8px;height:8px"><polyline points="20 6 9 17 4 12"/></svg>`,
+  x:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="width:10px;height:10px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>`,
+  layers:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`,
+  list:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="width:10px;height:10px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>`,
+  tgt:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="width:10px;height:10px"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="3" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="21"/><line x1="3" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="21" y2="12"/></svg>`,
+  brain:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="width:11px;height:11px"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-1.07-4.58A3 3 0 0 1 4.46 8.8a2.5 2.5 0 0 1 .49-4.8A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 1.07-4.58A3 3 0 0 0 19.54 8.8a2.5 2.5 0 0 0-.49-4.8A2.5 2.5 0 0 0 14.5 2Z"/></svg>`,
+  plans:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" style="width:10px;height:10px"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+};
+
+/* ── SCORE CARD HTML ── */
+function scoreCardHTML(sc,day){
+  const ST={winning:{sb:'sb-win',sl:'Journée gagnante',bar:'win',mc:'sm-win',msg:"La priorité centrale a été honorée. Tout le reste est du bonus."},optimized:{sb:'sb-opt',sl:'Journée optimisée',bar:'opt',mc:'sm-opt',msg:"Clarté d'action remarquable. Score élevé."},ongoing:{sb:'sb-go',sl:'En cours',bar:'go',mc:'sm-go',msg:"La journée avance. La priorité centrale reste l'essentiel."},partial:{sb:'sb-part',sl:'En progression',bar:'part',mc:'sm-part',msg:"Des actions importantes ont été réalisées."},empty:{sb:'sb-go',sl:'—',bar:'go',mc:'sm-go',msg:''}};
+  const afs={sb:'sb-af',sl:'Journée antifragile',bar:'af',mc:'sm-af',msg:"Malgré une friction mentale élevée, la priorité a été accomplie. Signal fort."};
+  const s=sc.af?afs:ST[sc.status]||ST.ongoing;
+  const rec=day?calcRecovery(day):0;
+  const acts=day?(day.ifThens||[]):[];
+  // Budget temps (v3.6) — somme des plafonds, alerte si > 6h (journée irréaliste)
+  const totalMin=(day?.tasks||[]).reduce((s,t)=>s+(t.t||TIME_DEFAULT[t.type]||0),0);
+  const doneMin=(day?.tasks||[]).filter(t=>t.completed).reduce((s,t)=>s+(t.t||TIME_DEFAULT[t.type]||0),0);
+  const overBudget=totalMin>360; // 6h
+  let html=`<div class="score-card"><div class="score-hdr"><div class="score-lbl">lecture du jour</div><span class="sbadge ${s.sb}">${s.sl}</span></div><div class="score-bar-bg"><div class="score-bar ${s.bar}" style="width:${sc.pct}%"></div></div><div class="score-nums"><span>${sc.done} pts accomplis</span><span>${sc.pct}% · ${sc.tot} pts possibles</span></div>${s.msg?`<div class="score-msg ${s.mc}">${s.msg}</div>`:''}`;
+  if(totalMin>0){
+    html+=`<div class="budget-line ${overBudget?'over':''}"><span>budget temps</span><span><strong>${fmtMin(doneMin)}</strong> / ${fmtMin(totalMin)} ${overBudget?'· journée chargée':''}</span></div>`;
+  }
+  if(acts.length>0){
+    html+=`<div class="rec-row"><span class="rec-lbl">score de reprise</span><div class="rec-dots">${[1,2,3].map(n=>`<div class="rec-dot ${rec>=n?'f':''}"></div>`).join('')}</div><span class="rec-note">${rec===3?'retour à l\'action effectif':rec===2?'stratégie utile':rec===1?'stratégie activée':''}</span></div>`;
+  }
+  html+=`</div>`;
+  return html;
+}
+
+/* ── TASK CARD HTML ── */
+function taskCardHTML(task,date,mode){
+  const sc=(task.impact||0)+(task.urgency||0),isMIT=task.type==='MIT',fn=mode?'OV':'';
+  const t=task.t!=null?task.t:(TIME_DEFAULT[task.type]||30);
+  // Time UI: selector for MIT (variable), static cap label for SEC/MICRO (locked)
+  const timeCtrl=isMIT
+    ? `<select class="iusel" title="Temps nécessaire" onchange="updField${fn}('${date}','${task.id}','t',+this.value)">${MIT_TIME_OPTIONS.map(v=>`<option value="${v}"${t===v?' selected':''}>${fmtMin(v)}</option>`).join('')}</select>`
+    : `<span class="tcap" title="Plafond ${task.type==='SECONDARY'?'tâche':'action rapide'}">max ${fmtMin(TIME_CAP[task.type])}</span>`;
+  return`<div class="tcard ${isMIT?'mit':''} ${task.completed?'done':''}" id="tc-${task.id}"><button class="tchk" onclick="togT${fn}('${date}','${task.id}')">${I.chk}</button><div class="tbody"><input class="tinp" type="text" value="${esc(task.title)}" placeholder="${isMIT?'Priorité du jour…':task.type==='SECONDARY'?'Tâche…':'Action rapide…'}" onblur="updTitle${fn}('${date}','${task.id}',this.value)" ${!task.title?'autofocus':''}/><div class="tmeta"><div class="tdot ${task.type}"></div><span class="tbadge">I${task.impact||0}·U${task.urgency||0}·${fmtMin(t)}</span></div></div><div class="tctrl"><select class="iusel" onchange="updField${fn}('${date}','${task.id}','impact',+this.value)">${[0,1,2,3].map(v=>`<option value="${v}"${(task.impact||0)===v?' selected':''}>I${v}</option>`).join('')}</select><select class="iusel" onchange="updField${fn}('${date}','${task.id}','urgency',+this.value)">${[0,1,2,3].map(v=>`<option value="${v}"${(task.urgency||0)===v?' selected':''}>U${v}</option>`).join('')}</select>${timeCtrl}<button class="tdel" onclick="delT${fn}('${date}','${task.id}')">${I.x}</button></div></div>`;
+}
+
+/* ── FRICTION DETECTION (V3.1) ── */
+/* Single source of truth for "what's blocking the user right now". */
+function detectFriction(day){
+  const m=day.mood||{};
+  const signals=[];
+  if((m.dispersion||0)>=4)signals.push({k:'dispersion',v:m.dispersion,label:'Dispersion élevée'});
+  if((m.energie||3)<=2)signals.push({k:'energie',v:m.energie,label:'Énergie basse'});
+  if((m.stress||0)>=4)signals.push({k:'stress',v:m.stress,label:'Stress élevé'});
+  const pats=detectPatterns(day);
+  const blocking=pats.find(p=>['high_impact_avoidance','high_dispersion_low_mit','micro_tasks_over_mit','low_impact_productivity'].includes(p));
+  let level='none';
+  if((m.dispersion||0)>=4||blocking)level='high';
+  else if(signals.length>0)level='medium';
+  return{level,signals,pattern:blocking||null,patterns:pats};
+}
+
+/* ── PATTERN LABEL — internal key → user-facing French ── */
+const PATTERN_LABEL={
+  high_impact_avoidance:"évitement de tâches à fort impact",
+  high_dispersion_low_mit:"dispersion sans priorité accomplie",
+  // resistance patterns deprecated v3.8
+  micro_tasks_over_mit:"micro-tâches au détriment de la priorité",
+  low_impact_productivity:"activité à faible impact dominant",
+  high_clarity_success:"clarté élevée — priorité accomplie",
+  low_energy_mit_success:"basse énergie, priorité tout de même accomplie",
+  antifragile_day:"journée antifragile",
+  antifragile_ifthen:"antifragilité avec plan If-Then",
+  strategy_helped_mit:"plan If-Then ayant aidé la priorité",
+  if_then_effective:"plan If-Then efficace",
+  if_then_used:"plan If-Then activé",
+  if_then_unused:"dispersion sans plan activé",
+  strategy_used_high_dispersion:"plan activé en forte dispersion",
+  strategy_used_low_energy:"plan activé en basse énergie",
+};
+function patternLabel(k){return PATTERN_LABEL[k]||k.replace(/_/g,' ');}
+
+/* ── SUGGEST STRATEGY — pick the If-Then matching current friction ── */
+function suggestStrategy(day,friction){
+  if(!STRATEGIES||!STRATEGIES.length)return null;
+  if(friction.level!=='high')return null;
+  const want=friction.signals.map(s=>s.k);
+  // Priority: match patternType to dominant signal
+  const TYPE_MAP={dispersion:'high_dispersion',stress:'high_stress',energie:'low_energy'};
+  for(const k of want){
+    const t=TYPE_MAP[k];
+    if(!t)continue;
+    const s=STRATEGIES.find(x=>x.patternType===t);
+    if(s)return s;
+  }
+  // Fallback: most-used strategy across history
+  const counts={};
+  Object.values(DAYS).forEach(d=>(d.ifThens||[]).forEach(a=>{counts[a.strategyId]=(counts[a.strategyId]||0)+(a.count||1);}));
+  const ranked=STRATEGIES.slice().sort((a,b)=>(counts[b.id]||0)-(counts[a.id]||0));
+  return ranked[0]||null;
+}
+
+/* ── INFO BUBBLE — sober rule reminder per section (v3.6) ── */
+function infoBubble(tip){
+  return `<button class="info-bubble" tabindex="0" data-tip="${esc(tip)}" aria-label="${esc(tip)}" onclick="event.stopPropagation()">?</button>`;
+}
+
+/* ── RENDER: TODAY (V3.1 — Action-first hierarchy) ── */
+function renderToday(){
+  const date=todayISO(),day=getDay(date),sc=calcScore(day);
+  const friction=detectFriction(day);
+  const pats=friction.patterns;
+  const q=quoteForPatterns(pats)||quoteForDay(date);
+  const isDemo=Object.keys(DAYS).length>=28;
+  const sortedTasks=sortTasks(day.tasks);
+  const mit=sortedTasks.find(t=>t.type==='MIT');
+  const sec=sortedTasks.filter(t=>t.type==='SECONDARY');
+  const micro=sortedTasks.filter(t=>t.type==='MICRO');
+  const dfull=new Date(date+'T12:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'});
+  const suggested=suggestStrategy(day,friction);
+
+  let h='';
+  if(isDemo)h+=`<div class="demo-bar"><span class="demo-txt">Mode démo · 30 journées simulées</span><button class="demo-rst" onclick="resetData()">Réinitialiser</button></div>`;
+
+  // ═══ Citation d'ouverture — mettre en état de pensée avant l'action ═══
+  h+=`<div class="qs"><div class="qs-icon"><svg viewBox="0 0 24 24"><path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1 .008-1 1.031V20c0 1 0 1 1 1z"/><path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 1 0 1 1 1z"/></svg></div><div><div class="qs-text">${esc(q.text)}</div><div class="qs-auth">— ${esc(q.author)}</div></div></div>`;
+
+  // ═══ v3.11 — Invitation Brain Dump (jour vide, non dismissed, non completed) ═══
+  const guidedShouldInvite=day.tasks.length===0 && !day.guidedDismissed && !day.guidedCompleted;
+  if(guidedShouldInvite){
+    h+=`<div class="guided-invite"><div class="guided-invite-text"><div class="guided-invite-q">Clarifier ta journée&nbsp;?</div><div class="guided-invite-sub">Vide ce qui te vient — on classera ensuite.</div></div><div class="guided-invite-actions"><button class="guided-invite-btn" onclick="guidedDismissToday()">Plus tard</button><button class="guided-invite-btn primary" onclick="startGuidedBrainDump()">Commencer</button></div></div>`;
+  }
+
+  // ═══ STEP 1 — Self-calibration: État d'esprit AVANT de définir l'action ═══
+  // (Antifragile design: l'utilisateur lit son état → calibre → choisit en conscience)
+  const QUICK_METRICS=[{k:'motivation',l:'Motivation'},{k:'dispersion',l:'Dispersion'}];
+  const EXTRA_METRICS=METRICS.filter(m=>!QUICK_METRICS.find(q=>q.k===m.k));
+  h+=`<div class="mood-compact ${CI_OPEN?'open':''}" id="mood-compact"><div class="mood-compact-hdr">${I.brain}<span class="mood-compact-hdr-lbl">État d'esprit</span>${infoBubble("Te calibrer avant d'agir — pas un jugement, une lecture pour choisir ta priorité en conscience.")}</div>`;
+  QUICK_METRICS.forEach(m=>{
+    const tip=MOOD_DEFS[m.k]||'';
+    h+=`<div class="mood-quick-row"><span class="mood-quick-lbl">${m.l}${tip?infoBubble(tip):''}</span><div class="mbtns">${[1,2,3,4,5].map(v=>`<button class="mbtn ${day.mood[m.k]===v?'on':''}" onclick="setMood('${date}','${m.k}',${v})">${v}</button>`).join('')}</div></div>`;
+  });
+  h+=`<button class="mood-more-toggle" onclick="toggleCI()"><span>${CI_OPEN?'Masquer':'Détails'} · 6 métriques + contextes + note</span><svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></button>`;
+  h+=`<div class="mood-more">`;
+  EXTRA_METRICS.forEach(m=>{
+    const tip=MOOD_DEFS[m.k]||'';
+    h+=`<div class="mrow"><div class="mlbl">${m.l}${tip?infoBubble(tip):''}</div><div class="mbtns">${[1,2,3,4,5].map(v=>`<button class="mbtn ${day.mood[m.k]===v?'on':''}" onclick="setMood('${date}','${m.k}',${v})">${v}</button>`).join('')}</div></div>`;
+  });
+  h+=`<div class="tags-lbl">Contexte du jour</div><div class="tags-row">${ALL_TAGS.map(t=>`<button class="tpill ${day.tags.includes(t)?'on':''}" onclick="togTag('${date}','${t}')">${esc(t)}</button>`).join('')}</div>`;
+  h+=`<textarea class="note-ta" placeholder="Note libre…" onblur="setNote('${date}',this.value)">${esc(day.dailyNote)}</textarea>`;
+  h+=`</div></div>`;
+
+  // ═══ LEVEL 2 — Pattern strip (only when a pattern was actually detected) ═══
+  if(pats&&pats.length){
+    const main=pats.find(p=>PATTERN_LABEL[p])||pats[0];
+    h+=`<div class="pattern-strip"><span class="pattern-strip-lbl">Pattern</span><span class="pattern-strip-val">${esc(patternLabel(main))}</span>${infoBubble("Mindway détecte un motif comportemental récurrent sur tes derniers jours — utile pour ajuster, pas pour juger.")}</div>`;
+  }
+
+  // ═══ LEVEL 1 — MIT HERO ═══
+  h+=`<div class="mit-hero" data-friction="${friction.level}">`;
+  h+=`<div class="mit-hero-head"><span class="mit-hero-lbl">Priorité du jour${infoBubble("La tâche qui rend la journée gagnante, même seule. Définis aussi le temps nécessaire (30–120 min).")}</span><span class="mit-hero-date">${dfull}${day.tasks.length===0?` · <button class="guided-trigger-link" onclick="startGuidedBrainDump()">Clarifier ma journée</button>`:''}</span></div>`;
+
+  if(!mit){
+    // v3.11 — l'empty state lance le flow guidé (au lieu de créer une tâche vide)
+    h+=`<div class="mit-hero-empty" onclick="startGuidedBrainDump()"><div class="mit-hero-empty-q">Quelle est la seule chose qui rendrait cette journée gagnante&nbsp;?</div><div class="mit-hero-empty-sub">Une priorité unique. Tout le reste sera du bonus. <button class="guided-trigger-link" style="margin-left:6px;vertical-align:middle" onclick="event.stopPropagation();addTask('${date}','MIT')">Saisir directement</button></div></div>`;
+  } else {
+    h+=taskCardHTML(mit,date,false);
+  }
+
+  // Friction signal — single line under MIT (kept inside hero, no plan inline)
+  if(friction.level!=='none'&&(friction.signals.length||friction.pattern)){
+    const parts=friction.signals.slice(0,2).map(s=>`<strong>${esc(s.label)}</strong>`);
+    if(!parts.length&&friction.pattern)parts.push(`<strong>${esc(patternLabel(friction.pattern))}</strong>`);
+    h+=`<div class="friction-line ${friction.level}">Friction détectée — ${parts.join(' · ')}${infoBubble("Signal calibré sur tes propres seuils. Pas une alerte, juste une lecture de ton état actuel.")}</div>`;
+  }
+  h+=`</div>`; // ← fin MIT-hero
+
+  // ═══ LEVEL 2 — Secondary tasks ═══
+  h+=`<div class="tsec"><div class="sec-h">${I.layers}<span class="sec-lbl">Tâches</span>${infoBubble("Maximum 3 tâches de 45 min chacune — soit 2h15 d'action max. Triées par impact + urgence. C'est le bonus, pas l'essentiel.")}<span class="sec-cnt">${sec.length}/3</span></div>`;
+  if(sec.length>0)h+=`<div class="tsort-hint">3 × 45 min max · tri par impact + urgence</div>`;
+  h+=sec.map(t=>taskCardHTML(t,date,false)).join('');
+  h+=sec.length<3?`<button class="add-btn" onclick="addTask('${date}','SECONDARY')">${I.plus} ajouter une tâche</button>`:'';
+  h+=`</div>`;
+
+  // ═══ LEVEL 2 — Micro tasks ═══
+  h+=`<div class="tsec"><div class="sec-h">${I.list}<span class="sec-lbl">Actions rapides</span>${infoBubble("Maximum 5 actions de 10 min chacune — soit 50 min d'action max. Pour maintenir l'élan, jamais remplacer la priorité.")}<span class="sec-cnt">${micro.length}/5</span></div>`;
+  if(micro.length>0)h+=`<div class="tsort-hint">5 × 10 min max · maintien d'élan</div>`;
+  h+=micro.map(t=>taskCardHTML(t,date,false)).join('');
+  h+=micro.length<5?`<button class="add-btn" onclick="addTask('${date}','MICRO')">${I.plus} ajouter une action rapide</button>`:'';
+  h+=`</div>`;
+
+  // ═══ SECTION AUTONOME — Plan If-Then (placée après Actions rapides) ═══
+  const todayActs=day.ifThens||[];
+  const totalToday=todayActs.reduce((s,a)=>s+(a.count||1),0);
+  const helpedToday=todayActs.filter(a=>a.helpedReturnToAction).length;
+  if(suggested || totalToday>0 || (STRATEGIES&&STRATEGIES.length>0)){
+    // Compteur cliquable : "-" apparait si au moins 1 activation pour la stratégie suggérée (ou globalement)
+    const undoTargetId=suggested?suggested.id:(todayActs[0]&&todayActs[0].strategyId);
+    const canUndo=totalToday>0&&undoTargetId;
+    const countPill=totalToday>0
+      ? `<span class="ifthen-count-pill"><strong>${totalToday}</strong> activé${totalToday>1?'s':''}${helpedToday>0?` · ${helpedToday} retour${helpedToday>1?'s':''}`:''}${canUndo?`<button class="ifthen-undo" onclick="decrementStrat('${date}','${undoTargetId}')" title="Retirer une activation">−</button>`:''}</span>`
+      : '';
+    h+=`<div class="ifthen-section"><div class="ifthen-section-hdr">${I.plans}<span class="ifthen-section-lbl">Plan If-Then</span>${infoBubble("Une réponse pré-préparée à une dérive récurrente. L'objectif n'est pas d'éviter la friction, mais de raccourcir le retour à l'action.")}${countPill}</div>`;
+    if(suggested){
+      h+=`<div class="friction-plan"><div class="friction-plan-trig">Si <em>${esc(suggested.trigger)}</em>…</div><div class="friction-plan-resp">→ ${esc(suggested.response)}</div><button class="friction-plan-cta" onclick="activateStrat('${date}','${suggested.id}')">J'utilise ce plan</button></div>`;
+    } else if(totalToday===0){
+      h+=`<div class="ifthen-empty">Aucune friction détectée — pas de plan à activer pour l'instant.</div>`;
+    }
+    h+=`</div>`;
+  }
+
+  // ═══ LEVEL 3 — Score card (only if tasks exist, footer placement) ═══
+  if(day.tasks.length>0)h+=scoreCardHTML(sc,day);
+
+  $('today-in').innerHTML=h;
+}
+
+/* MIT timer removed (v3.6) — user request: no chrono on MIT card */
+
+/* Recovery pip — DOM-patch only, never re-renders the whole nav.
+   Green-only design: pip appears ONLY on win states. No red/amber.
+   No animation. See /autoplan principles. */
+function renderNavPip(){
+  const el=document.getElementById('nav-pip');if(!el)return;
+  const day=DAYS[todayISO()];
+  if(!day){el.hidden=true;return;}
+  const sc=calcScore(day);
+  const rec=calcRecovery(day);
+  const fr=detectFriction(day);
+  // Show pip only when: MIT done OR antifragile day OR recovery>=2 with no high friction
+  const win=sc.mitDone||sc.af||(rec>=2&&fr.level!=='high');
+  el.hidden=!win;
+}
+
+/* ── TODAY ACTIONS ── */
+function toggleCI(){CI_OPEN=!CI_OPEN;const c=$('mood-compact')||$('ci-card');if(c)c.classList.toggle('open',CI_OPEN);}
+function toggleIT(){IT_OPEN=!IT_OPEN;const s=$('it-strip');if(s)s.classList.toggle('open',IT_OPEN);}
+function setMood(d,k,v){const day=getDay(d);day.mood[k]=v;day.updatedAt=new Date().toISOString();saveDays();renderToday();renderNavPip();}
+function togTag(d,t){const day=getDay(d);if(day.tags.includes(t))day.tags=day.tags.filter(x=>x!==t);else day.tags.push(t);day.updatedAt=new Date().toISOString();saveDays();renderToday();}
+function setNote(d,v){const day=getDay(d);day.dailyNote=v;day.updatedAt=new Date().toISOString();saveDays();}
+function addTask(d,type){
+  const day=getDay(d);const lim={MIT:1,SECONDARY:3,MICRO:5};
+  if(day.tasks.filter(t=>t.type===type).length>=lim[type])return;
+  day.tasks.push({id:uid(),type,title:'',impact:type==='MIT'?3:type==='SECONDARY'?2:1,urgency:type==='MIT'?2:1,t:TIME_DEFAULT[type],completed:false,createdAt:new Date().toISOString(),completedAt:null});
+  day.updatedAt=new Date().toISOString();saveDays();renderToday();
+}
+function togT(d,id){const day=getDay(d);const t=day.tasks.find(x=>x.id===id);if(!t)return;t.completed=!t.completed;t.completedAt=t.completed?new Date().toISOString():null;day.updatedAt=new Date().toISOString();saveDays();renderToday();renderNavPip();}
+function updTitle(d,id,v){const day=getDay(d);const t=day.tasks.find(x=>x.id===id);if(!t||t.title===v)return;t.title=v;day.updatedAt=new Date().toISOString();saveDays();}
+function updField(d,id,f,v){const day=getDay(d);const t=day.tasks.find(x=>x.id===id);if(!t)return;t[f]=v;day.updatedAt=new Date().toISOString();saveDays();renderToday();}
+function delT(d,id){const day=getDay(d);day.tasks=day.tasks.filter(t=>t.id!==id);day.updatedAt=new Date().toISOString();saveDays();renderToday();}
+
+function activateStrat(d,sid){
+  const day=getDay(d);if(!day.ifThens)day.ifThens=[];
+  const now=new Date().toISOString();
+  const existing=day.ifThens.find(a=>a.strategyId===sid);
+  if(existing){
+    existing.count=(existing.count||1)+1;
+    existing.lastActivatedAt=now;
+  } else {
+    day.ifThens.push({strategyId:sid,count:1,activatedAt:now,lastActivatedAt:now,effectivenessScore:0,helpedReturnToAction:false,note:''});
+  }
+  day.updatedAt=now;saveDays();renderToday();renderNavPip();
+}
+
+/* v3.10 — Correction d'un clic en trop : décrémente le compteur, supprime l'activation si count=0 */
+function decrementStrat(d,sid){
+  const day=getDay(d);if(!day.ifThens)return;
+  const existing=day.ifThens.find(a=>a.strategyId===sid);
+  if(!existing)return;
+  existing.count=(existing.count||1)-1;
+  if(existing.count<=0){
+    day.ifThens=day.ifThens.filter(a=>a.strategyId!==sid);
+  }
+  day.updatedAt=new Date().toISOString();saveDays();renderToday();renderNavPip();
+  toast("Activation retirée");
+}
+function setStratEff(d,sid,v){const day=getDay(d);const a=(day.ifThens||[]).find(x=>x.strategyId===sid);if(!a)return;a.effectivenessScore=v;day.updatedAt=new Date().toISOString();saveDays();renderToday();renderNavPip();}
+function togStratHelped(d,sid){const day=getDay(d);const a=(day.ifThens||[]).find(x=>x.strategyId===sid);if(!a)return;a.helpedReturnToAction=!a.helpedReturnToAction;day.updatedAt=new Date().toISOString();saveDays();renderToday();renderNavPip();}
+
+/* ── RENDER: PLANS (If Then) ── */
+function renderPlans(){
+  let h='';
+  h+=`<div class="explain-card"><div class="explain-title">If Then — stratégies de reprise</div><div class="explain-txt">${CONCEPTS.ifthen.short}<br><br>${CONCEPTS.ifthen.full}</div></div>`;
+
+  if(STRATEGIES.length){
+    h+=`<div class="sec-title" style="margin-bottom:8px">Votre bibliothèque</div>`;
+    STRATEGIES.forEach(strat=>{
+      const allActs=Object.values(DAYS).flatMap(d=>(d.ifThens||[]).filter(a=>a.strategyId===strat.id));
+      const totalUses=allActs.reduce((s,a)=>s+(a.count||1),0);
+      const nDays=allActs.length;
+      const effCount=allActs.filter(a=>(a.effectivenessScore||0)>=2).length;
+      const helpedCount=allActs.filter(a=>a.helpedReturnToAction).length;
+      const metaParts=[`${totalUses} utilisation${totalUses!==1?'s':''}`];
+      if(nDays>0)metaParts.push(`sur ${nDays} journée${nDays!==1?'s':''}`);
+      if(effCount>0)metaParts.push(`${effCount} efficace${effCount!==1?'s':''}`);
+      if(helpedCount>0)metaParts.push(`${helpedCount}× retour action`);
+      h+=`<div class="strat-lib-card"><div class="strat-lib-body"><div class="strat-lib-trigger">Si <em>${esc(strat.trigger)}</em>…</div><div class="strat-lib-response">→ ${esc(strat.response)}</div><div class="strat-lib-meta">${metaParts.join(' · ')}</div></div><button class="strat-del" onclick="delStrat('${strat.id}')">${I.x}</button></div>`;
+    });
+  } else {
+    h+=`<div class="empty-st" style="padding:20px 0">Aucun plan défini.<br>Ajoutez votre premier If Then ci-dessous.</div>`;
+  }
+
+  // Add form
+  h+=`<div class="add-strat-form"><div class="sec-title" style="margin-bottom:10px">Nouveau plan</div><label class="add-strat-lbl">Si je…</label><input class="strat-inp" id="strat-trigger" type="text" placeholder="ex: commence à scroller sans but"/><label class="add-strat-lbl">Alors je…</label><input class="strat-inp" id="strat-response" type="text" placeholder="ex: ferme l'app et ouvre ma liste de tâches" onkeydown="if(event.key==='Enter')addStrat()"/><button class="strat-add-btn" onclick="addStrat()">Ajouter le plan</button></div>`;
+  $('plans-in').innerHTML=h;
+}
+
+function addStrat(){
+  const trig=($('strat-trigger')?.value||'').trim();
+  const resp=($('strat-response')?.value||'').trim();
+  if(!trig||!resp)return;
+  STRATEGIES.push({id:uid(),trigger:trig,response:resp,patternType:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+  saveStrategies();renderPlans();toast('Plan ajouté');
+}
+function delStrat(id){STRATEGIES=STRATEGIES.filter(s=>s.id!==id);saveStrategies();renderPlans();}
+
+/* ── RENDER: HISTORY ── */
+function renderHistory(){
+  const days=filterDays(HF).slice().sort((a,b)=>b.date.localeCompare(a.date));
+  const SC={winning:'var(--win)',optimized:'var(--violet)',partial:'var(--be)',ongoing:'var(--t3)',empty:'var(--t4)'};
+  let h=`<div class="frow">${['7','30','all'].map(f=>`<button class="fbtn ${HF===f?'on':''}" onclick="setHF('${f}')">${f==='all'?'Tout':f+'j'}</button>`).join('')}</div>`;
+  if(!days.length){h+=`<div class="empty-st">Aucune journée enregistrée.</div>`;$('hist-in').innerHTML=h;return;}
+  days.forEach(day=>{
+    const sc=calcScore(day),col=SC[sc.status]||SC.ongoing;
+    const done=day.tasks.filter(t=>t.completed).length;
+    const pats=detectPatterns(day);
+    const hasAF=pats.includes('antifragile_day');
+    const hasLIP=pats.includes('low_impact_productivity');
+    const itCount=(day.ifThens||[]).reduce((s,a)=>s+(a.count||1),0);
+    h+=`<div class="hcard" onclick="openOv('${day.date}')"><div><div class="hdate">${fmtM(day.date)}</div><div class="hmeta"><div class="hdot" style="background:${col}"></div><span>${day.tasks.length} tâches · ${done} accomplies</span>${itCount>0?`<span style="color:var(--violet);font-size:.48rem">${itCount}× If Then</span>`:''}</div><div style="margin-top:3px">${sc.mitDone?`<span style="font-size:.5rem;color:var(--win)">priorité validée</span>`:`<span style="font-size:.5rem;color:var(--t4)">—</span>`}${hasAF?`<span style="font-size:.48rem;color:var(--amber);margin-left:6px">antifragile</span>`:''}${hasLIP?`<span style="font-size:.48rem;color:var(--t3);margin-left:6px">activité faible impact</span>`:''}</div></div><div class="hright"><div class="hpct" style="color:${col}">${sc.tot>0?sc.pct+'%':'—'}</div></div></div>`;
+  });
+  $('hist-in').innerHTML=h;
+}
+function setHF(f){HF=f;renderHistory();}
+
+/* ── OVERLAY ── */
+function openOv(date){OV_DATE=date;$('ov-title').textContent=fmtL(date);$('day-ov').classList.add('open');renderOv(date);}
+function closeOv(){$('day-ov').classList.remove('open');OV_DATE=null;renderHistory();}
+function renderOv(date){
+  const day=getDay(date),sc=calcScore(day);
+  const sortedTasks=sortTasks(day.tasks);
+  let h=`<div style="margin-bottom:15px"><div class="sec-title">État d'esprit</div>${METRICS.map(m=>`<div class="mrow"><div class="mlbl">${m.l}</div><div class="mbtns">${[1,2,3,4,5].map(v=>`<button class="mbtn ${day.mood[m.k]===v?'on':''}" onclick="setMoodOV('${date}','${m.k}',${v})">${v}</button>`).join('')}</div></div>`).join('')}<div class="tags-lbl">Contexte</div><div class="tags-row">${ALL_TAGS.map(t=>`<button class="tpill ${day.tags.includes(t)?'on':''}" onclick="togTagOV('${date}','${t}')">${esc(t)}</button>`).join('')}</div><textarea class="note-ta" placeholder="Note libre…" onblur="setNoteOV('${date}',this.value)">${esc(day.dailyNote)}</textarea></div>`;
+  h+=`<div class="sec-title" style="margin-bottom:7px">Tâches</div>`;
+  if(!sortedTasks.length)h+=`<div style="font-size:.6rem;color:var(--t4);margin-bottom:12px">Aucune tâche.</div>`;
+  else sortedTasks.forEach(t=>{h+=taskCardHTML(t,date,true);});
+  const mc=day.tasks.filter(t=>t.type==='MIT').length,sc2=day.tasks.filter(t=>t.type==='SECONDARY').length,mm=day.tasks.filter(t=>t.type==='MICRO').length;
+  h+=`<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:7px">${mc<1?`<button class="add-btn" style="flex:none;width:auto;padding:5px 8px" onclick="addTaskOV('${date}','MIT')">${I.plus} priorité</button>`:''}${sc2<3?`<button class="add-btn" style="flex:none;width:auto;padding:5px 8px" onclick="addTaskOV('${date}','SECONDARY')">${I.plus} tâche</button>`:''}${mm<5?`<button class="add-btn" style="flex:none;width:auto;padding:5px 8px" onclick="addTaskOV('${date}','MICRO')">${I.plus} action</button>`:''}</div>`;
+  h+=`<div style="margin-top:15px">${scoreCardHTML(sc,day)}</div>`;
+  $('ov-body').innerHTML=h;
+}
+function setMoodOV(d,k,v){const day=getDay(d);day.mood[k]=v;day.updatedAt=new Date().toISOString();saveDays();renderOv(d);}
+function togTagOV(d,t){const day=getDay(d);if(day.tags.includes(t))day.tags=day.tags.filter(x=>x!==t);else day.tags.push(t);day.updatedAt=new Date().toISOString();saveDays();renderOv(d);}
+function setNoteOV(d,v){const day=getDay(d);day.dailyNote=v;day.updatedAt=new Date().toISOString();saveDays();}
+function togTOV(d,id){const day=getDay(d);const t=day.tasks.find(x=>x.id===id);if(!t)return;t.completed=!t.completed;t.completedAt=t.completed?new Date().toISOString():null;day.updatedAt=new Date().toISOString();saveDays();renderOv(d);}
+function updTitleOV(d,id,v){const day=getDay(d);const t=day.tasks.find(x=>x.id===id);if(!t)return;t.title=v;day.updatedAt=new Date().toISOString();saveDays();}
+function updFieldOV(d,id,f,v){const day=getDay(d);const t=day.tasks.find(x=>x.id===id);if(!t)return;t[f]=v;day.updatedAt=new Date().toISOString();saveDays();renderOv(d);}
+function delTOV(d,id){const day=getDay(d);day.tasks=day.tasks.filter(t=>t.id!==id);day.updatedAt=new Date().toISOString();saveDays();renderOv(d);}
+function addTaskOV(d,type){const day=getDay(d);const lim={MIT:1,SECONDARY:3,MICRO:5};if(day.tasks.filter(t=>t.type===type).length>=lim[type])return;day.tasks.push({id:uid(),type,title:'',impact:2,urgency:1,t:TIME_DEFAULT[type],completed:false,createdAt:new Date().toISOString(),completedAt:null});day.updatedAt=new Date().toISOString();saveDays();renderOv(d);}
+
+
+/* ── PRIORITY GRAVITY MAP ─────────────────────────────────── */
+const MAP_DEFINITIONS={
+  mit:        {label:'MIT',           short:'Priorité du jour',       full:"La tâche qui rend la journée gagnante, même seule."},
+  clarity:    {label:'Clarté mentale', short:'Lisibilité mentale',    full:"Levier le plus direct vers l'action."},
+  energy:     {label:'Énergie',       short:'Vitalité',               full:"Modifie le seuil d'entrée dans l'action."},
+  highImpact: {label:'Impact',        short:'Actions structurantes',  full:"Tâches qui font réellement avancer la journée."},
+  ifThen:     {label:'If Then',       short:'Plan de reprise',        full:"Mesure de retour à l'action, pas d'échec."},
+  micro:      {label:'Micro-actions', short:'Élan',                   full:"Maintiennent le mouvement sans remplacer l'essentiel."},
+  dispersion: {label:'Dispersion',    short:'Attention fragmentée',   full:"Activité présente, attention éparpillée."},
+  stress:     {label:'Stress',        short:'Tension cognitive',      full:"Charge mentale qui influence l'accès à l'action."},
+  optimisme:  {label:'Optimisme',     short:'Confiance dans la suite', full:"Sentiment que l'effort en vaut la peine et que la journée peut aboutir."},
+};
+
+function showMapTT(id){
+  const def=MAP_DEFINITIONS[id];
+  if(!def)return;
+  const tt=document.getElementById('cmap-tt');
+  if(!tt)return;
+  if(tt.dataset.nid===id){tt.classList.remove('show');tt.dataset.nid='';return;}
+  tt.innerHTML=`<div class="cmap-tt-lbl">${def.label} <span class="cmap-tt-short">— ${def.short}</span></div><div class="cmap-tt-full">${def.full}</div>`;
+  tt.classList.add('show');
+  tt.dataset.nid=id;
+}
+function hideCMapTT(){const tt=document.getElementById('cmap-tt');if(tt){tt.classList.remove('show');tt.dataset.nid='';}}
+function togPgravLeg(id){const b=document.getElementById(id);if(b)b.classList.toggle('open');}
+
+function buildCognitiveMapData(days){
+  const wt=days.filter(d=>d.tasks.length>0);
+  if(wt.length<5)return null;
+  const baseMR=mitRateOf(wt)||50;
+  const avgSc=Math.round(wt.reduce((s,d)=>s+calcScore(d).pct,0)/wt.length);
+  const winDay=wt.filter(d=>calcScore(d).mitDone).length;
+  const afDay=wt.filter(d=>calcScore(d).af).length;
+
+  function ni(subset){
+    if(subset.length<3)return{mr:null,infl:0,conf:false};
+    const mr=mitRateOf(subset);
+    if(mr===null)return{mr:null,infl:0,conf:false};
+    return{mr,infl:cl((mr-baseMR)/60,-1,1),conf:subset.length>=4};
+  }
+
+  // Tag-augmented subsets: scores + contexte coché
+  const hasT=(d,tags)=>tags.some(t=>d.tags.includes(t));
+  const clarHi  =wt.filter(d=>d.mood.clarte>=4    ||hasT(d,['bonne concentration']));
+  const engHi   =wt.filter(d=>d.mood.energie>=4   &&!hasT(d,['fatigue','besoin de récupération','fatigue sociale']));
+  const strHi   =wt.filter(d=>d.mood.stress>=4    ||hasT(d,['anxiété','surcharge cognitive','pression extérieure']));
+  const dispHi  =wt.filter(d=>d.mood.dispersion>=4||hasT(d,['impulsivité']));
+  const optHi   =wt.filter(d=>(d.mood.optimisme||0)>=4);
+  const itDays  =wt.filter(d=>(d.ifThens||[]).length>0);
+  const hiImp   =wt.filter(d=>d.tasks.some(t=>t.completed&&(t.impact||0)>=2));
+  const microNoMIT=wt.filter(d=>{
+    const mc=d.tasks.filter(t=>t.type==='MICRO'&&t.completed).length;
+    const ma=d.tasks.find(t=>t.type==='MIT');
+    return mc>=2&&(!ma||!ma.completed);
+  });
+
+  const nodes=[
+    {id:'clarity',    label:'Clarté mentale', angle:270, ...ni(clarHi),  n:clarHi.length,    color:'green'},
+    {id:'energy',     label:'Énergie',        angle:321, ...ni(engHi),   n:engHi.length,     color:'green'},
+    {id:'optimisme',  label:'Optimisme',      angle:12,  ...ni(optHi),   n:optHi.length,     color:'violet'},
+    {id:'stress',     label:'Stress',         angle:63,  ...ni(strHi),   n:strHi.length,     color:'red'},
+    {id:'dispersion', label:'Dispersion',     angle:115, ...ni(dispHi),  n:dispHi.length,    color:'amber'},
+    {id:'micro',      label:'Micro',          angle:167, mr:null, infl:microNoMIT.length/wt.length>0.2?-0.28:0, conf:wt.length>=5, n:microNoMIT.length, color:'grey'},
+    {id:'ifThen',     label:'If Then',        angle:218, ...ni(itDays),  n:itDays.length,    color:'violet'},
+  ];
+
+  // v3.9 — Distance STRICTEMENT proportionnelle au score (mr%).
+  // Tant qu'un score existe, on le respecte. Faible confiance = pointillé + opacité réduite,
+  // mais position correcte. "100% proche · 0% éloigné" pour tout ce qui gravite.
+  const HOSTILE={stress:true,dispersion:true};
+  nodes.forEach(nd=>{
+    const noData=(nd.mr===null&&nd.id!=='micro')||nd.n===0;
+    const lowConf=!noData&&(!nd.conf||nd.n<3);
+    if(noData){
+      // Vraiment aucune donnée → loin et grisé
+      nd.distance=130;
+      nd.opacity =0.28;
+      nd.dashed  =true;
+      nd.color   ='grey';
+      nd.size    =9;
+      nd.lineW   =0.6;
+      nd.score   =null;
+      nd.antifragile=false;
+    } else if(nd.mr!==null){
+      // Distance LINÉAIRE — 100% → 46 (proche) · 0% → 130 (loin)
+      nd.distance=cl(130-(nd.mr/100)*84,46,130);
+      nd.opacity =lowConf?0.5:cl(0.6+(nd.mr-50)/180,0.55,0.95);
+      nd.dashed  =lowConf;
+      nd.size    =cl(10.5+Math.abs(nd.infl||0)*3.5,9,14.5);
+      nd.lineW   =cl(0.8+Math.abs(nd.infl||0)*1.4,0.8,2.2);
+      nd.score   =nd.mr;
+      nd.antifragile=!!(HOSTILE[nd.id]&&nd.mr>=60);
+    } else {
+      // Cas micro : influence négative = loin (replace MIT par micro)
+      nd.distance=cl(95-nd.infl*40,55,125);
+      nd.opacity =0.55;
+      nd.dashed  =nd.infl<0;
+      nd.size    =10.5;
+      nd.lineW   =1;
+      nd.score   =null;
+      nd.antifragile=false;
+    }
+    nd.halo=nd.size+6;
+  });
+
+  return{core:{mitRate:baseMR,avgScore:avgSc,winDay,afDay,total:wt.length},nodes};
+}
+
+function generateCognitiveInsights(data,days){
+  const ins=[],nd=data.nodes,base=data.core.mitRate;
+  const topPos=nd.filter(x=>x.conf&&x.infl>0.12&&x.mr!==null).sort((a,b)=>b.infl-a.infl)[0];
+  if(topPos)ins.push(`La ${topPos.label.toLowerCase()} semble être le facteur le plus proche de tes journées gagnantes — priorité accomplie dans ${topPos.mr}% des cas, contre ${base}% en moyenne.`);
+  const disp=nd.find(x=>x.id==='dispersion');
+  if(disp&&disp.conf&&disp.mr!==null&&disp.mr<base-8)ins.push(`Les jours de forte dispersion, l'activité reste présente, mais la priorité centrale se déplace vers l'arrière-plan (${disp.mr}% de réalisation).`);
+  const it=nd.find(x=>x.id==='ifThen');
+  if(it&&it.conf&&it.n>=3){
+    if(it.mr!==null&&it.mr>=base)ins.push(`Les If Then apparaissent surtout lors des journées difficiles — la priorité y est accomplie dans ${it.mr}% des cas. Ils indiquent une capacité de reprise, pas un échec.`);
+    else if(it.n>0)ins.push(`Les stratégies If Then ont été activées sur ${it.n} journées. Leur rôle est de raccourcir la durée des dérives, pas de les supprimer.`);
+  }
+  const micro=nd.find(x=>x.id==='micro');
+  if(micro&&micro.n>=3&&micro.infl<-0.1)ins.push(`Les micro-actions soutiennent l'élan, mais semblent parfois remplacer la priorité centrale sur certaines journées.`);
+  if(data.core.afDay>=2)ins.push(`${data.core.afDay} journée${data.core.afDay>1?'s':''} antifragile${data.core.afDay>1?'s':''} — des journées difficiles où l'essentiel a tenu malgré la friction.`);
+  return ins.slice(0,3);
+}
+
+function renderCognitiveMap(days){
+  const data=buildCognitiveMapData(days);
+  if(!data)return`<div class="pgrav-card"><div class="ins-hdr"><div class="ins-title">Carte cognitive</div></div><div class="empty-st" style="padding:16px 0;font-size:.6rem">5 journées minimum requises pour générer la carte.</div></div>`;
+
+  /* ====================================================
+     v3.4 — Grille radiale tactique
+     Plus de satellites flottants, plus d'anneaux décoratifs,
+     plus de halos par nœud. Pétales structurés autour du MIT.
+  ===================================================== */
+  const CX=190,CY=160,VW=380,VH=320;
+  // v3.8.4 — Palette monochrome au repos. La nature (ressource/friction) se révèle au hover.
+  const COLS={
+    green: {fill:'rgba(230,232,238,.78)', stroke:'rgba(230,232,238,.42)', bg:'rgba(230,232,238,.05)'},
+    violet:{fill:'rgba(230,232,238,.78)', stroke:'rgba(230,232,238,.42)', bg:'rgba(230,232,238,.05)'},
+    amber: {fill:'rgba(210,214,222,.7)',  stroke:'rgba(210,214,222,.38)', bg:'rgba(210,214,222,.04)'},
+    red:   {fill:'rgba(210,214,222,.7)',  stroke:'rgba(210,214,222,.38)', bg:'rgba(210,214,222,.04)'},
+    grey:  {fill:'rgba(160,168,180,.45)', stroke:'rgba(160,168,180,.2)',  bg:'rgba(160,168,180,.03)'},
+  };
+  // Mapping pour révéler la nature au hover
+  const TINT={clarity:'cool',energy:'cool',optimisme:'cool',ifThen:'cool',stress:'warm',dispersion:'warm',micro:'neutral'};
+  const mitStrong=data.core.mitRate>=65;
+
+  // v3.8 — distance par nœud (calculée par buildCognitiveMapData en fonction du mr%)
+  const N=data.nodes.length;
+  const npos=data.nodes.map((nd,i)=>{
+    const angle=-90+(360/N)*i;
+    const rad=angle*Math.PI/180;
+    const dist=nd.distance||100;
+    return{...nd,x:CX+dist*Math.cos(rad),y:CY+dist*Math.sin(rad),angle,dist,cls:`cn${i}`};
+  });
+
+  let svg=`<svg viewBox="0 0 ${VW} ${VH}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block;margin:6px 0" onclick="hideCMapTT()">`;
+
+  // 3 anneaux-guides indiquant les seuils 30%/60%/90%
+  [46,88,130].forEach((r,i)=>{
+    svg+=`<circle cx="${CX}" cy="${CY}" r="${r}" fill="none" stroke="rgba(255,255,255,${(0.025-i*0.005).toFixed(3)})" stroke-width="0.5" stroke-dasharray="2,5"/>`;
+  });
+
+  // Connecteurs centre → nœud (fines, opacité corrélée à la confiance)
+  npos.forEach(nd=>{
+    const c=COLS[nd.color]||COLS.grey;
+    const op=nd.dashed?0.06:cl(0.1+Math.abs(nd.infl||0)*0.25,0.08,0.32);
+    svg+=`<line x1="${CX}" y1="${CY}" x2="${nd.x.toFixed(1)}" y2="${nd.y.toFixed(1)}" stroke="${c.stroke}" stroke-width="0.7" opacity="${op.toFixed(2)}"${nd.dashed?' stroke-dasharray="1.5,3"':''}/>`;
+  });
+
+  // ── Noyau MIT — neutre blanc/gris (plus de violet sur le centre) ──
+  svg+=`<g class="ccore" onclick="event.stopPropagation();showMapTT('mit')" style="cursor:pointer">`;
+  // Halo blanc subtil (signature lumineuse)
+  svg+=`<circle cx="${CX}" cy="${CY}" r="42" fill="none" stroke="rgba(255,255,255,.06)" stroke-width="0.6"/>`;
+  // Disque MIT — stroke blanche au lieu de violette
+  svg+=`<circle cx="${CX}" cy="${CY}" r="32" fill="rgba(8,10,15,.98)" stroke="rgba(255,255,255,${mitStrong?'.45':'.22'})" stroke-width="${mitStrong?'1.4':'1'}"/>`;
+  // Bullet central — blanc cassé
+  svg+=`<circle cx="${CX}" cy="${CY-9}" r="3" fill="rgba(235,238,245,${mitStrong?'.92':'.7'})"/>`;
+  // Labels MIT — blanc neutre, mr% en gris
+  svg+=`<text x="${CX}" y="${CY+2}" text-anchor="middle" font-family="DM Mono,monospace" font-size="9.5" font-weight="500" fill="rgba(235,238,245,.94)">MIT</text>`;
+  svg+=`<text x="${CX}" y="${CY+14}" text-anchor="middle" font-family="DM Mono,monospace" font-size="8.5" fill="rgba(180,188,200,.78)">${data.core.mitRate}%</text>`;
+  svg+=`</g>`;
+
+  // v3.8.2 — Pictogrammes par nœud (au lieu de simples points)
+  const NODE_ICONS={
+    clarity:    '<circle cx="0" cy="0" r="3.2" fill="none" stroke="CURRENT" stroke-width="1.2"/><line x1="0" y1="-5.5" x2="0" y2="-3.5" stroke="CURRENT" stroke-width="1.2" stroke-linecap="round"/><line x1="0" y1="3.5" x2="0" y2="5.5" stroke="CURRENT" stroke-width="1.2" stroke-linecap="round"/><line x1="-5.5" y1="0" x2="-3.5" y2="0" stroke="CURRENT" stroke-width="1.2" stroke-linecap="round"/><line x1="3.5" y1="0" x2="5.5" y2="0" stroke="CURRENT" stroke-width="1.2" stroke-linecap="round"/>',
+    energy:     '<path d="M-1 -5 L-3 0 L0 0 L-1 5 L3 -1 L0 -1 L1 -5 Z" fill="CURRENT" stroke="none"/>',
+    optimisme:  '<path d="M-5 1 Q0 -6 5 1" fill="none" stroke="CURRENT" stroke-width="1.4" stroke-linecap="round"/><circle cx="-2.5" cy="-1" r=".9" fill="CURRENT"/><circle cx="2.5" cy="-1" r=".9" fill="CURRENT"/>',
+    stress:     '<path d="M-4 -3 L-2 -1 L0 -3 L2 -1 L4 -3 M-4 2 L-2 4 L0 2 L2 4 L4 2" fill="none" stroke="CURRENT" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>',
+    dispersion: '<circle cx="-3.5" cy="-2.5" r="1.1" fill="CURRENT"/><circle cx="3.2" cy="-1.8" r="1.1" fill="CURRENT"/><circle cx="-1.5" cy="3.3" r="1.1" fill="CURRENT"/><circle cx="3.5" cy="3" r="1.1" fill="CURRENT"/><circle cx="0" cy="-.5" r="1.1" fill="CURRENT" opacity=".6"/>',
+    micro:      '<rect x="-5" y="-1" width="3" height="2" rx=".5" fill="CURRENT"/><rect x="-.5" y="-1" width="3" height="2" rx=".5" fill="CURRENT" opacity=".7"/><rect x="3.5" y="-1" width="2" height="2" rx=".5" fill="CURRENT" opacity=".5"/>',
+    ifThen:     '<path d="M-5 -2 L-1 -2 L-1 2 L5 2" fill="none" stroke="CURRENT" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 0 L5 2 L3 4" fill="none" stroke="CURRENT" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>',
+  };
+  npos.forEach(nd=>{
+    const c=COLS[nd.color]||COLS.grey,op=cl(nd.opacity||0.5,0.3,1).toFixed(2);
+    const rx=nd.x.toFixed(1),ry=nd.y.toFixed(1);
+    const r=(nd.size||11).toFixed(1);
+    const iconRaw=NODE_ICONS[nd.id]||'<circle cx="0" cy="0" r="2.5" fill="CURRENT"/>';
+    const icon=iconRaw.replace(/CURRENT/g,c.fill);
+    const tint=TINT[nd.id]||'neutral';
+    const active=!nd.dashed?'1':'0';
+    svg+=`<g class="${nd.cls} cog-nd" data-tint="${tint}" data-active="${active}" onclick="event.stopPropagation();showMapTT('${nd.id}')" style="cursor:pointer">`;
+    // Anneau antifragile : monochrome subtil au repos, se réchauffe au hover via CSS parent
+    if(nd.antifragile){
+      svg+=`<circle class="af-ring" cx="${rx}" cy="${ry}" r="${(+r+3.5).toFixed(1)}" fill="none" stroke="rgba(230,232,238,.32)" stroke-width="1" stroke-dasharray="1.5,2" opacity="${op}"><title>Friction traversée — signal antifragile</title></circle>`;
+    }
+    svg+=`<circle cx="${rx}" cy="${ry}" r="${r}" fill="${c.bg}" stroke="${c.stroke}" stroke-width="${nd.lineW||1}" stroke-dasharray="${nd.dashed?'2,2':'0'}" opacity="${op}"/>`;
+    svg+=`<g transform="translate(${rx} ${ry})" opacity="${op}">${icon}</g>`;
+    svg+=`</g>`;
+  });
+
+  // ── Labels externes — décalage proportionnel à la distance du nœud ──
+  npos.forEach(nd=>{
+    const c=COLS[nd.color]||COLS.grey,rad=nd.angle*Math.PI/180;
+    const labelDist=nd.dist+(nd.size||11)+14;
+    const lx=CX+labelDist*Math.cos(rad),ly=CY+labelDist*Math.sin(rad);
+    const anchor=Math.abs(lx-CX)<18?'middle':lx<CX?'end':'start';
+    const labelOp=nd.dashed?0.5:0.88;
+    svg+=`<text x="${lx.toFixed(1)}" y="${(ly-2).toFixed(1)}" text-anchor="${anchor}" font-family="DM Mono,monospace" font-size="9" fill="rgba(228,232,242,${labelOp})" style="pointer-events:none">${nd.label}</text>`;
+    // Affiche le score orienté favorable (ou mr direct si pas de score calculé)
+    const displayPct=nd.score!=null?nd.score:nd.mr;
+    if(displayPct!==null&&displayPct!==undefined){
+      svg+=`<text x="${lx.toFixed(1)}" y="${(ly+10).toFixed(1)}" text-anchor="${anchor}" font-family="DM Mono,monospace" font-size="8" fill="${c.fill}" opacity=".78" style="pointer-events:none">${displayPct}%</text>`;
+    }
+  });
+
+  svg+=`</svg>`;
+
+  const insights=generateCognitiveInsights(data,days);
+  let h=`<div class="pgrav-card">`;
+  h+=`<div class="ins-hdr"><div class="ins-title">Carte cognitive</div><div class="ins-n">${data.core.total} journées</div></div>`;
+  h+=`<div class="pgrav-sub">Distance = priorité accomplie quand cette dimension est haute · anneau ambre = friction traversée</div>`;
+  h+=svg;
+  h+=`<div id="cmap-tt" class="cmap-tt" data-nid="" onclick="event.stopPropagation()"></div>`;
+  if(insights.length){h+=`<div class="pgrav-ins">${insights.map(i=>`<div class="pgrav-ins-line">${i}</div>`).join('')}</div>`;}
+  h+=`</div>`;
+  return h;
+}
+
+
+/* ── MENTAL STATE TIMELINE ─────────────────────────────────── */
+const DONUT_DEFS={
+  'Gagnante':'La priorité centrale a été accomplie.',
+  'Optimisée':'La priorité est accomplie et le score global est élevé.',
+  'Partielle':"Des actions ont été engagées, même si l'essentiel n'a pas totalement tenu.",
+  'Antifragile':"Journée difficile où l'essentiel ou le retour à l'action a tenu malgré la friction.",
+  'Vide':"Aucune donnée suffisante pour interpréter la journée."
+};
+function showDonutTip(label,n){
+  const def=DONUT_DEFS[label];const tt=document.getElementById('donut-tt');
+  if(!tt||!def)return;
+  if(tt.dataset.open===label){tt.style.display='none';tt.dataset.open='';return;}
+  tt.innerHTML=`<div style="font-size:.62rem;color:var(--t1);margin-bottom:3px">${label} · ${n} jour${n>1?'s':''}</div><div style="font-size:.57rem;color:var(--t3);line-height:1.6">${def}</div>`;
+  tt.style.display='block';tt.dataset.open=label;
+}
+
+/* ────────────────────────────────────────────────────────────
+   v3.5 — Évolution mentale : HEATMAP matrice métriques × jours
+   Lecture verticale = état d'un jour · horizontale = trajectoire
+──────────────────────────────────────────────────────────── */
+function renderTimeline(days){
+  const sorted=days.filter(d=>d.tasks.length>0).sort((a,b)=>a.date.localeCompare(b.date));
+  if(sorted.length<5)return'';
+
+  // Métriques : positives (haut = mieux) puis frictions (haut = pire)
+  // inv:true → la couleur "intense" doit signaler le mauvais côté (signal/ambre)
+  const METS=[
+    {k:'clarte',    label:'Clarté mentale', inv:false, palette:'accent'},
+    {k:'energie',   label:'Énergie',        inv:false, palette:'accent'},
+    {k:'motivation',label:'Motivation',     inv:false, palette:'accent'},
+    {k:'optimisme', label:'Optimisme',      inv:false, palette:'accent'},
+    {k:'stress',    label:'Stress',         inv:true,  palette:'signal'},
+    {k:'dispersion',label:'Dispersion',     inv:true,  palette:'signal'},
+  ];
+
+  // Couleur d'une cellule : intensité proportionnelle à la magnitude perçue
+  // value 1..5 -> ratio. Pour métriques positives, 5 = forte intensité (bleu).
+  //                    Pour frictions (inv), 5 = forte intensité (ambre).
+  function cellColor(value, palette){
+    const v=cl(value,1,5);
+    const ratio=(v-1)/4; // 0..1
+    // v3.10 — ressources en gris-blanc (plus de violet/bleu)
+    if(palette==='accent') return `rgba(230,232,238,${(0.06+ratio*0.42).toFixed(2)})`;
+    return `rgba(195,150,90,${(0.08+ratio*0.6).toFixed(2)})`;
+  }
+
+  const cellSize=10, gap=2, labelW=88;
+  const rowH=cellSize+gap;
+  const cols=sorted.length;
+  const W=labelW+cols*(cellSize+gap)+4;
+  const Hcells=METS.length*rowH;
+  const mitRowY=Hcells+4;
+  const H=Hcells+cellSize+10;
+
+  let svg=`<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block" onclick="hideTLTip()">`;
+
+  // Lignes pour chaque métrique
+  METS.forEach((m,rowIdx)=>{
+    const y=rowIdx*rowH;
+    // Label métrique
+    svg+=`<text x="0" y="${y+cellSize-1}" font-family="DM Mono,monospace" font-size="7.5" fill="rgba(228,232,242,.62)" style="pointer-events:none">${m.label}</text>`;
+    sorted.forEach((d,i)=>{
+      const v=d.mood[m.k]||3;
+      const x=labelW+i*(cellSize+gap);
+      const col=cellColor(v,m.palette);
+      svg+=`<rect x="${x}" y="${y}" width="${cellSize}" height="${cellSize}" rx="1.5" fill="${col}" stroke="rgba(255,255,255,.025)" stroke-width="0.5" onclick="event.stopPropagation();showTLDay('${d.date}')" style="cursor:pointer"><title>${m.label} ${v}/5 — ${d.date}</title></rect>`;
+    });
+  });
+
+  // Rangée MIT done — pastille basse, alignée
+  svg+=`<text x="0" y="${mitRowY+cellSize-2}" font-family="DM Mono,monospace" font-size="7" font-weight="500" fill="rgba(228,232,242,.74)" style="pointer-events:none">MIT accomplie</text>`;
+  sorted.forEach((d,i)=>{
+    const sc=calcScore(d);
+    const x=labelW+i*(cellSize+gap)+cellSize/2;
+    const y=mitRowY+cellSize/2;
+    if(sc.mitDone){
+      svg+=`<circle cx="${x}" cy="${y}" r="2.6" fill="rgba(235,238,245,.92)"><title>${d.date} — priorité accomplie</title></circle>`;
+    } else {
+      svg+=`<circle cx="${x}" cy="${y}" r="1.4" fill="rgba(255,255,255,.12)"/>`;
+    }
+  });
+
+  svg+=`</svg>`;
+
+  // En-tête de période (premier ↔ dernier jour)
+  const first=fmtS(sorted[0].date);
+  const last=fmtS(sorted[sorted.length-1].date);
+  const dateLine=`<div style="display:flex;justify-content:space-between;font-size:.5rem;color:var(--t4);margin-top:6px;padding-left:${labelW*0.24}px"><span>${first}</span><span>${last}</span></div>`;
+
+  let h=`<div class="ins-card">`;
+  h+=`<div class="ins-hdr"><div class="ins-title">Évolution mentale</div><div class="ins-n">${sorted.length} journées</div></div>`;
+  h+=`<div style="font-size:.54rem;color:var(--t3);margin-bottom:8px;line-height:1.55">Intensité claire = ressource · intensité ambre = friction · pastille = priorité accomplie</div>`;
+  h+=svg;
+  h+=dateLine;
+  h+=`<div id="tl-tt" class="tl-tt" style="display:none;margin-top:8px" onclick="event.stopPropagation()"></div>`;
+  h+=`</div>`;
+  return h;
+}
+function showTLDay(date){
+  const d=DAYS[date];if(!d)return;
+  const sc=calcScore(d);const tt=document.getElementById('tl-tt');if(!tt)return;
+  tt.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:.64rem;color:var(--t1)">${fmtM(date)}</span><span style="font-size:.56rem;color:${sc.mitDone?'var(--win)':'var(--t3)'}">priorité ${sc.mitDone?'accomplie':'non accomplie'} · ${sc.pct}%</span></div><div style="font-size:.54rem;color:var(--t3);line-height:1.75">clarté ${d.mood.clarte}/5 · énergie ${d.mood.energie}/5 · motivation ${d.mood.motivation}/5 · optimisme ${d.mood.optimisme||3}/5 · stress ${d.mood.stress}/5 · dispersion ${d.mood.dispersion}/5</div>`;
+  tt.style.display='block';
+}
+function hideTLTip(){const tt=document.getElementById('tl-tt');if(tt)tt.style.display='none';}
+
+
+/* ── DASHBOARD HELPERS ─────────────────────────────────────── */
+function renderDashQuote(days){
+  const wt=days.filter(d=>d.tasks.length>0);
+  if(!wt.length)return'<div class="dash-quote"></div>';
+  const allPats=wt.flatMap(d=>detectPatterns(d));
+  const cnt={};allPats.forEach(p=>{cnt[p]=(cnt[p]||0)+1;});
+  const sortedPats=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+  const q=quoteForPatterns(sortedPats)||quoteForDay(todayISO());
+  if(!q)return'<div class="dash-quote"></div>';
+  const PAT_LABELS={high_clarity_success:'clarté élevée',high_dispersion_low_mit:'dispersion élevée',low_energy_mit_success:'faible énergie surmontée',high_resistance_mit_success:'résistance traversée',antifragile_day:'journée antifragile',if_then_effective:'stratégie efficace',strategy_helped_mit:'reprise réussie',micro_tasks_over_mit:'priorité diffuse',low_impact_productivity:'activité faible impact'};
+  const domPat=sortedPats.find(p=>PAT_LABELS[p]);
+  const patLabel=domPat?PAT_LABELS[domPat]:'';
+  return `<div class="dash-quote">
+    <div class="dq-mark">"</div>
+    <div class="dq-body">
+      <div class="dq-text">${esc(q.text)}</div>
+      <div class="dq-author">— ${esc(q.author)}</div>
+    </div>
+    ${patLabel?`<div class="dq-pattern">pattern : ${patLabel}</div>`:''}
+  </div>`;
+}
+
+function renderCompactKPIs(mr,as,afs,nDone,nWith,nTotal){
+  // streak removed by /autoplan principle — no chain pressure
+  const items=[
+    {lbl:'priorité',val:`${mr}%`,c:mr>=70?'rgba(91,110,232,.7)':mr>=50?'rgba(195,150,90,.65)':' var(--t2)'},
+    {lbl:'score moy.',val:`${as}%`,c:'rgba(91,110,232,.65)'},
+    {lbl:'antifragile',val:afs,c:'rgba(195,150,90,.65)'},
+  ];
+  return`<div class="kpi-strip">${items.map(k=>`<div class="kpi-pill"><div class="kpi-pill-val" style="color:${k.c}">${k.val}</div><div class="kpi-pill-lbl">${k.lbl}</div></div>`).join('')}</div>`;
+}
+
+function renderPatternCards(days,ins){
+  if(!ins||ins.length<2)return'<div></div>';
+  const wt=days.filter(d=>d.tasks.length>0);
+  const SVG_ICONS={
+    clarte:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.62)" stroke-width="1.4"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>`,
+    energie:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.6)" stroke-width="1.4"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+    dispersion:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(195,150,90,.6)" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8l4 4-4 4"/></svg>`,
+    optimisme:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.6)" stroke-width="1.4"><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>`,
+    stress:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(195,150,90,.6)" stroke-width="1.4"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>`,
+    motivation:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.6)" stroke-width="1.4"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>`,
+  };
+  const BAR_COLS={clarte:'rgba(230,232,238,.45)',energie:'rgba(230,232,238,.45)',motivation:'rgba(230,232,238,.45)',optimisme:'rgba(230,232,238,.45)',dispersion:'rgba(195,150,90,.5)',stress:'rgba(195,150,90,.5)'};
+  const cards=ins.slice(0,4).map(s=>{
+    const v=s.mrH!==null?s.mrH:s.scH;
+    const isPos=!s.inv?(v>60):(v<60);
+    const barCol=isPos?BAR_COLS[s.k]||'rgba(230,232,238,.45)':' rgba(195,150,90,.45)';
+    const icon=SVG_ICONS[s.k]||SVG_ICONS.motivation;
+    const desc=isPos?`→ priorité tenue dans ${v}%`:`→ priorité reculée (${v}%)`;
+    return `<div class="patt-card">${icon}<div class="patt-lbl">${s.l}${s.inv?' élevé·e':' élevé·e'}</div><div class="patt-val">${v}%</div><div class="patt-bar-wrap"><div class="patt-fill" style="width:${v}%;background:${barCol}"></div></div><div class="patt-sub">${desc}</div></div>`;
+  });
+  return `<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Patterns mentaux</div><div class="ins-n">${cards.length} actifs</div></div><div class="patt-grid">${cards.join('')}</div></div>`;
+}
+
+function renderCompactStability(stab){
+  if(!stab||stab.nWin<3||stab.nPart<2)return`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Stabilité mentale</div></div><div class="empty-st" style="padding:20px">Données insuffisantes.</div></div>`;
+  const rows=[
+    {l:'Énergie',wv:stab.winEnergy,pv:stab.partEnergy,col:'rgba(230,232,238,',inv:false},
+    {l:'Clarté mentale', wv:stab.winClarity,pv:stab.partClarity,col:'rgba(230,232,238,',inv:false},
+    {l:'Stress', wv:stab.winStress,pv:stab.partStress,  col:'rgba(195,150,90,',inv:true},
+    {l:'Disp.',  wv:stab.winDisp,pv:stab.partDisp,      col:'rgba(195,150,90,',inv:true},
+  ];
+  const eD=+(stab.winEnergy-stab.partEnergy).toFixed(1);
+  const cD=+(stab.winClarity-stab.partClarity).toFixed(1);
+  const mainFactor=Math.abs(cD)>=Math.abs(eD)?'clarté':' énergie';
+  const mainDelta=mainFactor==='clarté'?cD:eD;
+  let h=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Stabilité mentale</div><div class="ins-n">${stab.nWin+stab.nPart} jours</div></div>`;
+  if(mainDelta>0.4)h+=`<div style="font-size:.57rem;color:var(--t3);margin-bottom:8px;line-height:1.6">Lié à la <strong style="color:var(--t2)">${mainFactor}</strong>.</div>`;
+  rows.forEach(row=>{
+    const wf=parseFloat(row.wv||3);
+    const better=row.inv?(wf<parseFloat(row.pv||3)):(wf>parseFloat(row.pv||3));
+    const op=better?'.58)' :'.45)';
+    const bg=`linear-gradient(90deg,${row.col}.2),${row.col}${op})`;
+    h+=`<div class="ins-bar-row"><div class="ib-lbl" style="color:${row.col}.6)">${row.l}</div><div class="ib-track"><div class="ib-fill" style="width:${wf/5*100}%;background:${bg}"></div></div><div class="ib-val">${row.wv||'—'} / ${row.pv||'—'}</div></div>`;
+  });
+  h+=`<div style="font-size:.48rem;color:var(--t4);margin-top:5px">accomplie · partielle</div>`;
+  h+=`</div>`;
+  return h;
+}
+
+/* ── RENDER: DASHBOARD ── */
+/* V3.1 hierarchy (post-/autoplan): cognitive map FIRST, KPIs demoted to bottom.
+   Dashboard = calm cognitive review space, not a KPI wall. */
+function renderDashboard(){
+  const days=filterDays(DF),wt=days.filter(d=>d.tasks.length>0);
+  let h=`<div class="frow">${['7','30','all'].map(f=>`<button class="fbtn ${DF===f?'on':''}" onclick="setDF('${f}')">${f==='all'?'Tout':f+'j'}</button>`).join('')}</div>`;
+  if(wt.length<3){h+=`<div class="empty-st">Enregistrez au moins 3 journées pour accéder aux patterns.</div>`;$('dash-in').innerHTML=h;return;}
+
+  // ── Stats partagées (streak intentionally removed — see PRINCIPLES)
+  const wm=wt.filter(d=>d.tasks.some(t=>t.type==='MIT'));
+  const mrd=wm.filter(d=>{const m=d.tasks.find(t=>t.type==='MIT');return m&&m.completed;});
+  const mr=wm.length?Math.round(mrd.length/wm.length*100):0;
+  const as=Math.round(wt.reduce((s,d)=>s+calcScore(d).pct,0)/wt.length);
+  const afs=wt.filter(d=>calcScore(d).af).length;
+  const stab=calcStability(days);
+  const ins=buildInsights(days);
+  const impDist=buildImpactDist(days);
+  const itStats=buildIfThenStats(days);
+
+  // ═══ Citation d'ouverture — mettre en état de pensée avant l'analyse ═══
+  h+=renderDashQuote(days);
+
+  // ═══ LEVEL 1 — COGNITIVE MIRROR (visual, calm, no numbers) ═══
+  // Cognitive map opens the review — answers "where am I right now?"
+  h+=`<div class="cognitive-dash">${renderCognitiveMap(days)}</div>`;
+
+  // ═══ LEVEL 2 — MENTAL EVOLUTION (timeline) ═══
+  const timeline=renderTimeline(days);
+  if(timeline)h+=timeline;
+
+  // ═══ LEVEL 2 — PATTERN CARDS (recurring mental signatures) ═══
+  if(ins&&ins.length>=2)h+=renderPatternCards(days,ins);
+
+  // ═══ LEVEL 2 — STABILITY (winning vs partial conditions) ═══
+  h+=renderCompactStability(stab);
+
+  // ═══ LEVEL 3 — DAY DISTRIBUTION (donut, full width) ═══
+  const winDays=wt.filter(d=>{const s=calcScore(d);return s.mitDone&&s.pct<80&&!s.af;}).length;
+  const optDays=wt.filter(d=>{const s=calcScore(d);return s.status==='optimized'&&!s.af;}).length;
+  const partDays=wt.filter(d=>{const s=calcScore(d);return !s.mitDone&&s.pct>10;}).length;
+  const afDays=wt.filter(d=>calcScore(d).af).length;
+  const emptyDays=days.length-wt.length;
+  const donutSegs=[
+    {v:winDays,  c:'rgba(230,232,238,.62)', l:'Gagnante',   n:winDays},
+    {v:optDays,  c:'rgba(230,232,238,.42)', l:'Optimisée',  n:optDays},
+    {v:partDays, c:'rgba(195,150,90,.55)',  l:'Partielle',  n:partDays},
+    {v:afDays,   c:'rgba(195,150,90,.75)',  l:'Antifragile',n:afDays},
+    {v:emptyDays,c:'rgba(255,255,255,.05)', l:'Vide',       n:emptyDays},
+  ].filter(s=>s.v>0);
+  h+=`<div class="ins-card" onclick="showDonutTip('',0)"><div class="ins-hdr"><div class="ins-title">Répartition</div><div class="ins-n">${wt.length} journées</div></div><div class="donut-wrap">${donutSVG(donutSegs)}<div class="donut-legend">${donutSegs.map(s=>`<div class="dl-item" onclick="event.stopPropagation();showDonutTip('${s.l}',${s.n})" style="cursor:pointer"><div class="dl-dot" style="background:${s.c}"></div><span>${s.l}</span><span class="dl-val">${s.n}</span></div>`).join('')}</div></div><div id="donut-tt" class="tl-tt" data-open="" style="display:none;margin-top:8px"></div></div>`;
+
+  // ── SECONDAIRE : If Then effectiveness
+  if(itStats&&itStats.total>=3){
+    h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">If Then — stratégies de reprise</div><div class="ins-n">${itStats.total} utilisation${itStats.total>1?'s':''} · ${itStats.nWith} journée${itStats.nWith>1?'s':''}</div></div>`;
+    let txt='';
+    if(itStats.withStratMIT!==null&&itStats.withoutStratMIT!==null){
+      const delta=itStats.withStratMIT-itStats.withoutStratMIT;
+      txt=`If Then activé : priorité accomplie dans <strong>${itStats.withStratMIT}%</strong> des cas — contre <strong>${itStats.withoutStratMIT}%</strong> sans.`;
+      if(delta>10)txt+=' Corrélation favorable.';
+      else if(delta<-5)txt+=" Signal de régulation, pas d'échec.";
+    } else {
+      txt=`${itStats.total} utilisation${itStats.total>1?'s':''}. ${itStats.helped} retours à l'action.`;
+    }
+    h+=`<div class="ins-txt">${txt}</div>`;
+    STRATEGIES.forEach(strat=>{
+      const stats=itStats.perStrat[strat.id];
+      if(!stats||!stats.uses)return;
+      const effPct=Math.round(stats.effective/stats.uses*100);
+      h+=`<div class="ins-bar-row"><div class="ib-lbl" style="font-size:.5rem;width:80px">${esc(strat.trigger.slice(0,18))}…</div><div class="ib-track"><div class="ib-fill" style="width:${effPct}%;background:var(--violet)"></div></div><div class="ib-val">${stats.uses}× / ${effPct}%</div></div>`;
+    });
+    const rq=quoteForPattern('strategy_helped_mit');
+    if(rq)h+=`<div class="ins-q">« ${esc(rq.text)} »<div class="ins-q-auth">— ${esc(rq.author)}</div></div>`;
+    h+=`</div>`;
+  }
+
+  // ── Activité vs impact réel — barre segmentée proportionnelle (v3.9)
+  if(impDist.total>=5){
+    const lipDays=wt.filter(d=>detectPatterns(d).includes('low_impact_productivity')).length;
+    const hiaDays=wt.filter(d=>detectPatterns(d).includes('high_impact_avoidance')).length;
+    if(lipDays>0||hiaDays>0){
+      const total=impDist.hi+impDist.mid+impDist.lo||1;
+      const pctHi =Math.round(impDist.hi /total*100);
+      const pctMid=Math.round(impDist.mid/total*100);
+      const pctLo =Math.max(0,100-pctHi-pctMid);
+      h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Activité vs impact réel</div><div class="ins-n">${total} tâches</div></div>`;
+      if(lipDays>0)h+=`<div class="ins-txt">${lipDays} journée${lipDays>1?'s':''} dominée${lipDays>1?'s':''} par l'activité à faible impact.</div>`;
+      if(hiaDays>0)h+=`<div class="ins-txt">${hiaDays} journée${hiaDays>1?'s':''} où les tâches à fort impact n'ont pas été réalisées.</div>`;
+      h+=`<div class="seg-bar">`;
+      if(pctHi>0) h+=`<div class="seg-bar-cell high" style="flex:${pctHi}" title="Fort impact · ${impDist.hi} tâches · ${pctHi}%"></div>`;
+      if(pctMid>0)h+=`<div class="seg-bar-cell mid"  style="flex:${pctMid}" title="Impact moyen · ${impDist.mid} tâches · ${pctMid}%"></div>`;
+      if(pctLo>0) h+=`<div class="seg-bar-cell low"  style="flex:${pctLo}" title="Faible impact · ${impDist.lo} tâches · ${pctLo}%"></div>`;
+      h+=`</div>`;
+      h+=`<div class="seg-legend">`;
+      h+=`<div class="seg-legend-item"><span class="seg-dot high"></span>Fort impact (I≥2)<span class="seg-pct">${impDist.hi} · ${pctHi}%</span></div>`;
+      h+=`<div class="seg-legend-item"><span class="seg-dot mid"></span>Moyen (I=1)<span class="seg-pct">${impDist.mid} · ${pctMid}%</span></div>`;
+      h+=`<div class="seg-legend-item"><span class="seg-dot low"></span>Faible (I=0)<span class="seg-pct">${impDist.lo} · ${pctLo}%</span></div>`;
+      h+=`</div>`;
+      const rq=quoteForPattern('low_impact_productivity')||quoteForPattern('micro_tasks_over_mit');
+      if(rq)h+=`<div class="ins-q">« ${esc(rq.text)} »<div class="ins-q-auth">— ${esc(rq.author)}</div></div>`;
+      h+=`</div>`;
+    }
+  }
+
+  // ── Patterns détaillés — cartes comparatives haut vs bas (v3.9)
+  if(ins.length){
+    h+=`<div class="ins-sec-lbl" style="margin-top:8px">patterns détaillés</div>`;
+    const PCOMP_INSIGHT={
+      clarte:    'Levier le plus direct vers l\'action.',
+      energie:   'Influence le seuil d\'entrée dans l\'action.',
+      motivation:'Souvent moins prédictif que la clarté.',
+      optimisme: 'Sentiment que l\'effort vaut la peine.',
+      stress:    'Friction traversée — signal de résilience.',
+      dispersion:'Attention fragmentée vs concentrée.',
+    };
+    const TINT_PAT={clarte:'cool',energie:'cool',motivation:'cool',optimisme:'cool',stress:'warm',dispersion:'warm'};
+    ins.forEach(s=>{
+      const high=s.mrH!==null?s.mrH:s.scH;
+      const low =s.mrL!==null?s.mrL:s.scL;
+      if(high===null)return;
+      const delta=(low!==null)?(high-low):null;
+      // Pour les frictions (s.inv true), un delta positif = friction traversée (bon)
+      // Pour les ressources, delta positif = la ressource aide vraiment
+      const deltaCls=delta===null?'':(delta>=0?'pos':'neg');
+      const deltaTxt=delta===null?'':(`${delta>=0?'+':''}${delta}%`);
+      const tint=TINT_PAT[s.k]||'cool';
+      const insight=PCOMP_INSIGHT[s.k]||'';
+      h+=`<div class="pcomp" data-tint="${tint}">`;
+      h+=`<div class="pcomp-hdr"><span class="pcomp-title">${s.l}</span>${delta!==null?`<span class="pcomp-delta ${deltaCls}">Δ ${deltaTxt}</span>`:''}<span class="pcomp-n">n = ${s.nH}</span></div>`;
+      h+=`<div class="pcomp-rows">`;
+      h+=`<div class="pcomp-row high"><span class="pcomp-row-lbl">haut</span><div class="pcomp-row-track"><div class="pcomp-row-fill" style="width:${high}%"></div></div><span class="pcomp-row-val">${high}%</span></div>`;
+      if(low!==null){
+        h+=`<div class="pcomp-row low"><span class="pcomp-row-lbl">bas</span><div class="pcomp-row-track"><div class="pcomp-row-fill" style="width:${low}%"></div></div><span class="pcomp-row-val">${low}%</span></div>`;
+      }
+      h+=`</div>`;
+      if(insight)h+=`<div class="pcomp-insight">${insight}</div>`;
+      h+=`</div>`;
+    });
+  }
+
+  // ── Tag insights
+  const ti=buildTagIns(days);
+  if(ti&&(ti.pos.length||ti.neg.length)){
+    // v3.10 — Citation contextuelle : priorise le tag négatif le plus fréquent (axe d'amélioration)
+    // sinon retombe sur le tag positif top
+    const topTag=(ti.neg[0]&&ti.neg[0][0])||(ti.pos[0]&&ti.pos[0][0])||null;
+    const topPat=topTag?TAG_TO_PATTERN[topTag]:null;
+    const ctxQuote=topPat?quoteForPattern(topPat):null;
+    h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Contextes associés</div></div>${ti.pos.length?`<div style="font-size:.5rem;color:var(--t3);margin-bottom:4px;letter-spacing:.04em">Présents lors des priorités accomplies (${ti.nW} jours)</div><div class="tag-chips">${ti.pos.map(([t,c])=>`<span class="tc-win">${esc(t)} <span class="tc-cnt">×${c}</span></span>`).join('')}</div>`:''}${ti.neg.length?`<div style="font-size:.5rem;color:rgba(210,180,140,.78);margin:9px 0 4px;letter-spacing:.04em">À travailler — présents lors des priorités manquées (${ti.nN} jours)</div><div class="tag-chips">${ti.neg.map(([t,c])=>`<span class="tc-loss">${esc(t)} <span class="tc-cnt">×${c}</span></span>`).join('')}</div>`:''}${ctxQuote?`<div class="ins-q" style="margin-top:11px">« ${esc(ctxQuote.text)} »<div class="ins-q-auth">— ${esc(ctxQuote.author)}${topTag?` · en lien avec « ${esc(topTag)} »`:''}</div></div>`:''}</div>`;
+  }
+
+  // ── Calendar
+  const today=todayISO();
+  h+=`<div class="cal-wrap"><div class="cal-lbl">Calendrier 30 jours</div><div class="cal-grid">`;
+  for(let i=29;i>=0;i--){
+    const d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
+    const day=DAYS[d],s=day?calcScore(day):null;
+    const cls=!s||s.status==='empty'?'empty':s.status;
+    h+=`<div class="ccell ${cls} ${d===today?'istoday':''}" title="${fmtS(d)}${s&&s.tot?' · '+s.pct+'%':''}" onclick="openOv('${d}')"></div>`;
+  }
+  h+=`</div><div class="cal-leg"><div class="cl-item"><div class="cl-dot" style="background:rgba(91,110,232,.3)"></div><span class="cl-txt">Gagnante</span></div><div class="cl-item"><div class="cl-dot" style="background:rgba(91,110,232,.3)"></div><span class="cl-txt">Optimisée</span></div><div class="cl-item"><div class="cl-dot" style="background:rgba(195,150,90,.25)"></div><span class="cl-txt">Progression</span></div><div class="cl-item"><div class="cl-dot" style="background:rgba(255,255,255,.05)"></div><span class="cl-txt">Vide</span></div></div></div>`;
+
+  // ── Sparkline
+  const scored=wt.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  if(scored.length>=3){
+    const vals=scored.map(d=>calcScore(d).pct);
+    const W=500,H=54,pts=vals.map((v,i)=>({x:(i/(vals.length-1))*W,y:H-(v/100)*H}));
+    const ln=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const last=pts[pts.length-1];
+    h+=`<div class="spark-wrap"><div class="spark-hdr"><span class="spark-lbl">Tendance du score</span><span class="spark-cur">${vals[vals.length-1]}% — ${fmtS(scored[scored.length-1].date)}</span></div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:54px;display:block"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(91,110,232,.2)"/><stop offset="100%" stop-color="rgba(91,110,232,.01)"/></linearGradient></defs><path d="${ln} L${W},${H} L0,${H} Z" fill="url(#sg)"/><path d="${ln}" fill="none" stroke="rgba(91,110,232,.65)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3" fill="rgba(91,110,232,.9)"/></svg><div style="display:flex;justify-content:space-between;font-size:.5rem;color:var(--t4);margin-top:3px"><span>${fmtS(scored[0].date)}</span><span>${fmtS(scored[scored.length-1].date)}</span></div></div>`;
+  }
+
+  // ═══ LEVEL 3 — KPI strip (demoted to bottom — no longer the headline) ═══
+  h+=renderCompactKPIs(mr,as,afs,mrd.length,wm.length,wt.length);
+
+  $('dash-in').innerHTML=h;
+}
+function setDF(f){DF=f;renderDashboard();}
+
+/* ── NAVIGATION ── */
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  $(id).classList.add('on');
+  document.querySelector(`[data-pg="${id}"]`).classList.add('on');
+  if(id==='pg-today')   renderToday();
+  if(id==='pg-plans')   renderPlans();
+  if(id==='pg-hist')    renderHistory();
+  if(id==='pg-dash')    renderDashboard();
+  renderNavPip();
+}
+
+/* ── RESET ── */
+function resetData(){DAYS={};saveDays();STRATEGIES=[];saveStrategies();renderToday();renderNavPip();toast('Données réinitialisées');}
+
+/* ════════════════════════════════════════════════════════════
+   v3.11 — GUIDED BRAIN DUMP
+   Flow d'entrée spontané : capture → clarification → MIT → mood
+   Ne casse rien. Réutilise les structures task existantes (champ `t`).
+═══════════════════════════════════════════════════════════ */
+let GUIDED_STATE={open:false,step:0,date:null,drafts:[],currentIdx:0,mitId:null,moodLocal:{}};
+const GUIDED_TIME_OPTS=[5,10,30,45,60];
+
+function guidedDismissToday(){
+  const day=getDay(todayISO());
+  day.guidedDismissed=true;
+  day.updatedAt=new Date().toISOString();
+  saveDays();renderToday();
+}
+
+function startGuidedBrainDump(){
+  const date=todayISO();const day=getDay(date);
+  GUIDED_STATE={open:true,step:1,date,drafts:[],currentIdx:0,mitId:null,moodLocal:{...day.mood},tagsLocal:[...(day.tags||[])]};
+  const root=$('guided-root');if(!root)return;
+  root.classList.add('open');
+  renderGuidedStep();
+  // focus l'input à l'ouverture
+  setTimeout(()=>{const i=document.getElementById('guided-input');if(i)i.focus();},120);
+}
+
+function closeGuided(dismissDay){
+  GUIDED_STATE.open=false;
+  const root=$('guided-root');if(root){root.classList.remove('open');root.innerHTML='';}
+  if(dismissDay){
+    const day=getDay(todayISO());
+    day.guidedDismissed=true;
+    day.updatedAt=new Date().toISOString();
+    saveDays();
+  }
+}
+
+function guidedOverlayClick(e){
+  // Click sur l'overlay (hors modal) → ferme sans marquer dismiss (peut rouvrir via bouton)
+  if(e.target.id==='guided-root'){closeGuided(false);}
+}
+
+function renderGuidedStep(){
+  const root=$('guided-root');if(!root)return;
+  const step=GUIDED_STATE.step;
+  if(step===0)return renderGuidedIntro();
+  if(step===1)return renderGuidedCapture();
+  if(step===2)return renderGuidedClarify();
+  if(step===3)return renderGuidedMITChoice();
+  if(step===4)return renderGuidedMood();
+  if(step===5)return renderGuidedIfThenSuggestion();
+}
+
+function renderGuidedCapture(){
+  const root=$('guided-root');
+  const drafts=GUIDED_STATE.drafts;
+  const canContinue=drafts.length>0;
+  let h='<div class="guided-modal" onclick="event.stopPropagation()">';
+  h+='<button class="guided-close" onclick="closeGuided(false)" aria-label="Fermer">×</button>';
+  h+='<div class="guided-eyebrow">Vider l\'esprit</div>';
+  h+='<div class="guided-title">Qu\'est-ce que tu veux accomplir aujourd\'hui&nbsp;?</div>';
+  h+='<div class="guided-sub">Note tout ce qui te vient. On classera ensuite.</div>';
+  h+='<form class="guided-input-row" onsubmit="event.preventDefault();guidedAddDraftTask()" autocomplete="off">';
+  h+='<input id="guided-input" class="guided-input" type="text" placeholder="Écrire une tâche…" maxlength="120"/>';
+  h+='<button type="submit" class="guided-add-btn">Ajouter</button>';
+  h+='</form>';
+  if(drafts.length){
+    h+='<div class="guided-drafts">';
+    drafts.forEach((d,i)=>{
+      h+=`<div class="guided-task-row"><span class="guided-task-row-idx">${i+1}.</span><span class="guided-task-row-title">${esc(d.title)}</span><button class="guided-task-row-del" onclick="guidedRemoveDraft('${d.id}')" aria-label="Retirer">×</button></div>`;
+    });
+    h+='</div>';
+  }
+  h+='<div class="guided-actions">';
+  h+=`<button class="guided-btn ghost" onclick="closeGuided(true)">Passer</button>`;
+  h+=`<button class="guided-btn ${canContinue?'primary':''}" ${canContinue?'':'disabled style="opacity:.42;cursor:not-allowed"'} onclick="guidedNextFromCapture()">Continuer →</button>`;
+  h+='</div>';
+  h+='</div>';
+  root.innerHTML=h;
+}
+
+function guidedAddDraftTask(){
+  const inp=document.getElementById('guided-input');if(!inp)return;
+  const v=inp.value.trim();if(!v)return;
+  GUIDED_STATE.drafts.push({id:uid(),title:v,impact:null,urgency:null,t:null,score:0});
+  inp.value='';
+  renderGuidedCapture();
+  setTimeout(()=>{const i=document.getElementById('guided-input');if(i)i.focus();},20);
+}
+
+function guidedRemoveDraft(id){
+  GUIDED_STATE.drafts=GUIDED_STATE.drafts.filter(d=>d.id!==id);
+  renderGuidedCapture();
+}
+
+function guidedNextFromCapture(){
+  if(!GUIDED_STATE.drafts.length)return;
+  GUIDED_STATE.step=2;
+  GUIDED_STATE.currentIdx=0;
+  // pré-remplir avec valeurs neutres
+  GUIDED_STATE.drafts.forEach(d=>{
+    if(d.impact===null)d.impact=1;
+    if(d.urgency===null)d.urgency=1;
+    if(d.t===null)d.t=30;
+  });
+  renderGuidedStep();
+}
+
+function renderGuidedClarify(){
+  const root=$('guided-root');
+  const drafts=GUIDED_STATE.drafts;
+  const idx=GUIDED_STATE.currentIdx;
+  const total=drafts.length;
+  const draft=drafts[idx];if(!draft){GUIDED_STATE.step=3;return renderGuidedStep();}
+  const IMPACT_LBL=['faible','utile','important','essentiel'];
+  const URGENCY_LBL=['pas urgent','bientôt','aujourd\'hui','immédiat'];
+  let h='<div class="guided-modal" onclick="event.stopPropagation()">';
+  h+='<button class="guided-close" onclick="closeGuided(false)" aria-label="Fermer">×</button>';
+  h+=`<div class="guided-progress"><span>Clarification</span><div class="guided-progress-bar"><div class="guided-progress-fill" style="width:${Math.round((idx+1)/total*100)}%"></div></div><span>${idx+1}/${total}</span></div>`;
+  h+='<div class="guided-clarify-task">';
+  h+=`<div class="guided-clarify-title">${esc(draft.title)}</div>`;
+  // Impact
+  h+='<div class="guided-chip-group">';
+  h+=`<div class="guided-chip-lbl"><span>Impact</span><span class="guided-chip-lbl-val">${IMPACT_LBL[draft.impact]||'—'}</span></div>`;
+  h+='<div class="guided-chips">';
+  [0,1,2,3].forEach(v=>{h+=`<button class="guided-chip ${draft.impact===v?'on':''}" onclick="guidedSetMeta('${draft.id}','impact',${v})">${v}<span class="guided-chip-sub">${IMPACT_LBL[v]}</span></button>`;});
+  h+='</div></div>';
+  // Urgence
+  h+='<div class="guided-chip-group">';
+  h+=`<div class="guided-chip-lbl"><span>Urgence</span><span class="guided-chip-lbl-val">${URGENCY_LBL[draft.urgency]||'—'}</span></div>`;
+  h+='<div class="guided-chips">';
+  [0,1,2,3].forEach(v=>{h+=`<button class="guided-chip ${draft.urgency===v?'on':''}" onclick="guidedSetMeta('${draft.id}','urgency',${v})">${v}<span class="guided-chip-sub">${URGENCY_LBL[v]}</span></button>`;});
+  h+='</div></div>';
+  // Temps
+  h+='<div class="guided-chip-group" style="margin-bottom:4px">';
+  h+=`<div class="guided-chip-lbl"><span>Temps estimé</span><span class="guided-chip-lbl-val">${fmtMin(draft.t)}</span></div>`;
+  h+='<div class="guided-chips">';
+  GUIDED_TIME_OPTS.forEach(v=>{const lbl=v>=60?'>1h':fmtMin(v);h+=`<button class="guided-chip ${draft.t===v?'on':''}" onclick="guidedSetMeta('${draft.id}','t',${v})">${lbl}</button>`;});
+  h+='</div></div>';
+  h+='</div>';
+  h+='<div class="guided-actions">';
+  if(idx>0)h+=`<button class="guided-btn" onclick="guidedClarifyPrev()">← Précédent</button>`;
+  h+=`<button class="guided-btn primary" onclick="guidedClarifyNext()">${idx===total-1?'Voir le tri →':'Suivant →'}</button>`;
+  h+='</div>';
+  h+='</div>';
+  root.innerHTML=h;
+}
+
+function guidedSetMeta(id,field,v){
+  const d=GUIDED_STATE.drafts.find(x=>x.id===id);if(!d)return;
+  d[field]=v;
+  d.score=(d.impact||0)+(d.urgency||0);
+  renderGuidedClarify();
+}
+
+function guidedClarifyNext(){
+  if(GUIDED_STATE.currentIdx<GUIDED_STATE.drafts.length-1){
+    GUIDED_STATE.currentIdx++;
+    renderGuidedClarify();
+  } else {
+    GUIDED_STATE.step=3;
+    renderGuidedStep();
+  }
+}
+function guidedClarifyPrev(){
+  if(GUIDED_STATE.currentIdx>0){GUIDED_STATE.currentIdx--;renderGuidedClarify();}
+}
+
+function renderGuidedMITChoice(){
+  const root=$('guided-root');
+  // tri par score desc (tie-break : temps plus long en premier = plus structurant)
+  const sorted=[...GUIDED_STATE.drafts].sort((a,b)=>(b.score-a.score)||((b.t||0)-(a.t||0)));
+  const topId=sorted[0]?.id;
+  let h='<div class="guided-modal" onclick="event.stopPropagation()">';
+  h+='<button class="guided-close" onclick="closeGuided(false)" aria-label="Fermer">×</button>';
+  h+='<div class="guided-eyebrow">Choisir l\'essentiel</div>';
+  h+='<div class="guided-title">Laquelle rendrait ta journée gagnante&nbsp;?</div>';
+  h+='<div class="guided-mit-help">Le score aide à voir les priorités, mais la MIT reste ton choix.</div>';
+  h+='<div class="guided-mit-list">';
+  sorted.forEach(d=>{
+    const isTop=d.id===topId;
+    const isSelected=GUIDED_STATE.mitId===d.id;
+    h+=`<button class="guided-mit-card ${isTop?'top':''}" style="${isSelected?'border-color:rgba(235,238,245,.55);background:rgba(235,238,245,.08)':''}" onclick="guidedChooseMIT('${d.id}')"><div class="guided-mit-body"><div class="guided-mit-title">${esc(d.title)}</div><div class="guided-mit-meta"><span>Impact ${d.impact}</span><span>Urgence ${d.urgency}</span><span>${fmtMin(d.t)}</span></div></div><span class="guided-mit-score">${d.score}</span></button>`;
+  });
+  h+='</div>';
+  h+='<div class="guided-actions">';
+  h+=`<button class="guided-btn" onclick="GUIDED_STATE.step=2;GUIDED_STATE.currentIdx=GUIDED_STATE.drafts.length-1;renderGuidedStep();">← Retour</button>`;
+  h+=`<button class="guided-btn ${GUIDED_STATE.mitId?'primary':''}" ${GUIDED_STATE.mitId?'':'disabled style="opacity:.42;cursor:not-allowed"'} onclick="GUIDED_STATE.step=4;renderGuidedStep();">Continuer →</button>`;
+  h+='</div>';
+  h+='</div>';
+  root.innerHTML=h;
+}
+
+function guidedChooseMIT(id){
+  GUIDED_STATE.mitId=id;
+  renderGuidedMITChoice();
+}
+
+function renderGuidedMood(){
+  const root=$('guided-root');
+  // v3.11.1 — Toutes les métriques + contexte rapide
+  const PRIMARY_METRICS=[
+    {k:'energie',l:'Énergie'},
+    {k:'clarte',l:'Clarté mentale'},
+    {k:'motivation',l:'Motivation'},
+    {k:'optimisme',l:'Optimisme'},
+  ];
+  const FRICTION_METRICS=[
+    {k:'stress',l:'Stress'},
+    {k:'dispersion',l:'Dispersion'},
+    {k:'humeur',l:'Humeur'},
+  ];
+  // 6 tags les plus utiles pour ouvrir la journée — le reste reste accessible sur Today
+  const QUICK_TAGS=['fatigue','bonne concentration','motivation élevée','anxiété','besoin de récupération','état créatif'];
+  if(!GUIDED_STATE.tagsLocal)GUIDED_STATE.tagsLocal=[];
+  let h='<div class="guided-modal" onclick="event.stopPropagation()">';
+  h+='<button class="guided-close" onclick="closeGuided(false)" aria-label="Fermer">×</button>';
+  h+='<div class="guided-eyebrow">État d\'esprit · Contexte</div>';
+  h+='<div class="guided-title">Avant de commencer, comment es-tu aujourd\'hui&nbsp;?</div>';
+  h+='<div class="guided-sub">Lecture brute, pas un jugement. Remplis ce qui te parle, on classera ensuite.</div>';
+
+  // Bloc ressources (positives)
+  h+='<div class="guided-eyebrow" style="margin-top:6px">Ressources</div>';
+  PRIMARY_METRICS.forEach(m=>{
+    const cur=GUIDED_STATE.moodLocal[m.k]||3;
+    h+=`<div class="guided-mood-row"><span class="guided-mood-lbl">${m.l}</span><div class="guided-mood-btns">${[1,2,3,4,5].map(v=>`<button class="guided-mood-btn ${cur===v?'on':''}" onclick="guidedSetMoodLocal('${m.k}',${v})">${v}</button>`).join('')}</div></div>`;
+  });
+
+  // Bloc frictions
+  h+='<div class="guided-eyebrow" style="margin-top:14px">Frictions</div>';
+  FRICTION_METRICS.forEach(m=>{
+    const cur=GUIDED_STATE.moodLocal[m.k]||3;
+    h+=`<div class="guided-mood-row"><span class="guided-mood-lbl">${m.l}</span><div class="guided-mood-btns">${[1,2,3,4,5].map(v=>`<button class="guided-mood-btn ${cur===v?'on':''}" onclick="guidedSetMoodLocal('${m.k}',${v})">${v}</button>`).join('')}</div></div>`;
+  });
+
+  // Bloc contexte rapide
+  h+='<div class="guided-eyebrow" style="margin-top:14px">Contexte du jour <span style="color:var(--t4);letter-spacing:.04em;text-transform:none">— optionnel</span></div>';
+  h+='<div class="guided-chips" style="margin-bottom:10px">';
+  QUICK_TAGS.forEach(t=>{
+    const on=GUIDED_STATE.tagsLocal.includes(t);
+    h+=`<button class="guided-chip ${on?'on':''}" style="flex:0 1 auto;min-width:auto;padding:6px 11px;font-size:.55rem" onclick="guidedToggleTagLocal('${t}')">${t}</button>`;
+  });
+  h+='</div>';
+
+  // Invitation à continuer sur Today
+  h+='<div style="font-size:.55rem;color:var(--t3);line-height:1.65;margin:14px 0 4px;padding:10px 12px;background:rgba(255,255,255,.022);border-left:2px solid var(--border-hi);border-radius:0 6px 6px 0">Pas tout&nbsp;? Pas de souci. Tu peux affiner les autres métriques, ajouter une note libre ou choisir d\'autres contextes directement sur la page <strong style="color:var(--t2)">Jour</strong>.</div>';
+
+  // Détecter friction dans le moodLocal pour proposer un If-Then
+  const ml=GUIDED_STATE.moodLocal||{};
+  const hasFriction=(ml.stress||0)>=4||(ml.dispersion||0)>=4||(ml.energie||3)<=2;
+
+  h+='<div class="guided-actions">';
+  h+=`<button class="guided-btn" onclick="GUIDED_STATE.step=3;renderGuidedStep();">← Retour</button>`;
+  if(hasFriction){
+    h+=`<button class="guided-btn primary" onclick="GUIDED_STATE.step=5;renderGuidedStep();">Continuer →</button>`;
+  } else {
+    h+=`<button class="guided-btn primary" onclick="commitGuidedTasksToDay()">Terminer</button>`;
+  }
+  h+='</div>';
+  h+='</div>';
+  root.innerHTML=h;
+}
+
+function guidedSetMoodLocal(k,v){GUIDED_STATE.moodLocal[k]=v;renderGuidedMood();}
+function guidedToggleTagLocal(t){
+  if(!GUIDED_STATE.tagsLocal)GUIDED_STATE.tagsLocal=[];
+  const i=GUIDED_STATE.tagsLocal.indexOf(t);
+  if(i>=0)GUIDED_STATE.tagsLocal.splice(i,1);else GUIDED_STATE.tagsLocal.push(t);
+  renderGuidedMood();
+}
+
+/* ── Step 5 — Suggestion If-Then basée sur la friction détectée (v3.12) ── */
+function renderGuidedIfThenSuggestion(){
+  const root=$('guided-root');
+  const ml=GUIDED_STATE.moodLocal||{};
+  // Détecter friction dominante
+  let dominant='dispersion';
+  let dominantLbl='dispersion';
+  let dominantArticle='la';
+  if((ml.stress||0)>=4){dominant='stress';dominantLbl='stress';dominantArticle='au';}
+  else if((ml.dispersion||0)>=4){dominant='dispersion';dominantLbl='dispersion';dominantArticle='à la';}
+  else if((ml.energie||3)<=2){dominant='energie';dominantLbl='basse énergie';dominantArticle='à la';}
+
+  // Suggestions pré-écrites par friction
+  const SUGGESTIONS={
+    stress:[
+      {trigger:"je sens le stress monter",response:"je prends 3 respirations longues avant de continuer"},
+      {trigger:"je me sens dépassé",response:"je réalise une micro-tâche simple pour reprendre l'élan"},
+      {trigger:"la tension monte avant la priorité",response:"je découpe la tâche en 1 seule action de 5 min"},
+    ],
+    dispersion:[
+      {trigger:"je commence à scroller sans but",response:"je ferme l'app et j'ouvre la priorité du jour"},
+      {trigger:"mon attention saute d'une tâche à l'autre",response:"je note ce qui me distrait, puis je reviens à la priorité"},
+      {trigger:"je sens la dispersion arriver",response:"je fais une seule action de 5 min sur la MIT, sans débat"},
+    ],
+    energie:[
+      {trigger:"mon énergie tombe en milieu de journée",response:"je fais une pause de 10 min hors écran avant de reprendre"},
+      {trigger:"je commence sans envie",response:"je m'engage juste à ouvrir le fichier, sans rien écrire"},
+      {trigger:"je n'ai pas la force d'attaquer la priorité",response:"je fais 1 action liée à la priorité, même infime"},
+    ],
+  };
+  const suggested=SUGGESTIONS[dominant]||SUGGESTIONS.dispersion;
+  if(!GUIDED_STATE.ifThenDraft)GUIDED_STATE.ifThenDraft={enabled:false,trigger:'',response:'',pickedIdx:null};
+  const draft=GUIDED_STATE.ifThenDraft;
+
+  let h='<div class="guided-modal" onclick="event.stopPropagation()">';
+  h+='<button class="guided-close" onclick="closeGuided(false)" aria-label="Fermer">×</button>';
+  h+='<div class="guided-eyebrow">Plan If-Then · Optionnel</div>';
+  h+=`<div class="guided-title">Prépare une réponse ${dominantArticle} <span style="color:rgba(210,180,140,.9)">${dominantLbl}</span>&nbsp;?</div>`;
+
+  // Explication du système — courte, efficiente, sans jargon
+  h+='<div class="guided-sub" style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:7px;padding:11px 13px;margin-bottom:14px;line-height:1.7">';
+  h+='Un plan <strong style="color:var(--t1);font-weight:400">If-Then</strong> est une phrase courte que tu prépares <em>à froid</em>. ';
+  h+='Quand la friction arrive <em>à chaud</em>, tu n\'as plus besoin de décider — tu exécutes. ';
+  h+='Ça raccourcit le temps entre la dérive et le retour à l\'action.';
+  h+='</div>';
+
+  // Liste de suggestions
+  h+='<div class="guided-eyebrow" style="margin-top:6px">Suggestions adaptées</div>';
+  h+='<div class="guided-mit-list" style="max-height:32vh">';
+  suggested.forEach((s,i)=>{
+    const isPicked=draft.pickedIdx===i;
+    h+=`<button class="guided-mit-card ${isPicked?'top':''}" style="${isPicked?'border-color:rgba(235,238,245,.55);background:rgba(235,238,245,.08)':''}" onclick="guidedPickIfThenSuggestion(${i},'${dominant}')">`;
+    h+='<div class="guided-mit-body">';
+    h+=`<div style="font-size:.6rem;color:var(--t3);margin-bottom:3px"><em style="color:var(--t2);font-style:normal">Si</em> ${esc(s.trigger)}</div>`;
+    h+=`<div style="font-size:.66rem;color:rgba(228,232,242,.86);line-height:1.4">→ ${esc(s.response)}</div>`;
+    h+='</div></button>';
+  });
+  h+='</div>';
+
+  // Édition libre du plan (si une suggestion est cliquée OU si l'utilisateur veut écrire le sien)
+  if(draft.pickedIdx!==null||draft.trigger||draft.response){
+    h+='<div class="guided-eyebrow" style="margin-top:14px">Ton plan</div>';
+    h+='<div style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px">';
+    h+=`<input class="guided-input" id="guided-it-trigger" type="text" placeholder="Si… (déclencheur observé)" value="${esc(draft.trigger)}" oninput="GUIDED_STATE.ifThenDraft.trigger=this.value"/>`;
+    h+=`<input class="guided-input" id="guided-it-response" type="text" placeholder="Alors… (réponse simple, 5 min max)" value="${esc(draft.response)}" oninput="GUIDED_STATE.ifThenDraft.response=this.value"/>`;
+    h+='</div>';
+  } else {
+    h+='<div style="text-align:center;margin:14px 0 4px"><button class="guided-trigger-link" onclick="GUIDED_STATE.ifThenDraft={enabled:false,trigger:\'\',response:\'\',pickedIdx:-1};renderGuidedIfThenSuggestion();">Écrire mon propre plan</button></div>';
+  }
+
+  const canSave=(draft.trigger||'').trim().length>=3 && (draft.response||'').trim().length>=3;
+  h+='<div class="guided-actions">';
+  h+=`<button class="guided-btn" onclick="GUIDED_STATE.step=4;renderGuidedStep();">← Retour</button>`;
+  h+=`<button class="guided-btn ghost" onclick="GUIDED_STATE.ifThenDraft={enabled:false,trigger:'',response:'',pickedIdx:null};commitGuidedTasksToDay()">Passer</button>`;
+  h+=`<button class="guided-btn ${canSave?'primary':''}" ${canSave?'':'disabled style="opacity:.42;cursor:not-allowed"'} onclick="guidedSaveIfThenAndCommit()">Créer & terminer</button>`;
+  h+='</div>';
+  h+='</div>';
+  root.innerHTML=h;
+}
+
+function guidedPickIfThenSuggestion(i,dominant){
+  const SUGGESTIONS={
+    stress:[
+      {trigger:"je sens le stress monter",response:"je prends 3 respirations longues avant de continuer"},
+      {trigger:"je me sens dépassé",response:"je réalise une micro-tâche simple pour reprendre l'élan"},
+      {trigger:"la tension monte avant la priorité",response:"je découpe la tâche en 1 seule action de 5 min"},
+    ],
+    dispersion:[
+      {trigger:"je commence à scroller sans but",response:"je ferme l'app et j'ouvre la priorité du jour"},
+      {trigger:"mon attention saute d'une tâche à l'autre",response:"je note ce qui me distrait, puis je reviens à la priorité"},
+      {trigger:"je sens la dispersion arriver",response:"je fais une seule action de 5 min sur la MIT, sans débat"},
+    ],
+    energie:[
+      {trigger:"mon énergie tombe en milieu de journée",response:"je fais une pause de 10 min hors écran avant de reprendre"},
+      {trigger:"je commence sans envie",response:"je m'engage juste à ouvrir le fichier, sans rien écrire"},
+      {trigger:"je n'ai pas la force d'attaquer la priorité",response:"je fais 1 action liée à la priorité, même infime"},
+    ],
+  };
+  const s=(SUGGESTIONS[dominant]||SUGGESTIONS.dispersion)[i];
+  if(!s)return;
+  GUIDED_STATE.ifThenDraft={enabled:true,trigger:s.trigger,response:s.response,pickedIdx:i,patternType:dominant};
+  renderGuidedIfThenSuggestion();
+}
+
+function guidedSaveIfThenAndCommit(){
+  const d=GUIDED_STATE.ifThenDraft;
+  if(d&&(d.trigger||'').trim().length>=3&&(d.response||'').trim().length>=3){
+    const patternMap={stress:'high_stress',dispersion:'high_dispersion',energie:'low_energy'};
+    STRATEGIES.push({
+      id:uid(),
+      trigger:d.trigger.trim(),
+      response:d.response.trim(),
+      patternType:patternMap[d.patternType]||'',
+      createdAt:new Date().toISOString(),
+      updatedAt:new Date().toISOString(),
+    });
+    saveStrategies();
+  }
+  commitGuidedTasksToDay();
+}
+
+function commitGuidedTasksToDay(){
+  const date=GUIDED_STATE.date||todayISO();
+  const day=getDay(date);
+  const now=new Date().toISOString();
+  const drafts=GUIDED_STATE.drafts;
+  const mitId=GUIDED_STATE.mitId;
+  // 1) MIT en premier
+  const mitDraft=drafts.find(d=>d.id===mitId);
+  let deferred=0;
+  if(mitDraft && !day.tasks.some(t=>t.type==='MIT')){
+    day.tasks.push({
+      id:uid(),type:'MIT',title:mitDraft.title,
+      impact:cl(mitDraft.impact||3,0,3),urgency:cl(mitDraft.urgency||2,0,3),
+      t:cl(mitDraft.t||TIME_DEFAULT.MIT,5,TIME_CAP.MIT),
+      completed:false,createdAt:now,completedAt:null
+    });
+  }
+  // 2) Autres tâches : MICRO si t<=10, sinon SECONDARY. Respecte les limites.
+  let secCount=day.tasks.filter(t=>t.type==='SECONDARY').length;
+  let microCount=day.tasks.filter(t=>t.type==='MICRO').length;
+  drafts.forEach(d=>{
+    if(d.id===mitId)return;
+    const isMicro=(d.t||30)<=10;
+    let type=isMicro?'MICRO':'SECONDARY';
+    if(type==='MICRO'&&microCount>=5){deferred++;return;}
+    if(type==='SECONDARY'&&secCount>=3){
+      // tente MICRO si <=10min, sinon backlog
+      if((d.t||30)<=TIME_CAP.MICRO&&microCount<5){type='MICRO';}
+      else{deferred++;return;}
+    }
+    const cappedT=type==='SECONDARY'?Math.min(d.t||TIME_DEFAULT.SECONDARY,TIME_CAP.SECONDARY):Math.min(d.t||TIME_DEFAULT.MICRO,TIME_CAP.MICRO);
+    day.tasks.push({
+      id:uid(),type,title:d.title,
+      impact:cl(d.impact||1,0,3),urgency:cl(d.urgency||1,0,3),
+      t:cappedT,
+      completed:false,createdAt:now,completedAt:null
+    });
+    if(type==='MICRO')microCount++;else secCount++;
+  });
+  // 3) Mood
+  if(GUIDED_STATE.moodLocal){
+    Object.keys(GUIDED_STATE.moodLocal).forEach(k=>{
+      if(typeof GUIDED_STATE.moodLocal[k]==='number')day.mood[k]=GUIDED_STATE.moodLocal[k];
+    });
+  }
+  // 3.bis) Tags contextuels (v3.11.1)
+  if(GUIDED_STATE.tagsLocal&&GUIDED_STATE.tagsLocal.length){
+    if(!day.tags)day.tags=[];
+    GUIDED_STATE.tagsLocal.forEach(t=>{if(!day.tags.includes(t))day.tags.push(t);});
+  }
+  day.guidedCompleted=true;
+  day.guidedDismissed=true;
+  day.updatedAt=now;
+  saveDays();
+  closeGuided(false);
+  renderToday();
+  renderNavPip();
+  if(deferred>0){
+    toast(`Journée clarifiée — ${deferred} tâche${deferred>1?'s':''} en attente pour éviter la surcharge.`,3200);
+  } else {
+    toast("Journée clarifiée.");
+  }
+}
+
+/* ── INIT ── */
+function init(){
+  loadDays();
+  loadStrategies();
+  migrateDays();
+  // Inject demo data if empty
+  if(Object.keys(DAYS).length<3){
+    DAYS=genDemo();saveDays();
+    STRATEGIES=DEMO_STRATS;saveStrategies();
+  }
+  const nd=$('nav-date');
+  if(nd){const n=new Date();nd.innerHTML=n.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+'<br>'+n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
+  renderToday();
+  renderNavPip();
+}
+init();
+</script>
+</body>
+</html>

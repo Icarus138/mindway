@@ -1,0 +1,21 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Local backup & legacy (kept local only)
+_backup_*/
+mindway_v2.html
+*.bak
+
+# Logs / temp
+*.log
+.cache/
+
+# Claude Code metadata (not part of the app)
+.claude/

@@ -1,0 +1,13 @@
+{
+  "name": "Mindway",
+  "short_name": "Mindway",
+  "description": "Système cognitif anti-procrastination — capture spontanée, priorité du jour, état d'esprit, plans If-Then.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#080A0F",
+  "theme_color": "#080A0F",
+  "orientation": "portrait",
+  "lang": "fr",
+  "icons": []
+}
