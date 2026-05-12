@@ -789,27 +789,12 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 @keyframes sparkDraw{to{stroke-dashoffset:0;}}
 @keyframes sparkDot{to{opacity:1;}}
 
-/* v3.17 — Effet "tech zoom" sur la CARTE MENTALE (SVG uniquement).
-   Plus de scan-lines/stries — uniquement : zoom profond du SVG + glow doux + saturate.
-   Piloté par --zoom (0 → 1). Amplitude jusqu'à ×1.8. */
-.cognitive-dash{--zoom:0;position:relative;z-index:1;overflow:hidden;}
-/* v3.17d — Conteneur de la carte mentale clippe le SVG zoomé pour ne PAS
-   déborder sur les insights "La clarté mentale semble être..." dessous.
-   On enveloppe visuellement le SVG via un masque CSS : `clip-path: inset(...)`
-   appliqué sur le SVG lui-même, à la même boîte que sa taille naturelle. */
+/* v3.18 — Tech zoom carte cognitive RETIRÉ (gadget, peu d'effet visuel).
+   La carte mentale reste statique. Wrapper .pgrav-svg-clip conservé
+   uniquement pour son rôle structurel (existant dans le markup). */
+.cognitive-dash{position:relative;}
 .pgrav-card{position:relative;}
-.pgrav-card > svg{clip-path:inset(0 round 4px);}
-/* Glow ciblé : positionné sur la zone du SVG via le wrapper .pgrav-card avec un ::before
-   qui occupe la zone visuelle de la carte mentale (sous le titre + sous-titre, ~60px).
-   v3.17b — glow réduit de 50% (intensité + opacité) pour rester sobre. */
-/* v3.17c — glow encore divisé par 2 (total -75% vs v3.17 initial). */
-.pgrav-card::before{content:'';position:absolute;left:0;right:0;top:60px;height:calc(100% - 60px);border-radius:var(--r);background:radial-gradient(ellipse at 50% 50%,rgba(140,200,255,calc(var(--zoom)*.105)) 0%,rgba(140,200,255,calc(var(--zoom)*.025)) 45%,transparent 75%);pointer-events:none;z-index:0;opacity:calc(var(--zoom)*.38);transition:opacity 180ms ease;}
-/* Wrapper clip : empêche le SVG zoomé de déborder sur les insights ci-dessous. */
-.pgrav-svg-clip{overflow:hidden;border-radius:4px;position:relative;z-index:1;}
-.pgrav-svg-clip > svg{transform-origin:50% 50%;transform:scale(calc(1 + var(--zoom)*0.56));transition:transform 200ms cubic-bezier(.2,.7,.2,1);will-change:transform;display:block;}
-.cognitive-dash.tech-armed .pgrav-svg-clip > svg{filter:saturate(calc(1 + var(--zoom)*.11)) contrast(calc(1 + var(--zoom)*.035)) drop-shadow(0 0 calc(var(--zoom)*3.5px) rgba(140,200,255,calc(var(--zoom)*.12)));}
-/* Fallback : si le SVG est encore enfant direct de .pgrav-card (ancien rendu en cache), conserve le scale */
-.pgrav-card > svg{transform-origin:50% 50%;transform:scale(calc(1 + var(--zoom)*0.56));transition:transform 200ms cubic-bezier(.2,.7,.2,1);will-change:transform;display:block;position:relative;z-index:1;}
+.pgrav-svg-clip{position:relative;}
 
 /* Citation cyclable — interactive hint */
 .dash-quote{cursor:pointer;}
@@ -2385,74 +2370,7 @@ function applyRevealAndAnimations(rootEl){
   });
 }
 
-/* ── TECH ZOOM (v3.17) ─────────────────────────────────────
-   Sur la page Patterns :
-   - Scroll vers le HAUT en étant déjà en haut (overscroll +) : amplifie progressivement
-     le zoom sur le SVG cognitif. Le zoom reste FIGÉ à la valeur atteinte.
-   - Scroll vers le BAS : décroît progressivement le zoom jusqu'à 0.
-   Aucun decay automatique en idle.
-*/
-let _zoomVal=0,_zoomTouchStart=null;
-function setZoomCSS(v){
-  const card=document.querySelector('#pg-dash .cognitive-dash');
-  if(!card)return;
-  _zoomVal=Math.max(0,Math.min(1,v));
-  card.style.setProperty('--zoom',_zoomVal.toFixed(3));
-  if(_zoomVal>0.04)card.classList.add('tech-armed');
-  else card.classList.remove('tech-armed');
-}
-function onZoomWheel(e){
-  if(document.querySelector('#pg-dash')?.classList.contains('on')!==true)return;
-  /* Zoom UP : uniquement quand déjà en haut + scroll vers le haut */
-  if(window.scrollY===0&&e.deltaY<0){
-    e.preventDefault();
-    setZoomCSS(_zoomVal+Math.min(.08,Math.abs(e.deltaY)/400));
-    return;
-  }
-  /* Zoom DOWN : scroll vers le bas + un zoom actuellement actif */
-  if(e.deltaY>0&&_zoomVal>0){
-    setZoomCSS(Math.max(0,_zoomVal-Math.min(.08,Math.abs(e.deltaY)/400)));
-    /* On laisse le scroll natif continuer après que le zoom soit redescendu à 0 */
-    if(_zoomVal>0)e.preventDefault();
-    return;
-  }
-}
-function onZoomTouchStart(e){
-  if(document.querySelector('#pg-dash')?.classList.contains('on')!==true)return;
-  _zoomTouchStart=e.touches[0].clientY;
-}
-function onZoomTouchMove(e){
-  if(_zoomTouchStart===null)return;
-  if(document.querySelector('#pg-dash')?.classList.contains('on')!==true)return;
-  const dy=e.touches[0].clientY-_zoomTouchStart;
-  /* Drag vers le bas (dy>0) en étant en haut → zoom up */
-  if(window.scrollY===0&&dy>0){
-    setZoomCSS(Math.min(1,dy/220));
-    return;
-  }
-  /* Drag vers le haut (dy<0) avec zoom actif → zoom down, sans réinitialiser */
-  if(dy<0&&_zoomVal>0){
-    setZoomCSS(Math.max(0,_zoomVal-Math.abs(dy)/220));
-    _zoomTouchStart=e.touches[0].clientY; /* reset baseline pour continuer */
-  }
-}
-function onZoomTouchEnd(){
-  _zoomTouchStart=null;
-  /* Pas de decay automatique : le zoom reste à sa valeur */
-}
-function attachZoomListeners(){
-  /* Retire puis rajoute pour garantir un seul listener actif (idempotent). */
-  window.removeEventListener('wheel',onZoomWheel,{passive:false});
-  window.removeEventListener('touchstart',onZoomTouchStart);
-  window.removeEventListener('touchmove',onZoomTouchMove);
-  window.removeEventListener('touchend',onZoomTouchEnd);
-  window.removeEventListener('touchcancel',onZoomTouchEnd);
-  window.addEventListener('wheel',onZoomWheel,{passive:false});
-  window.addEventListener('touchstart',onZoomTouchStart,{passive:true});
-  window.addEventListener('touchmove',onZoomTouchMove,{passive:true});
-  window.addEventListener('touchend',onZoomTouchEnd,{passive:true});
-  window.addEventListener('touchcancel',onZoomTouchEnd,{passive:true});
-}
+/* v3.18 — Tech zoom carte cognitive RETIRÉ. Voir CSS pour le détail. */
 
 /* ── CITATION CYCLABLE (Axe 2) ─────────────────────────────── */
 let _dashQuotePool=[];
@@ -2593,9 +2511,6 @@ function renderDashboard(){
   _dashQuotePool=buildDashQuotePool(days);
   _dashQuoteIdx=0;
   applyRevealAndAnimations($('dash-in'));
-  /* v3.17 — Tech zoom sur carte cognitive */
-  attachZoomListeners();
-  setZoomCSS(0);
 }
 function setDF(f){DF=f;renderDashboard();}
 
