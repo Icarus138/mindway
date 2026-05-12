@@ -74,17 +74,16 @@
    Le design original a été calibré à 14px ; +28% de gain de lecture sur tel. */
 html{font-size:14px;-webkit-text-size-adjust:100%;}
 @media (max-width:768px){
-  /* v3.18d — pas de bump global. Texte de base reste 14px comme desktop.
-     On corrige UNIQUEMENT les classes franchement illisibles (tab labels
-     6.72px, CTA 7px) sans grossir tout le contenu. */
-  /* html font-size reste 14px (hérité). */
+  /* v3.18e — bump global +10% (14→15.4px) sans overrides lourds.
+     Toutes les .XXrem montent proportionnellement, design reste cohérent. */
+  html{font-size:15.4px;}
 
-  /* Tab labels : 6.72 → 11px (le minimum pour lire en marchant) */
+  /* Tab labels : reste essentiel — bump dédié pour rester lisible en marchant */
   .tab-btn span{font-size:.72rem!important;letter-spacing:.04em;}
-  /* CTA principaux (mots-clés d'action) : 7-7.28 → 11-12px */
+  /* CTA principaux : un peu plus que le défaut pour pas être un détail */
   .friction-plan-cta,.ifthen-other-cta,.ins-cta,.nm-cta,
   .guided-trigger-link,.fbtn{font-size:.7rem!important;letter-spacing:.04em;}
-  /* Info bubble : tactile mais visuel sobre */
+  /* Info bubble : tactile (≥22) */
   .info-bubble{width:22px!important;height:22px!important;font-size:.62rem!important;}
   /* v3.18 — Tooltip mobile : reste dans le viewport (pas de débordement gauche)
      en ancrant à gauche via left:0 + transform:0 + max-width raisonnable. */
