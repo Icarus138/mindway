@@ -329,6 +329,14 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .cal-lbl{font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:8px;}
 .cal-grid{display:flex;gap:3px;flex-wrap:wrap;}
 .ccell{width:23px;height:23px;border-radius:4px;cursor:pointer;transition:opacity var(--tr);border:1px solid transparent;}
+
+/* Barres verticales du score — alignées 1:1 avec le calendrier au-dessus */
+.score-bars{display:grid;grid-template-columns:repeat(30,1fr);gap:2px;width:100%;height:54px;margin-top:6px;align-items:end;}
+.sb-col{height:100%;display:flex;align-items:flex-end;justify-content:center;}
+.sb-fill{width:100%;border-radius:2px 2px 1px 1px;background:linear-gradient(180deg,rgba(230,232,238,.62) 0%,rgba(230,232,238,.18) 100%);transition:filter 180ms ease,height 320ms cubic-bezier(.25,.65,.3,1);min-height:3px;}
+.sb-fill.on{background:linear-gradient(180deg,rgba(90,158,122,.88) 0%,rgba(90,158,122,.28) 100%);}
+.sb-col:hover .sb-fill{filter:brightness(1.25);}
+.sb-empty{width:100%;height:3px;background:rgba(255,255,255,.04);border-radius:1px;align-self:flex-end;}
 .ccell:hover{opacity:.75;}
 .ccell.empty{background:rgba(255,255,255,.024);border-color:var(--border-lo);}
 /* v3.13 — calendrier neutralisé : blanc/doré (jamais de violet) */
@@ -438,8 +446,8 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 /* Patterns mentaux — ambre désaturé en accord avec le reste du dashboard (v3.16) */
 .patt-card{background:var(--bg-card);border:1px solid var(--border-lo);border-radius:var(--r);padding:10px;transition:border-color 200ms ease;}
 .patt-card:hover{border-color:rgba(195,150,90,.16);}
-.patt-icon{width:21px;height:21px;margin-bottom:6px;display:block;stroke:rgba(195,150,90,.6);opacity:.92;}
-.patt-icon[stroke]{stroke:rgba(195,150,90,.6) !important;}
+/* v3.17b — pictos Patterns mentaux uniformes en gris (plus d'ambre). */
+.patt-icon{width:21px;height:21px;margin-bottom:6px;display:block;stroke:rgba(230,232,238,.6);opacity:.92;}
 .patt-lbl{font-size:.58rem;color:var(--t2);line-height:1.45;margin-bottom:3px;}
 .patt-val{font-size:.74rem;color:rgba(225,210,180,.86);margin-bottom:5px;letter-spacing:.01em;}
 .patt-bar-wrap{height:3px;background:rgba(255,255,255,.04);border-radius:2px;margin-bottom:5px;overflow:hidden;}
@@ -568,6 +576,23 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .friction-plan-cta{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;font-family:var(--font);font-size:.5rem;letter-spacing:.12em;text-transform:uppercase;color:var(--violet);background:transparent;border:1px solid rgba(91,110,232,.28);border-radius:20px;cursor:pointer;transition:all 180ms ease;}
 .friction-plan-cta:hover{background:var(--vio-d);border-color:rgba(91,110,232,.5);}
 
+/* v3.17f — Choisir un autre plan dans la bibliothèque (depuis Today) */
+.ifthen-other{margin-top:10px;}
+.ifthen-other summary{font-size:.54rem;letter-spacing:.06em;color:var(--t3);cursor:pointer;padding:4px 0;list-style:none;display:inline-flex;align-items:center;gap:6px;transition:color 160ms ease;}
+.ifthen-other summary::-webkit-details-marker{display:none;}
+.ifthen-other summary::before{content:'+';display:inline-block;width:14px;height:14px;line-height:13px;text-align:center;border:1px solid var(--border-hi);border-radius:50%;font-size:.62rem;color:var(--t2);transition:transform 180ms ease;}
+.ifthen-other[open] summary::before{content:'−';}
+.ifthen-other summary:hover{color:var(--t1);}
+.ifthen-other-list{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+.ifthen-other-item{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:8px 10px;background:rgba(255,255,255,.02);border:1px solid var(--border-lo);border-radius:var(--r);transition:border-color 180ms ease;}
+.ifthen-other-item:hover{border-color:rgba(91,110,232,.22);}
+.ifthen-other-text{flex:1;min-width:0;}
+.ifthen-other-trig{font-size:.54rem;color:var(--t2);line-height:1.4;}
+.ifthen-other-trig em{color:var(--t1);font-style:italic;}
+.ifthen-other-resp{font-size:.55rem;color:var(--violet);line-height:1.45;margin-top:3px;}
+.ifthen-other-cta{flex-shrink:0;background:transparent;border:1px solid var(--border-hi);color:var(--t2);font-family:var(--font);font-size:.5rem;letter-spacing:.08em;padding:5px 10px;border-radius:14px;cursor:pointer;transition:all 180ms ease;}
+.ifthen-other-cta:hover{border-color:rgba(91,110,232,.45);color:var(--violet);background:rgba(91,110,232,.05);}
+
 /* Primary action CTA — one per view, attached to MIT */
 .mit-cta-row{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border-lo);}
 .mit-cta{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;font-family:var(--font);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(220,222,235,.92);background:rgba(91,110,232,.14);border:1px solid rgba(91,110,232,.32);border-radius:var(--r);cursor:pointer;transition:all 200ms ease;}
@@ -594,18 +619,19 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 /* Analytics segmented bar — Activité vs impact (v3.9) */
 .seg-bar{display:flex;height:8px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.04);margin:10px 0 6px;}
 .seg-bar-cell{position:relative;transition:filter 220ms ease,opacity 220ms ease;}
-/* v3.16 — segments fort/moyen en gris foncé pour laisser ressortir le signal "faible" en ambre */
-.seg-bar-cell.high{background:linear-gradient(180deg,rgba(95,100,112,.85),rgba(70,75,85,.85));}
-.seg-bar-cell.mid {background:linear-gradient(180deg,rgba(70,75,85,.85),rgba(55,60,70,.85));}
-.seg-bar-cell.low {background:linear-gradient(180deg,rgba(195,150,90,.7),rgba(170,130,75,.65));}
-.seg-bar-cell:hover{filter:brightness(1.18);}
-.seg-bar-cell:not(:last-child){border-right:1px solid rgba(8,10,15,.7);}
+/* v3.17 — dégradé inter-segments continu (Fort clair → Moyen mid → Faible ambre).
+   Les couleurs de fin de chaque segment matchent les couleurs de début du suivant
+   pour effacer visuellement les frontières. */
+.seg-bar-cell.high{background:linear-gradient(90deg,rgba(230,232,238,.78) 0%,rgba(190,196,210,.7) 100%);}
+.seg-bar-cell.mid {background:linear-gradient(90deg,rgba(190,196,210,.7) 0%,rgba(195,160,110,.62) 100%);}
+.seg-bar-cell.low {background:linear-gradient(90deg,rgba(195,160,110,.62) 0%,rgba(205,160,95,.92) 100%);}
+.seg-bar-cell:hover{filter:brightness(1.15);}
 .seg-legend{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:6px;font-family:var(--font);font-size:.54rem;letter-spacing:.04em;}
 .seg-legend-item{display:flex;align-items:center;gap:5px;color:var(--t2);}
 .seg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-.seg-dot.high{background:rgba(95,100,112,.9);}
-.seg-dot.mid{background:rgba(60,65,75,.95);}
-.seg-dot.low{background:rgba(195,150,90,.78);}
+.seg-dot.high{background:rgba(220,224,232,.88);}
+.seg-dot.mid {background:rgba(145,152,164,.78);}
+.seg-dot.low {background:rgba(195,150,90,.82);}
 .seg-pct{color:var(--t3);margin-left:auto;font-variant-numeric:tabular-nums;}
 
 /* Patterns comparison cards — high vs low state with delta (v3.9) */
@@ -653,19 +679,19 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .nav-pip{width:6px;height:6px;border-radius:50%;background:var(--win);box-shadow:0 0 6px rgba(255,255,255,.35);}
 .nav-pip[hidden]{display:none;}
 
-/* v3.17 — Axe 1 : pont vers l'action (Next-Move card + CTA sur sections existantes) */
-.nm-card{background:linear-gradient(135deg,rgba(184,146,58,.05) 0%,var(--bg-card) 80%);border:1px solid var(--border-hi);border-left:2px solid rgba(184,146,58,.55);border-radius:var(--rl);padding:14px 14px 12px;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color 220ms ease,box-shadow 220ms ease;}
-.nm-card.nm-good{border-left-color:rgba(230,232,238,.5);background:linear-gradient(135deg,rgba(230,232,238,.04) 0%,var(--bg-card) 80%);}
-.nm-card:hover{box-shadow:0 0 40px -20px rgba(184,146,58,.22);}
-.nm-card.nm-good:hover{box-shadow:0 0 40px -20px rgba(230,232,238,.14);}
-.nm-eyebrow{font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(184,146,58,.78);margin-bottom:6px;}
-.nm-card.nm-good .nm-eyebrow{color:rgba(230,232,238,.6);}
+/* v3.17 — Axe 1 : pont vers l'action (Next-Move card + CTA sur sections existantes)
+   Neutralisé v3.17b : suppression de l'ambre, palette blanc/gris alignée sur le reste. */
+.nm-card{background:linear-gradient(135deg,rgba(230,232,238,.035) 0%,var(--bg-card) 80%);border:1px solid var(--border-hi);border-left:2px solid rgba(230,232,238,.4);border-radius:var(--rl);padding:14px 14px 12px;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color 220ms ease,box-shadow 220ms ease;}
+.nm-card.nm-good{border-left-color:rgba(230,232,238,.5);}
+.nm-card:hover{box-shadow:0 0 40px -20px rgba(230,232,238,.14);}
+.nm-eyebrow{font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(230,232,238,.55);margin-bottom:6px;}
 .nm-title{font-size:.78rem;color:var(--t1);font-weight:400;line-height:1.3;margin-bottom:4px;letter-spacing:.01em;}
+/* Mot-clé du pattern détecté : ambre pour les warn, blanc renforcé pour les good */
+.nm-pat{color:#d8b070;}
+.nm-pat.good{color:rgba(230,232,238,.98);}
 .nm-msg{font-size:.58rem;color:var(--t2);line-height:1.55;margin-bottom:11px;}
-.nm-cta{background:transparent;border:1px solid rgba(184,146,58,.32);color:rgba(184,146,58,.92);font-family:var(--font);font-size:.56rem;letter-spacing:.06em;padding:7px 12px;border-radius:var(--r);cursor:pointer;transition:all 180ms ease;}
-.nm-cta:hover{background:rgba(184,146,58,.08);border-color:rgba(184,146,58,.55);color:#d8b070;}
-.nm-card.nm-good .nm-cta{border-color:rgba(230,232,238,.22);color:rgba(230,232,238,.82);}
-.nm-card.nm-good .nm-cta:hover{background:rgba(230,232,238,.05);border-color:rgba(230,232,238,.45);color:var(--t1);}
+.nm-cta{background:transparent;border:1px solid rgba(230,232,238,.22);color:rgba(230,232,238,.82);font-family:var(--font);font-size:.56rem;letter-spacing:.06em;padding:7px 12px;border-radius:var(--r);cursor:pointer;transition:all 180ms ease;}
+.nm-cta:hover{background:rgba(230,232,238,.05);border-color:rgba(230,232,238,.45);color:var(--t1);}
 
 /* Pattern card → click-through (Axe 1) */
 .patt-card.patt-clickable{cursor:pointer;}
@@ -702,6 +728,28 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 }
 @keyframes sparkDraw{to{stroke-dashoffset:0;}}
 @keyframes sparkDot{to{opacity:1;}}
+
+/* v3.17 — Effet "tech zoom" sur la CARTE MENTALE (SVG uniquement).
+   Plus de scan-lines/stries — uniquement : zoom profond du SVG + glow doux + saturate.
+   Piloté par --zoom (0 → 1). Amplitude jusqu'à ×1.8. */
+.cognitive-dash{--zoom:0;position:relative;z-index:1;overflow:hidden;}
+/* v3.17d — Conteneur de la carte mentale clippe le SVG zoomé pour ne PAS
+   déborder sur les insights "La clarté mentale semble être..." dessous.
+   On enveloppe visuellement le SVG via un masque CSS : `clip-path: inset(...)`
+   appliqué sur le SVG lui-même, à la même boîte que sa taille naturelle. */
+.pgrav-card{position:relative;}
+.pgrav-card > svg{clip-path:inset(0 round 4px);}
+/* Glow ciblé : positionné sur la zone du SVG via le wrapper .pgrav-card avec un ::before
+   qui occupe la zone visuelle de la carte mentale (sous le titre + sous-titre, ~60px).
+   v3.17b — glow réduit de 50% (intensité + opacité) pour rester sobre. */
+/* v3.17c — glow encore divisé par 2 (total -75% vs v3.17 initial). */
+.pgrav-card::before{content:'';position:absolute;left:0;right:0;top:60px;height:calc(100% - 60px);border-radius:var(--r);background:radial-gradient(ellipse at 50% 50%,rgba(140,200,255,calc(var(--zoom)*.105)) 0%,rgba(140,200,255,calc(var(--zoom)*.025)) 45%,transparent 75%);pointer-events:none;z-index:0;opacity:calc(var(--zoom)*.38);transition:opacity 180ms ease;}
+/* Wrapper clip : empêche le SVG zoomé de déborder sur les insights ci-dessous. */
+.pgrav-svg-clip{overflow:hidden;border-radius:4px;position:relative;z-index:1;}
+.pgrav-svg-clip > svg{transform-origin:50% 50%;transform:scale(calc(1 + var(--zoom)*0.56));transition:transform 200ms cubic-bezier(.2,.7,.2,1);will-change:transform;display:block;}
+.cognitive-dash.tech-armed .pgrav-svg-clip > svg{filter:saturate(calc(1 + var(--zoom)*.11)) contrast(calc(1 + var(--zoom)*.035)) drop-shadow(0 0 calc(var(--zoom)*3.5px) rgba(140,200,255,calc(var(--zoom)*.12)));}
+/* Fallback : si le SVG est encore enfant direct de .pgrav-card (ancien rendu en cache), conserve le scale */
+.pgrav-card > svg{transform-origin:50% 50%;transform:scale(calc(1 + var(--zoom)*0.56));transition:transform 200ms cubic-bezier(.2,.7,.2,1);will-change:transform;display:block;position:relative;z-index:1;}
 
 /* Citation cyclable — interactive hint */
 .dash-quote{cursor:pointer;}
@@ -1440,7 +1488,10 @@ function renderToday(){
 
   // ═══ LEVEL 1 — MIT HERO ═══
   h+=`<div class="mit-hero" data-friction="${friction.level}">`;
-  h+=`<div class="mit-hero-head"><span class="mit-hero-lbl">Priorité du jour${infoBubble("La tâche qui rend la journée gagnante, même seule. Définis aussi le temps nécessaire (30–120 min).")}</span><span class="mit-hero-date">${dfull}${day.tasks.length===0?` · <button class="guided-trigger-link" onclick="startGuidedBrainDump()">Clarifier ma journée</button>`:''}</span></div>`;
+  /* v3.17e — bouton "Clarifier" toujours accessible, label adapté selon état.
+     Permet d'ajouter de nouvelles tâches via Brain Dump même après validation. */
+  const clarifyLabel = day.tasks.length===0 ? 'Clarifier ma journée' : 'Clarifier à nouveau';
+  h+=`<div class="mit-hero-head"><span class="mit-hero-lbl">Priorité du jour${infoBubble("La tâche qui rend la journée gagnante, même seule. Définis aussi le temps nécessaire (30–120 min).")}</span><span class="mit-hero-date">${dfull} · <button class="guided-trigger-link" onclick="startGuidedBrainDump()">${clarifyLabel}</button></span></div>`;
 
   if(!mit){
     // v3.11 — l'empty state lance le flow guidé (au lieu de créer une tâche vide)
@@ -1483,10 +1534,22 @@ function renderToday(){
       ? `<span class="ifthen-count-pill"><strong>${totalToday}</strong> activé${totalToday>1?'s':''}${helpedToday>0?` · ${helpedToday} retour${helpedToday>1?'s':''}`:''}${canUndo?`<button class="ifthen-undo" onclick="decrementStrat('${date}','${undoTargetId}')" title="Retirer une activation">−</button>`:''}</span>`
       : '';
     h+=`<div class="ifthen-section"><div class="ifthen-section-hdr">${I.plans}<span class="ifthen-section-lbl">Plan If-Then</span>${infoBubble("Une réponse pré-préparée à une dérive récurrente. L'objectif n'est pas d'éviter la friction, mais de raccourcir le retour à l'action.")}${countPill}</div>`;
+    /* v3.17f — affichage de la suggestion + accès aux autres plans de la bibliothèque.
+       L'utilisateur peut choisir n'importe quel plan, pas uniquement celui détecté. */
     if(suggested){
       h+=`<div class="friction-plan"><div class="friction-plan-trig">Si <em>${esc(suggested.trigger)}</em>…</div><div class="friction-plan-resp">→ ${esc(suggested.response)}</div><button class="friction-plan-cta" onclick="activateStrat('${date}','${suggested.id}')">J'utilise ce plan</button></div>`;
-    } else if(totalToday===0){
-      h+=`<div class="ifthen-empty">Aucune friction détectée — pas de plan à activer pour l'instant.</div>`;
+    } else if(totalToday===0&&(!STRATEGIES||STRATEGIES.length===0)){
+      h+=`<div class="ifthen-empty">Aucun plan défini. Crée ton premier If-Then dans Plans.</div>`;
+    }
+    /* Liste des autres plans disponibles — masquée par défaut, dépliable */
+    const otherPlans=(STRATEGIES||[]).filter(s=>!suggested||s.id!==suggested.id);
+    if(otherPlans.length>0){
+      const label = suggested ? `Autres plans (${otherPlans.length})` : `Tes plans (${otherPlans.length})`;
+      h+=`<details class="ifthen-other"><summary>${label}</summary><div class="ifthen-other-list">`;
+      otherPlans.forEach(s=>{
+        h+=`<div class="ifthen-other-item"><div class="ifthen-other-text"><div class="ifthen-other-trig">Si <em>${esc(s.trigger)}</em>…</div><div class="ifthen-other-resp">→ ${esc(s.response)}</div></div><button class="ifthen-other-cta" onclick="activateStrat('${date}','${s.id}')">Utiliser</button></div>`;
+      });
+      h+=`</div></details>`;
     }
     h+=`</div>`;
   }
@@ -1695,6 +1758,17 @@ function buildCognitiveMapData(days){
     const ma=d.tasks.find(t=>t.type==='MIT');
     return mc>=2&&(!ma||!ma.completed);
   });
+  /* Jours avec au moins une micro-action complétée (pour score "Micro-actions") */
+  const microDays=wt.filter(d=>d.tasks.some(t=>t.type==='MICRO'&&t.completed));
+
+  /* v3.17 — Helper pour petits subsets (relâche le seuil de 3 jours utilisé par ni())
+     afin que Micro-actions et If Then affichent un % dès qu'il y a au moins 1 jour. */
+  function niSoft(subset){
+    if(!subset.length)return{mr:null,infl:0,conf:false};
+    const mr=mitRateOf(subset);
+    if(mr===null)return{mr:null,infl:0,conf:false};
+    return{mr,infl:(mr-baseMR)/100,conf:subset.length>=3};
+  }
 
   const nodes=[
     {id:'clarity',    label:'Clarté mentale', angle:270, ...ni(clarHi),  n:clarHi.length,    color:'green'},
@@ -1702,8 +1776,8 @@ function buildCognitiveMapData(days){
     {id:'optimisme',  label:'Optimisme',      angle:12,  ...ni(optHi),   n:optHi.length,     color:'violet'},
     {id:'stress',     label:'Stress',         angle:63,  ...ni(strHi),   n:strHi.length,     color:'red'},
     {id:'dispersion', label:'Dispersion',     angle:115, ...ni(dispHi),  n:dispHi.length,    color:'amber'},
-    {id:'micro',      label:'Micro',          angle:167, mr:null, infl:microNoMIT.length/wt.length>0.2?-0.28:0, conf:wt.length>=5, n:microNoMIT.length, color:'grey'},
-    {id:'ifThen',     label:'If Then',        angle:218, ...ni(itDays),  n:itDays.length,    color:'violet'},
+    {id:'micro',      label:'Micro-actions',  angle:167, ...niSoft(microDays), n:microDays.length, color:'grey'},
+    {id:'ifThen',     label:'If Then',        angle:218, ...niSoft(itDays),    n:itDays.length,    color:'violet'},
   ];
 
   // v3.9 — Distance STRICTEMENT proportionnelle au score (mr%).
@@ -1774,7 +1848,7 @@ function renderCognitiveMap(days){
      Plus de satellites flottants, plus d'anneaux décoratifs,
      plus de halos par nœud. Pétales structurés autour du MIT.
   ===================================================== */
-  const CX=190,CY=160,VW=380,VH=320;
+  const CX=220,CY=160,VW=440,VH=320; /* v3.17 — VW élargi pour accommoder labels longs (ex: "Micro-actions" côté gauche) */
   // v3.8.4 — Palette monochrome au repos. La nature (ressource/friction) se révèle au hover.
   const COLS={
     green: {fill:'rgba(230,232,238,.78)', stroke:'rgba(230,232,238,.42)', bg:'rgba(230,232,238,.05)'},
@@ -1872,7 +1946,8 @@ function renderCognitiveMap(days){
   let h=`<div class="pgrav-card">`;
   h+=`<div class="ins-hdr"><div class="ins-title">Carte cognitive</div><div class="ins-n">${data.core.total} journées</div></div>`;
   h+=`<div class="pgrav-sub">Distance = priorité accomplie quand cette dimension est haute · anneau ambre = friction traversée</div>`;
-  h+=svg;
+  /* v3.17d — wrapper qui clippe le SVG zoomé pour ne pas déborder sur les insights */
+  h+=`<div class="pgrav-svg-clip">${svg}</div>`;
   h+=`<div id="cmap-tt" class="cmap-tt" data-nid="" onclick="event.stopPropagation()"></div>`;
   if(insights.length){h+=`<div class="pgrav-ins">${insights.map(i=>`<div class="pgrav-ins-line">${i}</div>`).join('')}</div>`;}
   h+=`</div>`;
@@ -2026,9 +2101,9 @@ function renderPatternCards(days,ins){
   const SVG_ICONS={
     clarte:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.62)" stroke-width="1.4"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="6"/><line x1="12" y1="18" x2="12" y2="22"/><line x1="2" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="22" y2="12"/></svg>`,
     energie:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.6)" stroke-width="1.4"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
-    dispersion:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(195,150,90,.6)" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8l4 4-4 4"/></svg>`,
+    dispersion:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.6)" stroke-width="1.4"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8l4 4-4 4"/></svg>`,
     optimisme:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.6)" stroke-width="1.4"><path d="M8 14s1.5 2 4 2 4-2 4-2"/><circle cx="9" cy="9" r="1"/><circle cx="15" cy="9" r="1"/></svg>`,
-    stress:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(195,150,90,.6)" stroke-width="1.4"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>`,
+    stress:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.6)" stroke-width="1.4"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>`,
     motivation:`<svg class="patt-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(230,232,238,.6)" stroke-width="1.4"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>`,
   };
   const BAR_COLS={clarte:'rgba(230,232,238,.45)',energie:'rgba(230,232,238,.45)',motivation:'rgba(230,232,238,.45)',optimisme:'rgba(230,232,238,.45)',dispersion:'rgba(195,150,90,.5)',stress:'rgba(195,150,90,.5)'};
@@ -2077,47 +2152,49 @@ function renderCompactStability(stab){
    Le Dashboard observe ; cette carte transforme l'observation en geste.
    Ne réintroduit pas streaks/notif/AI-MIT (guardrails verrouillés).
 */
+/* v3.17b — Titre = HTML avec un span ambre `.nm-pat` autour du mot-clé du pattern.
+   Le rendu utilise ce HTML tel quel (pas d'escape). */
 const NM_PATTERN_ACTION={
   high_impact_avoidance: {
-    tone:'warn', title:"Tu évites l'essentiel",
+    tone:'warn', title:`Tu évites <span class="nm-pat">l'essentiel</span>`,
     msg:n=>`${n} jour${n>1?'s':''} où des tâches à fort impact sont restées intouchées.`,
     cta:"Préparer un If-Then de reprise", actionType:'prefill_strat',
     trigger:"je sens une résistance à entamer ma priorité",
     response:"je m'engage à 10 min sans condition de résultat",
   },
   high_dispersion_low_mit: {
-    tone:'warn', title:"Dispersion qui mange la priorité",
+    tone:'warn', title:`<span class="nm-pat">Dispersion</span> qui mange la priorité`,
     msg:n=>`${n}j où l'attention s'est fragmentée avant la MIT.`,
     cta:"Plan anti-dispersion", actionType:'prefill_strat',
     trigger:"je commence à scroller ou m'éparpiller",
     response:"je ferme tout, je reviens à ma MIT pour 10 min",
   },
   low_impact_productivity: {
-    tone:'warn', title:"Activité à faible impact",
+    tone:'warn', title:`Activité à <span class="nm-pat">faible impact</span>`,
     msg:n=>`${n}j où les tâches accomplies n'ont pas changé la trajectoire.`,
     cta:"Recadrer demain", actionType:'nudge_today',
     nudge:"Demain, recadre ta MIT pour qu'elle ait vraiment de l'impact.",
   },
   micro_tasks_over_mit: {
-    tone:'warn', title:"Micro-actions plutôt que MIT",
+    tone:'warn', title:`<span class="nm-pat">Micro-actions</span> plutôt que MIT`,
     msg:n=>`${n}j où l'élan a remplacé l'essentiel.`,
     cta:"Plan de retour à la MIT", actionType:'prefill_strat',
     trigger:"je multiplie les micro-tâches sans toucher à ma priorité",
     response:"je m'arrête, je relis ma MIT, et j'y consacre 25 min",
   },
   high_clarity_success: {
-    tone:'good', title:"Clarté = ton vrai levier",
+    tone:'good', title:`<span class="nm-pat good">Clarté</span> = ton vrai levier`,
     msg:n=>`${n}j confirment : quand la clarté est haute, la priorité tient.`,
     cta:"Calibrer la clarté pour demain", actionType:'nudge_today',
     nudge:"Demain matin, prends 2 min pour clarifier ta MIT avant tout.",
   },
   low_energy_mit_success: {
-    tone:'good', title:"Tu tiens même en énergie basse",
+    tone:'good', title:`Tu tiens même en <span class="nm-pat good">énergie basse</span>`,
     msg:n=>`${n}j où la priorité a été honorée malgré la fatigue.`,
     cta:"Voir tes plans actifs", actionType:'goto_plans',
   },
   antifragile_day: {
-    tone:'good', title:"Journées antifragiles",
+    tone:'good', title:`Journées <span class="nm-pat good">antifragiles</span>`,
     msg:n=>`${n}j de friction traversée — c'est ta signature.`,
     cta:"Voir tes plans actifs", actionType:'goto_plans',
   },
@@ -2148,9 +2225,10 @@ function renderNextMove(days){
   } else if(m.spec.actionType==='goto_plans'){
     onclick=`goPage('pg-plans')`;
   }
+  /* m.spec.title contient du HTML contrôlé (span ambre/.good) — pas d'escape */
   return `<div class="nm-card ${cls} reveal">
     <div class="nm-eyebrow">Ton prochain mouvement</div>
-    <div class="nm-title">${esc(m.spec.title)}</div>
+    <div class="nm-title">${m.spec.title}</div>
     <div class="nm-msg">${esc(msg)}</div>
     <button class="nm-cta" onclick="${onclick.replace(/"/g,'&quot;')}">${esc(m.spec.cta)} →</button>
   </div>`;
@@ -2247,6 +2325,75 @@ function applyRevealAndAnimations(rootEl){
   });
 }
 
+/* ── TECH ZOOM (v3.17) ─────────────────────────────────────
+   Sur la page Patterns :
+   - Scroll vers le HAUT en étant déjà en haut (overscroll +) : amplifie progressivement
+     le zoom sur le SVG cognitif. Le zoom reste FIGÉ à la valeur atteinte.
+   - Scroll vers le BAS : décroît progressivement le zoom jusqu'à 0.
+   Aucun decay automatique en idle.
+*/
+let _zoomVal=0,_zoomTouchStart=null;
+function setZoomCSS(v){
+  const card=document.querySelector('#pg-dash .cognitive-dash');
+  if(!card)return;
+  _zoomVal=Math.max(0,Math.min(1,v));
+  card.style.setProperty('--zoom',_zoomVal.toFixed(3));
+  if(_zoomVal>0.04)card.classList.add('tech-armed');
+  else card.classList.remove('tech-armed');
+}
+function onZoomWheel(e){
+  if(document.querySelector('#pg-dash')?.classList.contains('on')!==true)return;
+  /* Zoom UP : uniquement quand déjà en haut + scroll vers le haut */
+  if(window.scrollY===0&&e.deltaY<0){
+    e.preventDefault();
+    setZoomCSS(_zoomVal+Math.min(.08,Math.abs(e.deltaY)/400));
+    return;
+  }
+  /* Zoom DOWN : scroll vers le bas + un zoom actuellement actif */
+  if(e.deltaY>0&&_zoomVal>0){
+    setZoomCSS(Math.max(0,_zoomVal-Math.min(.08,Math.abs(e.deltaY)/400)));
+    /* On laisse le scroll natif continuer après que le zoom soit redescendu à 0 */
+    if(_zoomVal>0)e.preventDefault();
+    return;
+  }
+}
+function onZoomTouchStart(e){
+  if(document.querySelector('#pg-dash')?.classList.contains('on')!==true)return;
+  _zoomTouchStart=e.touches[0].clientY;
+}
+function onZoomTouchMove(e){
+  if(_zoomTouchStart===null)return;
+  if(document.querySelector('#pg-dash')?.classList.contains('on')!==true)return;
+  const dy=e.touches[0].clientY-_zoomTouchStart;
+  /* Drag vers le bas (dy>0) en étant en haut → zoom up */
+  if(window.scrollY===0&&dy>0){
+    setZoomCSS(Math.min(1,dy/220));
+    return;
+  }
+  /* Drag vers le haut (dy<0) avec zoom actif → zoom down, sans réinitialiser */
+  if(dy<0&&_zoomVal>0){
+    setZoomCSS(Math.max(0,_zoomVal-Math.abs(dy)/220));
+    _zoomTouchStart=e.touches[0].clientY; /* reset baseline pour continuer */
+  }
+}
+function onZoomTouchEnd(){
+  _zoomTouchStart=null;
+  /* Pas de decay automatique : le zoom reste à sa valeur */
+}
+function attachZoomListeners(){
+  /* Retire puis rajoute pour garantir un seul listener actif (idempotent). */
+  window.removeEventListener('wheel',onZoomWheel,{passive:false});
+  window.removeEventListener('touchstart',onZoomTouchStart);
+  window.removeEventListener('touchmove',onZoomTouchMove);
+  window.removeEventListener('touchend',onZoomTouchEnd);
+  window.removeEventListener('touchcancel',onZoomTouchEnd);
+  window.addEventListener('wheel',onZoomWheel,{passive:false});
+  window.addEventListener('touchstart',onZoomTouchStart,{passive:true});
+  window.addEventListener('touchmove',onZoomTouchMove,{passive:true});
+  window.addEventListener('touchend',onZoomTouchEnd,{passive:true});
+  window.addEventListener('touchcancel',onZoomTouchEnd,{passive:true});
+}
+
 /* ── CITATION CYCLABLE (Axe 2) ─────────────────────────────── */
 let _dashQuotePool=[];
 let _dashQuoteIdx=0;
@@ -2294,9 +2441,6 @@ function renderDashboard(){
   const ins=buildInsights(days);
   const impDist=buildImpactDist(days);
 
-  // 0. ── Prochain mouvement (Axe 1 — pont vers l'action)
-  h+=renderNextMove(days);
-
   // 1. ── Citation dynamique
   h+=renderDashQuote(days);
 
@@ -2306,47 +2450,7 @@ function renderDashboard(){
   // 3. ── Patterns mentaux (cards récurrentes)
   if(ins&&ins.length>=2)h+=renderPatternCards(days,ins);
 
-  // 4. ── Patterns détaillés (haut vs bas avec delta)
-  if(ins.length){
-    h+=`<div class="ins-sec-lbl" style="margin-top:8px">patterns détaillés</div>`;
-    const PCOMP_INSIGHT={
-      clarte:    'Levier le plus direct vers l\'action.',
-      energie:   'Influence le seuil d\'entrée dans l\'action.',
-      motivation:'Souvent moins prédictif que la clarté.',
-      optimisme: 'Sentiment que l\'effort vaut la peine.',
-      stress:    'Friction traversée — signal de résilience.',
-      dispersion:'Attention fragmentée vs concentrée.',
-    };
-    const TINT_PAT={clarte:'cool',energie:'cool',motivation:'cool',optimisme:'cool',stress:'warm',dispersion:'warm'};
-    // v3.14 — On ne garde QUE les patterns avec contraste haut/bas significatif (delta dispo + |Δ| >= 8%)
-    // Les ressources "barre seule" sans contraste sont déjà couvertes par "Patterns mentaux"
-    const meaningful=ins.filter(s=>{
-      const high=s.mrH!==null?s.mrH:s.scH;
-      const low =s.mrL!==null?s.mrL:s.scL;
-      if(high===null||low===null)return false;
-      return Math.abs(high-low)>=8;
-    });
-    if(meaningful.length===0){
-      h+=`<div style="font-size:.55rem;color:var(--t3);line-height:1.65;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid var(--border-lo);border-radius:6px">Pas encore de contraste fort entre tes états — continue d'enregistrer, les écarts émergeront.</div>`;
-    }
-    meaningful.forEach(s=>{
-      const high=s.mrH!==null?s.mrH:s.scH;
-      const low =s.mrL;
-      const delta=high-low;
-      const deltaCls=delta>=0?'pos':'neg';
-      const deltaTxt=`${delta>=0?'+':''}${delta}%`;
-      const tint=TINT_PAT[s.k]||'cool';
-      const insight=PCOMP_INSIGHT[s.k]||'';
-      h+=`<div class="pcomp reveal" data-tint="${tint}">`;
-      h+=`<div class="pcomp-hdr"><span class="pcomp-title">${s.l}</span><span class="pcomp-delta ${deltaCls}">Δ ${deltaTxt}</span><span class="pcomp-n">n = ${s.nH}</span></div>`;
-      h+=`<div class="pcomp-rows">`;
-      h+=`<div class="pcomp-row high"><span class="pcomp-row-lbl">haut</span><div class="pcomp-row-track"><div class="pcomp-row-fill" style="width:${high}%"></div></div><span class="pcomp-row-val">${high}%</span></div>`;
-      h+=`<div class="pcomp-row low"><span class="pcomp-row-lbl">bas</span><div class="pcomp-row-track"><div class="pcomp-row-fill" style="width:${low}%"></div></div><span class="pcomp-row-val">${low}%</span></div>`;
-      h+=`</div>`;
-      if(insight)h+=`<div class="pcomp-insight">${insight}</div>`;
-      h+=`</div>`;
-    });
-  }
+  // 4. ── Patterns détaillés : retiré v3.17 (doublonnait avec "Patterns mentaux" + carte cognitive)
 
   // 5. ── Contextes associés (tags positifs / à travailler + citation contextuelle)
   const ti=buildTagIns(days);
@@ -2395,7 +2499,7 @@ function renderDashboard(){
     h+=`</div>`;
   }
 
-  // 7. ── Historique compact — calendrier 30j + tendance score
+  // 7. ── Historique compact — calendrier wrap + sparkline pleine largeur sur jours peuplés
   const today=todayISO();
   h+=`<div class="ins-card reveal"><div class="ins-hdr"><div class="ins-title">Historique compact</div><div class="ins-n">30 jours</div></div>`;
   h+=`<div class="cal-grid" style="margin-bottom:14px">`;
@@ -2406,7 +2510,7 @@ function renderDashboard(){
     h+=`<div class="ccell ${cls} ${d===today?'istoday':''}" title="${fmtS(d)}${s&&s.tot?' · '+s.pct+'%':''}" onclick="openOv('${d}')"></div>`;
   }
   h+=`</div>`;
-  // Sparkline directement sous le calendrier
+  // Sparkline directement sous le calendrier (jours peuplés étalés sur toute la largeur)
   const scored=wt.slice().sort((a,b)=>a.date.localeCompare(b.date));
   if(scored.length>=3){
     const vals=scored.map(d=>calcScore(d).pct);
@@ -2417,6 +2521,11 @@ function renderDashboard(){
   }
   h+=`</div>`;
 
+  // 8. ── Conclusion — "Ton prochain mouvement" (Axe 1, repositionné v3.17)
+  //    Pont vers l'action en fin de lecture : après avoir vu les patterns,
+  //    l'utilisateur a une porte de sortie concrète.
+  h+=renderNextMove(days);
+
   $('dash-in').innerHTML=h;
 
   /* Axe 2 — engagement visuel : initialise le pool de citations cyclables,
@@ -2424,6 +2533,9 @@ function renderDashboard(){
   _dashQuotePool=buildDashQuotePool(days);
   _dashQuoteIdx=0;
   applyRevealAndAnimations($('dash-in'));
+  /* v3.17 — Tech zoom sur carte cognitive */
+  attachZoomListeners();
+  setZoomCSS(0);
 }
 function setDF(f){DF=f;renderDashboard();}
 
