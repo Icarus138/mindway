@@ -304,8 +304,14 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .pmap-pct{font-size:.5rem;color:var(--t3);padding:2px 6px;background:rgba(255,255,255,.03);border-radius:20px;}
 
 /* DONUT CHART */
-.donut-wrap{display:flex;gap:14px;align-items:center;}
-.donut-legend{display:flex;flex-direction:column;gap:5px;flex:1;}
+/* v3.13 — Donut compact, aéré, aligné avec le reste du dashboard */
+.donut-wrap{display:flex;gap:22px;align-items:center;padding:4px 0 6px;}
+.donut-wrap svg{max-width:110px;flex-shrink:0;}
+.donut-legend{display:flex;flex-direction:column;gap:7px;flex:1;font-size:.58rem;}
+.donut-legend .dl-item{display:flex;align-items:center;gap:8px;color:var(--t2);transition:color 160ms ease;}
+.donut-legend .dl-item:hover{color:var(--t1);}
+.donut-legend .dl-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
+.donut-legend .dl-val{margin-left:auto;color:var(--t1);font-variant-numeric:tabular-nums;letter-spacing:.04em;}
 .dl-item{display:flex;align-items:center;gap:5px;font-size:.52rem;color:var(--t2);}
 .dl-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
 .dl-val{font-size:.5rem;color:var(--t3);margin-left:auto;}
@@ -325,7 +331,8 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .ccell{width:23px;height:23px;border-radius:4px;cursor:pointer;transition:opacity var(--tr);border:1px solid transparent;}
 .ccell:hover{opacity:.75;}
 .ccell.empty{background:rgba(255,255,255,.024);border-color:var(--border-lo);}
-.ccell.winning{background:rgba(91,110,232,.2);} .ccell.optimized{background:rgba(91,110,232,.2);} .ccell.partial{background:rgba(195,150,90,.18);} .ccell.ongoing{background:rgba(255,255,255,.05);}
+/* v3.13 — calendrier neutralisé : blanc/doré (jamais de violet) */
+.ccell.winning{background:rgba(230,232,238,.22);} .ccell.optimized{background:rgba(210,180,120,.22);} .ccell.partial{background:rgba(195,150,90,.18);} .ccell.ongoing{background:rgba(255,255,255,.05);}
 .ccell.istoday{border-color:var(--border-hi) !important;}
 .cal-leg{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
 .cl-item{display:flex;align-items:center;gap:4px;}
@@ -336,7 +343,7 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .spark-wrap{margin-bottom:16px;}
 .spark-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;}
 .spark-lbl{font-size:.52rem;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);}
-.spark-cur{font-size:.64rem;color:var(--violet);}
+.spark-cur{font-size:.64rem;color:rgba(230,232,238,.85);}
 
 /* OVERLAY */
 .overlay{position:fixed;inset:0;z-index:200;background:rgba(2,3,9,.97);display:none;flex-direction:column;animation:ov-in .16s ease;}
@@ -585,7 +592,7 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 /* Analytics segmented bar — Activité vs impact (v3.9) */
 .seg-bar{display:flex;height:8px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.04);margin:10px 0 6px;}
 .seg-bar-cell{position:relative;transition:filter 220ms ease,opacity 220ms ease;}
-.seg-bar-cell.high{background:linear-gradient(180deg,rgba(91,110,232,.65),rgba(91,110,232,.45));}
+.seg-bar-cell.high{background:linear-gradient(180deg,rgba(230,232,238,.45),rgba(230,232,238,.28));}
 .seg-bar-cell.mid {background:linear-gradient(180deg,rgba(210,214,222,.42),rgba(210,214,222,.25));}
 .seg-bar-cell.low {background:linear-gradient(180deg,rgba(195,150,90,.6),rgba(195,150,90,.4));}
 .seg-bar-cell:hover{filter:brightness(1.18);}
@@ -605,14 +612,14 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .pcomp-title{font-size:.66rem;color:var(--t1);letter-spacing:.02em;}
 .pcomp-n{margin-left:auto;font-size:.5rem;color:var(--t4);letter-spacing:.06em;}
 .pcomp-delta{font-size:.5rem;padding:1px 6px;border-radius:10px;letter-spacing:.04em;font-variant-numeric:tabular-nums;border:1px solid var(--border-hi);background:rgba(255,255,255,.03);color:var(--t2);}
-.pcomp-delta.pos{color:rgba(91,110,232,.92);border-color:rgba(91,110,232,.32);background:rgba(91,110,232,.06);}
-.pcomp-delta.neg{color:rgba(210,160,100,.92);border-color:rgba(195,150,90,.34);background:rgba(195,150,90,.06);}
+.pcomp-delta.pos{color:rgba(235,238,245,.92);border-color:rgba(235,238,245,.32);background:rgba(235,238,245,.06);}
+.pcomp-delta.neg{color:rgba(210,180,120,.92);border-color:rgba(195,150,90,.34);background:rgba(195,150,90,.06);}
 .pcomp-rows{display:flex;flex-direction:column;gap:4px;margin-top:5px;}
 .pcomp-row{display:grid;grid-template-columns:54px 1fr 38px;align-items:center;gap:8px;font-size:.54rem;color:var(--t3);letter-spacing:.04em;}
 .pcomp-row-lbl{text-transform:uppercase;letter-spacing:.1em;color:var(--t4);}
 .pcomp-row-track{height:5px;border-radius:2px;background:rgba(255,255,255,.04);overflow:hidden;}
 .pcomp-row-fill{height:100%;transition:filter 200ms ease;}
-.pcomp[data-tint="cool"] .pcomp-row.high .pcomp-row-fill{background:linear-gradient(90deg,rgba(210,214,222,.35),rgba(91,110,232,.7));}
+.pcomp[data-tint="cool"] .pcomp-row.high .pcomp-row-fill{background:linear-gradient(90deg,rgba(210,214,222,.32),rgba(235,238,245,.6));}
 .pcomp[data-tint="cool"] .pcomp-row.low  .pcomp-row-fill{background:rgba(210,214,222,.22);}
 .pcomp[data-tint="warm"] .pcomp-row.high .pcomp-row-fill{background:linear-gradient(90deg,rgba(210,214,222,.35),rgba(195,150,90,.7));}
 .pcomp[data-tint="warm"] .pcomp-row.low  .pcomp-row-fill{background:rgba(210,214,222,.22);}
@@ -1939,11 +1946,11 @@ function renderDashQuote(days){
 }
 
 function renderCompactKPIs(mr,as,afs,nDone,nWith,nTotal){
-  // streak removed by /autoplan principle — no chain pressure
+  // v3.13 — blanc/doré uniquement (plus de violet)
   const items=[
-    {lbl:'priorité',val:`${mr}%`,c:mr>=70?'rgba(91,110,232,.7)':mr>=50?'rgba(195,150,90,.65)':' var(--t2)'},
-    {lbl:'score moy.',val:`${as}%`,c:'rgba(91,110,232,.65)'},
-    {lbl:'antifragile',val:afs,c:'rgba(195,150,90,.65)'},
+    {lbl:'priorité',val:`${mr}%`,c:mr>=70?'rgba(230,232,238,.92)':mr>=50?'rgba(210,180,120,.85)':'var(--t2)'},
+    {lbl:'score moy.',val:`${as}%`,c:'rgba(230,232,238,.78)'},
+    {lbl:'antifragile',val:afs,c:'rgba(195,150,90,.78)'},
   ];
   return`<div class="kpi-strip">${items.map(k=>`<div class="kpi-pill"><div class="kpi-pill-val" style="color:${k.c}">${k.val}</div><div class="kpi-pill-lbl">${k.lbl}</div></div>`).join('')}</div>`;
 }
@@ -1998,109 +2005,33 @@ function renderCompactStability(stab){
 }
 
 /* ── RENDER: DASHBOARD ── */
-/* V3.1 hierarchy (post-/autoplan): cognitive map FIRST, KPIs demoted to bottom.
-   Dashboard = calm cognitive review space, not a KPI wall. */
+/* v3.14 — Hiérarchie restructurée (post-user feedback)
+   1. Citation
+   2. Carte cognitive + insights
+   3. Patterns mentaux
+   4. Patterns détaillés
+   5. Contextes associés
+   6. Activité vs impact (compact)
+   7. Historique compact (calendrier + sparkline)
+   Supprimé : donut, stabilité brute, heatmap (duplique patterns), KPI antifragile non expliqué */
 function renderDashboard(){
   const days=filterDays(DF),wt=days.filter(d=>d.tasks.length>0);
   let h=`<div class="frow">${['7','30','all'].map(f=>`<button class="fbtn ${DF===f?'on':''}" onclick="setDF('${f}')">${f==='all'?'Tout':f+'j'}</button>`).join('')}</div>`;
   if(wt.length<3){h+=`<div class="empty-st">Enregistrez au moins 3 journées pour accéder aux patterns.</div>`;$('dash-in').innerHTML=h;return;}
 
-  // ── Stats partagées (streak intentionally removed — see PRINCIPLES)
-  const wm=wt.filter(d=>d.tasks.some(t=>t.type==='MIT'));
-  const mrd=wm.filter(d=>{const m=d.tasks.find(t=>t.type==='MIT');return m&&m.completed;});
-  const mr=wm.length?Math.round(mrd.length/wm.length*100):0;
-  const as=Math.round(wt.reduce((s,d)=>s+calcScore(d).pct,0)/wt.length);
-  const afs=wt.filter(d=>calcScore(d).af).length;
-  const stab=calcStability(days);
   const ins=buildInsights(days);
   const impDist=buildImpactDist(days);
-  const itStats=buildIfThenStats(days);
 
-  // ═══ Citation d'ouverture — mettre en état de pensée avant l'analyse ═══
+  // 1. ── Citation dynamique
   h+=renderDashQuote(days);
 
-  // ═══ LEVEL 1 — COGNITIVE MIRROR (visual, calm, no numbers) ═══
-  // Cognitive map opens the review — answers "where am I right now?"
+  // 2. ── Carte cognitive (insights déjà inclus en bas du SVG via generateCognitiveInsights)
   h+=`<div class="cognitive-dash">${renderCognitiveMap(days)}</div>`;
 
-  // ═══ LEVEL 2 — MENTAL EVOLUTION (timeline) ═══
-  const timeline=renderTimeline(days);
-  if(timeline)h+=timeline;
-
-  // ═══ LEVEL 2 — PATTERN CARDS (recurring mental signatures) ═══
+  // 3. ── Patterns mentaux (cards récurrentes)
   if(ins&&ins.length>=2)h+=renderPatternCards(days,ins);
 
-  // ═══ LEVEL 2 — STABILITY (winning vs partial conditions) ═══
-  h+=renderCompactStability(stab);
-
-  // ═══ LEVEL 3 — DAY DISTRIBUTION (donut, full width) ═══
-  const winDays=wt.filter(d=>{const s=calcScore(d);return s.mitDone&&s.pct<80&&!s.af;}).length;
-  const optDays=wt.filter(d=>{const s=calcScore(d);return s.status==='optimized'&&!s.af;}).length;
-  const partDays=wt.filter(d=>{const s=calcScore(d);return !s.mitDone&&s.pct>10;}).length;
-  const afDays=wt.filter(d=>calcScore(d).af).length;
-  const emptyDays=days.length-wt.length;
-  const donutSegs=[
-    {v:winDays,  c:'rgba(230,232,238,.62)', l:'Gagnante',   n:winDays},
-    {v:optDays,  c:'rgba(230,232,238,.42)', l:'Optimisée',  n:optDays},
-    {v:partDays, c:'rgba(195,150,90,.55)',  l:'Partielle',  n:partDays},
-    {v:afDays,   c:'rgba(195,150,90,.75)',  l:'Antifragile',n:afDays},
-    {v:emptyDays,c:'rgba(255,255,255,.05)', l:'Vide',       n:emptyDays},
-  ].filter(s=>s.v>0);
-  h+=`<div class="ins-card" onclick="showDonutTip('',0)"><div class="ins-hdr"><div class="ins-title">Répartition</div><div class="ins-n">${wt.length} journées</div></div><div class="donut-wrap">${donutSVG(donutSegs)}<div class="donut-legend">${donutSegs.map(s=>`<div class="dl-item" onclick="event.stopPropagation();showDonutTip('${s.l}',${s.n})" style="cursor:pointer"><div class="dl-dot" style="background:${s.c}"></div><span>${s.l}</span><span class="dl-val">${s.n}</span></div>`).join('')}</div></div><div id="donut-tt" class="tl-tt" data-open="" style="display:none;margin-top:8px"></div></div>`;
-
-  // ── SECONDAIRE : If Then effectiveness
-  if(itStats&&itStats.total>=3){
-    h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">If Then — stratégies de reprise</div><div class="ins-n">${itStats.total} utilisation${itStats.total>1?'s':''} · ${itStats.nWith} journée${itStats.nWith>1?'s':''}</div></div>`;
-    let txt='';
-    if(itStats.withStratMIT!==null&&itStats.withoutStratMIT!==null){
-      const delta=itStats.withStratMIT-itStats.withoutStratMIT;
-      txt=`If Then activé : priorité accomplie dans <strong>${itStats.withStratMIT}%</strong> des cas — contre <strong>${itStats.withoutStratMIT}%</strong> sans.`;
-      if(delta>10)txt+=' Corrélation favorable.';
-      else if(delta<-5)txt+=" Signal de régulation, pas d'échec.";
-    } else {
-      txt=`${itStats.total} utilisation${itStats.total>1?'s':''}. ${itStats.helped} retours à l'action.`;
-    }
-    h+=`<div class="ins-txt">${txt}</div>`;
-    STRATEGIES.forEach(strat=>{
-      const stats=itStats.perStrat[strat.id];
-      if(!stats||!stats.uses)return;
-      const effPct=Math.round(stats.effective/stats.uses*100);
-      h+=`<div class="ins-bar-row"><div class="ib-lbl" style="font-size:.5rem;width:80px">${esc(strat.trigger.slice(0,18))}…</div><div class="ib-track"><div class="ib-fill" style="width:${effPct}%;background:var(--violet)"></div></div><div class="ib-val">${stats.uses}× / ${effPct}%</div></div>`;
-    });
-    const rq=quoteForPattern('strategy_helped_mit');
-    if(rq)h+=`<div class="ins-q">« ${esc(rq.text)} »<div class="ins-q-auth">— ${esc(rq.author)}</div></div>`;
-    h+=`</div>`;
-  }
-
-  // ── Activité vs impact réel — barre segmentée proportionnelle (v3.9)
-  if(impDist.total>=5){
-    const lipDays=wt.filter(d=>detectPatterns(d).includes('low_impact_productivity')).length;
-    const hiaDays=wt.filter(d=>detectPatterns(d).includes('high_impact_avoidance')).length;
-    if(lipDays>0||hiaDays>0){
-      const total=impDist.hi+impDist.mid+impDist.lo||1;
-      const pctHi =Math.round(impDist.hi /total*100);
-      const pctMid=Math.round(impDist.mid/total*100);
-      const pctLo =Math.max(0,100-pctHi-pctMid);
-      h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Activité vs impact réel</div><div class="ins-n">${total} tâches</div></div>`;
-      if(lipDays>0)h+=`<div class="ins-txt">${lipDays} journée${lipDays>1?'s':''} dominée${lipDays>1?'s':''} par l'activité à faible impact.</div>`;
-      if(hiaDays>0)h+=`<div class="ins-txt">${hiaDays} journée${hiaDays>1?'s':''} où les tâches à fort impact n'ont pas été réalisées.</div>`;
-      h+=`<div class="seg-bar">`;
-      if(pctHi>0) h+=`<div class="seg-bar-cell high" style="flex:${pctHi}" title="Fort impact · ${impDist.hi} tâches · ${pctHi}%"></div>`;
-      if(pctMid>0)h+=`<div class="seg-bar-cell mid"  style="flex:${pctMid}" title="Impact moyen · ${impDist.mid} tâches · ${pctMid}%"></div>`;
-      if(pctLo>0) h+=`<div class="seg-bar-cell low"  style="flex:${pctLo}" title="Faible impact · ${impDist.lo} tâches · ${pctLo}%"></div>`;
-      h+=`</div>`;
-      h+=`<div class="seg-legend">`;
-      h+=`<div class="seg-legend-item"><span class="seg-dot high"></span>Fort impact (I≥2)<span class="seg-pct">${impDist.hi} · ${pctHi}%</span></div>`;
-      h+=`<div class="seg-legend-item"><span class="seg-dot mid"></span>Moyen (I=1)<span class="seg-pct">${impDist.mid} · ${pctMid}%</span></div>`;
-      h+=`<div class="seg-legend-item"><span class="seg-dot low"></span>Faible (I=0)<span class="seg-pct">${impDist.lo} · ${pctLo}%</span></div>`;
-      h+=`</div>`;
-      const rq=quoteForPattern('low_impact_productivity')||quoteForPattern('micro_tasks_over_mit');
-      if(rq)h+=`<div class="ins-q">« ${esc(rq.text)} »<div class="ins-q-auth">— ${esc(rq.author)}</div></div>`;
-      h+=`</div>`;
-    }
-  }
-
-  // ── Patterns détaillés — cartes comparatives haut vs bas (v3.9)
+  // 4. ── Patterns détaillés (haut vs bas avec delta)
   if(ins.length){
     h+=`<div class="ins-sec-lbl" style="margin-top:8px">patterns détaillés</div>`;
     const PCOMP_INSIGHT={
@@ -2117,8 +2048,6 @@ function renderDashboard(){
       const low =s.mrL!==null?s.mrL:s.scL;
       if(high===null)return;
       const delta=(low!==null)?(high-low):null;
-      // Pour les frictions (s.inv true), un delta positif = friction traversée (bon)
-      // Pour les ressources, delta positif = la ressource aide vraiment
       const deltaCls=delta===null?'':(delta>=0?'pos':'neg');
       const deltaTxt=delta===null?'':(`${delta>=0?'+':''}${delta}%`);
       const tint=TINT_PAT[s.k]||'cool';
@@ -2136,40 +2065,66 @@ function renderDashboard(){
     });
   }
 
-  // ── Tag insights
+  // 5. ── Contextes associés (tags positifs / à travailler + citation contextuelle)
   const ti=buildTagIns(days);
   if(ti&&(ti.pos.length||ti.neg.length)){
-    // v3.10 — Citation contextuelle : priorise le tag négatif le plus fréquent (axe d'amélioration)
-    // sinon retombe sur le tag positif top
     const topTag=(ti.neg[0]&&ti.neg[0][0])||(ti.pos[0]&&ti.pos[0][0])||null;
     const topPat=topTag?TAG_TO_PATTERN[topTag]:null;
     const ctxQuote=topPat?quoteForPattern(topPat):null;
     h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Contextes associés</div></div>${ti.pos.length?`<div style="font-size:.5rem;color:var(--t3);margin-bottom:4px;letter-spacing:.04em">Présents lors des priorités accomplies (${ti.nW} jours)</div><div class="tag-chips">${ti.pos.map(([t,c])=>`<span class="tc-win">${esc(t)} <span class="tc-cnt">×${c}</span></span>`).join('')}</div>`:''}${ti.neg.length?`<div style="font-size:.5rem;color:rgba(210,180,140,.78);margin:9px 0 4px;letter-spacing:.04em">À travailler — présents lors des priorités manquées (${ti.nN} jours)</div><div class="tag-chips">${ti.neg.map(([t,c])=>`<span class="tc-loss">${esc(t)} <span class="tc-cnt">×${c}</span></span>`).join('')}</div>`:''}${ctxQuote?`<div class="ins-q" style="margin-top:11px">« ${esc(ctxQuote.text)} »<div class="ins-q-auth">— ${esc(ctxQuote.author)}${topTag?` · en lien avec « ${esc(topTag)} »`:''}</div></div>`:''}</div>`;
   }
 
-  // ── Calendar
+  // 6. ── Activité vs impact réel (compact, 1 micro-note dynamique max)
+  if(impDist.total>=5){
+    const lipDays=wt.filter(d=>detectPatterns(d).includes('low_impact_productivity')).length;
+    const hiaDays=wt.filter(d=>detectPatterns(d).includes('high_impact_avoidance')).length;
+    const impTotal=impDist.hi+impDist.mid+impDist.lo||1;
+    const pctHi =Math.round(impDist.hi /impTotal*100);
+    const pctMid=Math.round(impDist.mid/impTotal*100);
+    const pctLo =Math.max(0,100-pctHi-pctMid);
+    // Une seule micro-note dynamique courte — la plus saillante
+    let microNote='';
+    if(pctLo>=50)      microNote="Activité dominée par les tâches à faible impact.";
+    else if(hiaDays>lipDays&&hiaDays>0) microNote=`${hiaDays}j où l'essentiel n'a pas été engagé.`;
+    else if(lipDays>0) microNote=`${lipDays}j de remplissage à faible impact.`;
+    else if(pctHi>=50) microNote="Activité concentrée sur le fort impact.";
+
+    h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Activité vs impact</div><div class="ins-n">${impTotal} tâches</div></div>`;
+    h+=`<div class="seg-bar" style="margin-top:10px">`;
+    if(pctHi>0) h+=`<div class="seg-bar-cell high" style="flex:${pctHi}" title="Fort impact · ${impDist.hi} tâches · ${pctHi}%"></div>`;
+    if(pctMid>0)h+=`<div class="seg-bar-cell mid"  style="flex:${pctMid}" title="Impact moyen · ${impDist.mid} tâches · ${pctMid}%"></div>`;
+    if(pctLo>0) h+=`<div class="seg-bar-cell low"  style="flex:${pctLo}" title="Faible impact · ${impDist.lo} tâches · ${pctLo}%"></div>`;
+    h+=`</div>`;
+    h+=`<div class="seg-legend">`;
+    h+=`<div class="seg-legend-item"><span class="seg-dot high"></span>Fort<span class="seg-pct">${pctHi}%</span></div>`;
+    h+=`<div class="seg-legend-item"><span class="seg-dot mid"></span>Moyen<span class="seg-pct">${pctMid}%</span></div>`;
+    h+=`<div class="seg-legend-item"><span class="seg-dot low"></span>Faible<span class="seg-pct">${pctLo}%</span></div>`;
+    h+=`</div>`;
+    if(microNote)h+=`<div style="font-size:.55rem;color:var(--t3);margin-top:9px;line-height:1.55">${microNote}</div>`;
+    h+=`</div>`;
+  }
+
+  // 7. ── Historique compact — calendrier 30j + tendance score
   const today=todayISO();
-  h+=`<div class="cal-wrap"><div class="cal-lbl">Calendrier 30 jours</div><div class="cal-grid">`;
+  h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Historique compact</div><div class="ins-n">30 jours</div></div>`;
+  h+=`<div class="cal-grid" style="margin-bottom:14px">`;
   for(let i=29;i>=0;i--){
     const d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
     const day=DAYS[d],s=day?calcScore(day):null;
     const cls=!s||s.status==='empty'?'empty':s.status;
     h+=`<div class="ccell ${cls} ${d===today?'istoday':''}" title="${fmtS(d)}${s&&s.tot?' · '+s.pct+'%':''}" onclick="openOv('${d}')"></div>`;
   }
-  h+=`</div><div class="cal-leg"><div class="cl-item"><div class="cl-dot" style="background:rgba(91,110,232,.3)"></div><span class="cl-txt">Gagnante</span></div><div class="cl-item"><div class="cl-dot" style="background:rgba(91,110,232,.3)"></div><span class="cl-txt">Optimisée</span></div><div class="cl-item"><div class="cl-dot" style="background:rgba(195,150,90,.25)"></div><span class="cl-txt">Progression</span></div><div class="cl-item"><div class="cl-dot" style="background:rgba(255,255,255,.05)"></div><span class="cl-txt">Vide</span></div></div></div>`;
-
-  // ── Sparkline
+  h+=`</div>`;
+  // Sparkline directement sous le calendrier
   const scored=wt.slice().sort((a,b)=>a.date.localeCompare(b.date));
   if(scored.length>=3){
     const vals=scored.map(d=>calcScore(d).pct);
-    const W=500,H=54,pts=vals.map((v,i)=>({x:(i/(vals.length-1))*W,y:H-(v/100)*H}));
+    const W=500,H=44,pts=vals.map((v,i)=>({x:(i/(vals.length-1))*W,y:H-(v/100)*H}));
     const ln=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
     const last=pts[pts.length-1];
-    h+=`<div class="spark-wrap"><div class="spark-hdr"><span class="spark-lbl">Tendance du score</span><span class="spark-cur">${vals[vals.length-1]}% — ${fmtS(scored[scored.length-1].date)}</span></div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:54px;display:block"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(91,110,232,.2)"/><stop offset="100%" stop-color="rgba(91,110,232,.01)"/></linearGradient></defs><path d="${ln} L${W},${H} L0,${H} Z" fill="url(#sg)"/><path d="${ln}" fill="none" stroke="rgba(91,110,232,.65)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3" fill="rgba(91,110,232,.9)"/></svg><div style="display:flex;justify-content:space-between;font-size:.5rem;color:var(--t4);margin-top:3px"><span>${fmtS(scored[0].date)}</span><span>${fmtS(scored[scored.length-1].date)}</span></div></div>`;
+    h+=`<div class="spark-hdr" style="margin-top:4px"><span class="spark-lbl">Tendance du score</span><span class="spark-cur">${vals[vals.length-1]}% — ${fmtS(scored[scored.length-1].date)}</span></div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:44px;display:block"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(230,232,238,.18)"/><stop offset="100%" stop-color="rgba(230,232,238,.01)"/></linearGradient></defs><path d="${ln} L${W},${H} L0,${H} Z" fill="url(#sg)"/><path d="${ln}" fill="none" stroke="rgba(230,232,238,.58)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3" fill="rgba(235,238,245,.88)"/></svg><div style="display:flex;justify-content:space-between;font-size:.5rem;color:var(--t4);margin-top:3px"><span>${fmtS(scored[0].date)}</span><span>${fmtS(scored[scored.length-1].date)}</span></div>`;
   }
-
-  // ═══ LEVEL 3 — KPI strip (demoted to bottom — no longer the headline) ═══
-  h+=renderCompactKPIs(mr,as,afs,mrd.length,wm.length,wt.length);
+  h+=`</div>`;
 
   $('dash-in').innerHTML=h;
 }
