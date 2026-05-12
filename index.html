@@ -74,19 +74,18 @@
    Le design original a été calibré à 14px ; +28% de gain de lecture sur tel. */
 html{font-size:14px;-webkit-text-size-adjust:100%;}
 @media (max-width:768px){
-  /* v3.18b — bump de texte mobile réduit de 30% (17→15.4px) :
-     gain de lecture mais design moins dense. */
-  html{font-size:15.4px;}
-  /* v3.18 — Bump des classes utilisant des font-sizes très petites pour
-     compenser et atteindre 13-14px minimum lisible. */
-  .tab-btn span,.fbtn,.guided-trigger-link,.friction-plan-cta,.ifthen-other-cta,
-  .ifthen-other summary,.ifthen-other-trig,.ifthen-other-resp,
-  .ins-cta,.nm-cta,.nm-eyebrow,.spark-lbl,.spark-cur,
-  .patt-cta-hint,.seg-legend,.kpi-pill-lbl,.cl-txt,
-  .nav-sub{font-size:.74rem!important;letter-spacing:.04em;}
-  .nm-msg,.dq-pattern,.tag-chips .tc-win,.tag-chips .tc-loss,
-  .tc-cnt,.hmeta,.spark-lbl,.ins-sec-lbl{font-size:.76rem!important;}
-  .info-bubble{width:24px!important;height:24px!important;font-size:.72rem!important;}
+  /* v3.18d — pas de bump global. Texte de base reste 14px comme desktop.
+     On corrige UNIQUEMENT les classes franchement illisibles (tab labels
+     6.72px, CTA 7px) sans grossir tout le contenu. */
+  /* html font-size reste 14px (hérité). */
+
+  /* Tab labels : 6.72 → 11px (le minimum pour lire en marchant) */
+  .tab-btn span{font-size:.72rem!important;letter-spacing:.04em;}
+  /* CTA principaux (mots-clés d'action) : 7-7.28 → 11-12px */
+  .friction-plan-cta,.ifthen-other-cta,.ins-cta,.nm-cta,
+  .guided-trigger-link,.fbtn{font-size:.7rem!important;letter-spacing:.04em;}
+  /* Info bubble : tactile mais visuel sobre */
+  .info-bubble{width:22px!important;height:22px!important;font-size:.62rem!important;}
   /* v3.18 — Tooltip mobile : reste dans le viewport (pas de débordement gauche)
      en ancrant à gauche via left:0 + transform:0 + max-width raisonnable. */
   .info-bubble[data-tip]:hover::after,.info-bubble[data-tip]:focus::after{
