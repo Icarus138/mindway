@@ -74,7 +74,9 @@
    Le design original a été calibré à 14px ; +28% de gain de lecture sur tel. */
 html{font-size:14px;-webkit-text-size-adjust:100%;}
 @media (max-width:768px){
-  html{font-size:17px;}
+  /* v3.18b — bump de texte mobile réduit de 30% (17→15.4px) :
+     gain de lecture mais design moins dense. */
+  html{font-size:15.4px;}
   /* v3.18 — Bump des classes utilisant des font-sizes très petites pour
      compenser et atteindre 13-14px minimum lisible. */
   .tab-btn span,.fbtn,.guided-trigger-link,.friction-plan-cta,.ifthen-other-cta,
