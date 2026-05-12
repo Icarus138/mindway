@@ -147,14 +147,22 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .main{flex:1;padding-bottom:calc(66px + env(safe-area-inset-bottom,0));}
 .page{display:none;padding:15px 14px;max-width:680px;margin:0 auto;}
 .page.on{display:block;}
-/* v3.18 — Animation slide horizontal pour les changements de page via swipe.
-   Respecte prefers-reduced-motion. */
+/* v3.18b — Transition slide premium : easing iOS-like, plus longue, légère
+   variation de scale + blur pour la profondeur. Respecte reduced-motion. */
 @media (prefers-reduced-motion: no-preference){
-  .page.on.slide-from-right{animation:slideFromRight 240ms cubic-bezier(.2,.7,.2,1);}
-  .page.on.slide-from-left{animation:slideFromLeft 240ms cubic-bezier(.2,.7,.2,1);}
+  .page.on.slide-from-right{animation:slideFromRight 480ms cubic-bezier(.25,.1,.2,1);}
+  .page.on.slide-from-left{animation:slideFromLeft 480ms cubic-bezier(.25,.1,.2,1);}
 }
-@keyframes slideFromRight{from{opacity:.4;transform:translateX(28px);}to{opacity:1;transform:translateX(0);}}
-@keyframes slideFromLeft {from{opacity:.4;transform:translateX(-28px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideFromRight{
+  0%  {opacity:0;transform:translate3d(56px,0,0) scale(.985);filter:blur(2px);}
+  35% {opacity:.65;filter:blur(.4px);}
+  100%{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0);}
+}
+@keyframes slideFromLeft{
+  0%  {opacity:0;transform:translate3d(-56px,0,0) scale(.985);filter:blur(2px);}
+  35% {opacity:.65;filter:blur(.4px);}
+  100%{opacity:1;transform:translate3d(0,0,0) scale(1);filter:blur(0);}
+}
 
 /* DATE HEADER */
 .dh{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border-lo);}
