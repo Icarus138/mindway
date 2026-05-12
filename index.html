@@ -147,6 +147,14 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .main{flex:1;padding-bottom:calc(66px + env(safe-area-inset-bottom,0));}
 .page{display:none;padding:15px 14px;max-width:680px;margin:0 auto;}
 .page.on{display:block;}
+/* v3.18 — Animation slide horizontal pour les changements de page via swipe.
+   Respecte prefers-reduced-motion. */
+@media (prefers-reduced-motion: no-preference){
+  .page.on.slide-from-right{animation:slideFromRight 240ms cubic-bezier(.2,.7,.2,1);}
+  .page.on.slide-from-left{animation:slideFromLeft 240ms cubic-bezier(.2,.7,.2,1);}
+}
+@keyframes slideFromRight{from{opacity:.4;transform:translateX(28px);}to{opacity:1;transform:translateX(0);}}
+@keyframes slideFromLeft {from{opacity:.4;transform:translateX(-28px);}to{opacity:1;transform:translateX(0);}}
 
 /* DATE HEADER */
 .dh{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border-lo);}
@@ -2592,16 +2600,86 @@ function renderDashboard(){
 function setDF(f){DF=f;renderDashboard();}
 
 /* ── NAVIGATION ── */
-function goPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+/* v3.18 — Ordre des pages pour le swipe horizontal */
+const PAGE_ORDER=['pg-today','pg-plans','pg-hist','pg-dash'];
+
+function goPage(id,opts){
+  const prevId=document.querySelector('.page.on')?.id;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on','slide-from-right','slide-from-left'));
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
-  $(id).classList.add('on');
+  const next=$(id);
+  /* Animation directionnelle si on vient d'un swipe */
+  if(opts&&opts.dir){
+    next.classList.add(opts.dir==='right'?'slide-from-right':'slide-from-left');
+  }
+  next.classList.add('on');
   document.querySelector(`[data-pg="${id}"]`).classList.add('on');
   if(id==='pg-today')   renderToday();
   if(id==='pg-plans')   renderPlans();
   if(id==='pg-hist')    renderHistory();
   if(id==='pg-dash')    renderDashboard();
   renderNavPip();
+  /* Scroll au top lors d'un swipe pour un effet propre */
+  if(opts&&opts.dir)window.scrollTo(0,0);
+}
+
+/* ── SWIPE HORIZONTAL ENTRE TABS (v3.18) ─────────────────────────
+   Permet de naviguer Jour ↔ Plans ↔ Hist ↔ Patterns par geste latéral.
+   Détection sobre : swipe > 60px ET ratio horizontal/vertical > 1.5
+   pour ne pas interférer avec le scroll natif vertical.
+   Exclu : SVG carte cognitive (gère son propre overscroll zoom),
+   inputs et textareas. */
+let _swipeStart=null;
+function _isSwipeExcluded(el){
+  if(!el)return true;
+  let n=el;
+  while(n&&n!==document.body){
+    const tag=(n.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea'||tag==='select')return true;
+    if(n.classList){
+      if(n.classList.contains('cognitive-dash'))return true;
+      if(n.classList.contains('guided-overlay'))return true;
+      if(n.classList.contains('overlay'))return true;
+      if(n.classList.contains('ifthen-other'))return true;
+    }
+    n=n.parentElement;
+  }
+  return false;
+}
+function onSwipeStart(e){
+  if(_isSwipeExcluded(e.target)){_swipeStart=null;return;}
+  const t=e.touches[0];
+  _swipeStart={x:t.clientX,y:t.clientY,t:performance.now()};
+}
+function onSwipeEnd(e){
+  if(!_swipeStart)return;
+  const t=(e.changedTouches&&e.changedTouches[0])||null;
+  if(!t){_swipeStart=null;return;}
+  const dx=t.clientX-_swipeStart.x;
+  const dy=t.clientY-_swipeStart.y;
+  const dt=performance.now()-_swipeStart.t;
+  _swipeStart=null;
+  /* Critères : distance horizontale > 60, vitesse raisonnable, ratio >1.5 */
+  if(Math.abs(dx)<60)return;
+  if(Math.abs(dx)<Math.abs(dy)*1.5)return;
+  if(dt>700)return;
+  const currentId=document.querySelector('.page.on')?.id;
+  const idx=PAGE_ORDER.indexOf(currentId);
+  if(idx<0)return;
+  if(dx<0&&idx<PAGE_ORDER.length-1){
+    /* swipe gauche → page suivante */
+    goPage(PAGE_ORDER[idx+1],{dir:'right'});
+  } else if(dx>0&&idx>0){
+    /* swipe droite → page précédente */
+    goPage(PAGE_ORDER[idx-1],{dir:'left'});
+  }
+}
+function attachSwipeListeners(){
+  if(attachSwipeListeners._done)return;
+  attachSwipeListeners._done=true;
+  document.addEventListener('touchstart',onSwipeStart,{passive:true});
+  document.addEventListener('touchend',onSwipeEnd,{passive:true});
+  document.addEventListener('touchcancel',()=>{_swipeStart=null;},{passive:true});
 }
 
 /* ── RESET ── */
@@ -3076,6 +3154,7 @@ function init(){
   if(nd){const n=new Date();nd.innerHTML=n.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+'<br>'+n.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
   renderToday();
   renderNavPip();
+  attachSwipeListeners();
 }
 init();
 </script>
