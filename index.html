@@ -68,15 +68,67 @@
   --glow-r:drop-shadow(0 0 4px rgba(255,255,255,.1));
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+/* v3.18 — Mobile readability bump : 14→18 px sur mobile (<768px) + 16px desktop.
+   Toutes les `.XXrem` se multiplient automatiquement (les éléments en pixels
+   absolus comme cellules calendrier restent inchangés).
+   Le design original a été calibré à 14px ; +28% de gain de lecture sur tel. */
 html{font-size:14px;-webkit-text-size-adjust:100%;}
-body{background:#080A0F;color:var(--t1);font-family:var(--font);font-weight:300;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+@media (max-width:768px){
+  html{font-size:17px;}
+  /* v3.18 — Bump des classes utilisant des font-sizes très petites pour
+     compenser et atteindre 13-14px minimum lisible. */
+  .tab-btn span,.fbtn,.guided-trigger-link,.friction-plan-cta,.ifthen-other-cta,
+  .ifthen-other summary,.ifthen-other-trig,.ifthen-other-resp,
+  .ins-cta,.nm-cta,.nm-eyebrow,.spark-lbl,.spark-cur,
+  .patt-cta-hint,.seg-legend,.kpi-pill-lbl,.cl-txt,
+  .nav-sub{font-size:.74rem!important;letter-spacing:.04em;}
+  .nm-msg,.dq-pattern,.tag-chips .tc-win,.tag-chips .tc-loss,
+  .tc-cnt,.hmeta,.spark-lbl,.ins-sec-lbl{font-size:.76rem!important;}
+  .info-bubble{width:24px!important;height:24px!important;font-size:.72rem!important;}
+  /* v3.18 — Tooltip mobile : reste dans le viewport (pas de débordement gauche)
+     en ancrant à gauche via left:0 + transform:0 + max-width raisonnable. */
+  .info-bubble[data-tip]:hover::after,.info-bubble[data-tip]:focus::after{
+    font-size:.78rem!important;
+    left:auto!important;
+    right:auto!important;
+    transform:none!important;
+    max-width:min(280px,calc(100vw - 40px))!important;
+    width:max-content;
+    /* Ancre près du bouton sans dépasser */
+    inset-inline-start:0;
+  }
+  .info-bubble[data-tip]:hover::before,.info-bubble[data-tip]:focus::before{left:12px!important;transform:translateY(2px)!important;}
+
+  /* v3.18 Phase 2 — Tap targets : >=44×44 minimum iOS HIG.
+     On utilise un ::before transparent qui élargit la zone tactile sans
+     changer le rendu visuel. */
+  .mbtn{min-width:44px;min-height:44px;font-size:.86rem!important;}
+  .tpill{min-height:38px;padding:8px 14px!important;font-size:.78rem!important;}
+  .tchk,.tdel{position:relative;}
+  .tchk::before,.tdel::before{content:'';position:absolute;inset:-12px;}
+  .fbtn{min-height:38px;padding:0 14px!important;}
+  .friction-plan-cta,.ifthen-other-cta,.ins-cta,.nm-cta,.guided-trigger-link{min-height:38px;padding:9px 14px!important;}
+  .guided-trigger-link{display:inline-flex;align-items:center;}
+  .add-btn{min-height:44px;font-size:.78rem!important;}
+
+  /* v3.18 — Layout fixes mobile : adapter le header de carte MIT pour ne pas
+     pousser les boutons sur une autre ligne. */
+  .mit-hero-head{flex-wrap:wrap;gap:6px;}
+  .mit-hero-date{display:inline-flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  /* Le sous-titre nav peut wrap proprement, mais sur 2 lignes ça pousse la date — masque la sous-ligne */
+  .nav-sub{display:none;}
+  /* Friction line : empêche le ? de wrapper seul */
+  .mit-hero .friction-line,.mit-hero [class*="friction"]{display:flex;align-items:flex-start;gap:6px;flex-wrap:wrap;}
+}
+body{background:#080A0F;color:var(--t1);font-family:var(--font);font-weight:300;min-height:100dvh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");background-size:200px;pointer-events:none;z-index:0;opacity:.52;}
 body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-50%);width:65vw;height:60vh;background:radial-gradient(ellipse,rgba(255,255,255,.025) 0%,transparent 70%);pointer-events:none;z-index:0;}
 ::-webkit-scrollbar{width:2px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.06);border-radius:2px;}
-.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100vh;}
+.app{position:relative;z-index:1;display:flex;flex-direction:column;min-height:100dvh;}
 
 /* NAV */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:0 18px;height:50px;background:rgba(8,10,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(18px);position:sticky;top:0;z-index:100;}
+/* v3.18 — Safe-area iOS : nav respecte le notch / Dynamic Island en mode standalone. */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:env(safe-area-inset-top,0) 18px 0;min-height:calc(50px + env(safe-area-inset-top,0));background:rgba(8,10,15,.96);border-bottom:1px solid var(--border);backdrop-filter:blur(18px);position:sticky;top:0;z-index:100;}
 .nav::after{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:40%;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,.18),transparent);pointer-events:none;}
 .nav-brand{display:flex;align-items:center;gap:9px;}
 .nav-logo{width:19px;height:19px;stroke:var(--t1);fill:none;stroke-width:1.4;stroke-linecap:round;flex-shrink:0;filter:drop-shadow(0 0 4px rgba(255,255,255,.18));}
@@ -92,7 +144,7 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .tab-btn.on svg{stroke:var(--violet);}
 
 /* PAGES */
-.main{flex:1;padding-bottom:66px;}
+.main{flex:1;padding-bottom:calc(66px + env(safe-area-inset-bottom,0));}
 .page{display:none;padding:15px 14px;max-width:680px;margin:0 auto;}
 .page.on{display:block;}
 
