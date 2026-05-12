@@ -284,8 +284,8 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .ib-track{flex:1;background:rgba(255,255,255,.04);border-radius:2px;height:4px;}
 .ib-fill{height:100%;border-radius:2px;transition:width .5s ease;}
 .ib-val{font-size:.54rem;color:var(--t2);width:28px;flex-shrink:0;}
-.ins-q{margin-top:9px;padding:7px 10px;background:linear-gradient(135deg,rgba(91,110,232,.038) 0%,transparent 100%);border-left:1px solid rgba(91,110,232,.18);border-radius:0 4px 4px 0;font-size:.59rem;font-style:italic;color:rgba(200,205,215,.58);line-height:1.65;}
-.ins-q-auth{font-size:.5rem;color:rgba(91,110,232,.38);margin-top:3px;}
+.ins-q{margin-top:9px;padding:7px 10px;background:linear-gradient(135deg,rgba(255,255,255,.035) 0%,transparent 100%);border-left:1px solid rgba(255,255,255,.16);border-radius:0 4px 4px 0;font-size:.59rem;font-style:italic;color:rgba(220,225,235,.7);line-height:1.65;}
+.ins-q-auth{font-size:.5rem;color:rgba(190,196,210,.55);margin-top:3px;}
 .tag-chips{display:flex;flex-wrap:wrap;gap:4px;margin:5px 0;}
 .tc-win{font-size:.54rem;padding:2px 7px;border-radius:20px;background:rgba(255,255,255,.05);color:rgba(230,232,238,.85);border:1px solid rgba(230,232,238,.18);}
 /* tc-loss : ambre désaturé — signal "à travailler" sans agressivité (jamais de rouge) */
@@ -435,13 +435,15 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .dq-pattern{font-size:.48rem;color:var(--t4);margin-top:3px;letter-spacing:.08em;text-transform:uppercase;border-top:1px solid var(--border-lo);padding-top:5px;}
 /* Pattern mini-cards */
 .patt-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+/* Patterns mentaux — ambre désaturé en accord avec le reste du dashboard (v3.16) */
 .patt-card{background:var(--bg-card);border:1px solid var(--border-lo);border-radius:var(--r);padding:10px;transition:border-color 200ms ease;}
-.patt-card:hover{border-color:rgba(91,110,232,.1);}
-.patt-icon{width:20px;height:20px;margin-bottom:5px;display:block;opacity:.62;}
+.patt-card:hover{border-color:rgba(195,150,90,.16);}
+.patt-icon{width:21px;height:21px;margin-bottom:6px;display:block;stroke:rgba(195,150,90,.6);opacity:.92;}
+.patt-icon[stroke]{stroke:rgba(195,150,90,.6) !important;}
 .patt-lbl{font-size:.58rem;color:var(--t2);line-height:1.45;margin-bottom:3px;}
-.patt-val{font-size:.72rem;color:var(--t1);margin-bottom:4px;}
-.patt-bar-wrap{height:2px;background:rgba(255,255,255,.05);border-radius:1px;margin-bottom:4px;}
-.patt-fill{height:100%;border-radius:1px;}
+.patt-val{font-size:.74rem;color:rgba(225,210,180,.86);margin-bottom:5px;letter-spacing:.01em;}
+.patt-bar-wrap{height:3px;background:rgba(255,255,255,.04);border-radius:2px;margin-bottom:5px;overflow:hidden;}
+.patt-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,rgba(195,150,90,.2),rgba(195,150,90,.55)) !important;}
 .patt-sub{font-size:.52rem;color:var(--t3);line-height:1.5;}
 /* Cognitive card — height dictated by content (was min-height:380px) */
 .cognitive-dash{min-height:0;}
@@ -592,17 +594,18 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 /* Analytics segmented bar — Activité vs impact (v3.9) */
 .seg-bar{display:flex;height:8px;border-radius:3px;overflow:hidden;background:rgba(255,255,255,.04);margin:10px 0 6px;}
 .seg-bar-cell{position:relative;transition:filter 220ms ease,opacity 220ms ease;}
-.seg-bar-cell.high{background:linear-gradient(180deg,rgba(230,232,238,.45),rgba(230,232,238,.28));}
-.seg-bar-cell.mid {background:linear-gradient(180deg,rgba(210,214,222,.42),rgba(210,214,222,.25));}
-.seg-bar-cell.low {background:linear-gradient(180deg,rgba(195,150,90,.6),rgba(195,150,90,.4));}
+/* v3.16 — segments fort/moyen en gris foncé pour laisser ressortir le signal "faible" en ambre */
+.seg-bar-cell.high{background:linear-gradient(180deg,rgba(95,100,112,.85),rgba(70,75,85,.85));}
+.seg-bar-cell.mid {background:linear-gradient(180deg,rgba(70,75,85,.85),rgba(55,60,70,.85));}
+.seg-bar-cell.low {background:linear-gradient(180deg,rgba(195,150,90,.7),rgba(170,130,75,.65));}
 .seg-bar-cell:hover{filter:brightness(1.18);}
 .seg-bar-cell:not(:last-child){border-right:1px solid rgba(8,10,15,.7);}
 .seg-legend{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-top:6px;font-family:var(--font);font-size:.54rem;letter-spacing:.04em;}
 .seg-legend-item{display:flex;align-items:center;gap:5px;color:var(--t2);}
 .seg-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-.seg-dot.high{background:rgba(91,110,232,.7);}
-.seg-dot.mid{background:rgba(210,214,222,.45);}
-.seg-dot.low{background:rgba(195,150,90,.65);}
+.seg-dot.high{background:rgba(95,100,112,.9);}
+.seg-dot.mid{background:rgba(60,65,75,.95);}
+.seg-dot.low{background:rgba(195,150,90,.78);}
 .seg-pct{color:var(--t3);margin-left:auto;font-variant-numeric:tabular-nums;}
 
 /* Patterns comparison cards — high vs low state with delta (v3.9) */
@@ -649,6 +652,67 @@ body::after{content:'';position:fixed;top:-30vh;left:50%;transform:translateX(-5
 .nav-pip-slot{display:inline-flex;align-items:center;justify-content:center;width:8px;height:8px;margin-left:6px;vertical-align:middle;}
 .nav-pip{width:6px;height:6px;border-radius:50%;background:var(--win);box-shadow:0 0 6px rgba(255,255,255,.35);}
 .nav-pip[hidden]{display:none;}
+
+/* v3.17 — Axe 1 : pont vers l'action (Next-Move card + CTA sur sections existantes) */
+.nm-card{background:linear-gradient(135deg,rgba(184,146,58,.05) 0%,var(--bg-card) 80%);border:1px solid var(--border-hi);border-left:2px solid rgba(184,146,58,.55);border-radius:var(--rl);padding:14px 14px 12px;margin-bottom:10px;position:relative;overflow:hidden;transition:border-color 220ms ease,box-shadow 220ms ease;}
+.nm-card.nm-good{border-left-color:rgba(230,232,238,.5);background:linear-gradient(135deg,rgba(230,232,238,.04) 0%,var(--bg-card) 80%);}
+.nm-card:hover{box-shadow:0 0 40px -20px rgba(184,146,58,.22);}
+.nm-card.nm-good:hover{box-shadow:0 0 40px -20px rgba(230,232,238,.14);}
+.nm-eyebrow{font-size:.48rem;letter-spacing:.16em;text-transform:uppercase;color:rgba(184,146,58,.78);margin-bottom:6px;}
+.nm-card.nm-good .nm-eyebrow{color:rgba(230,232,238,.6);}
+.nm-title{font-size:.78rem;color:var(--t1);font-weight:400;line-height:1.3;margin-bottom:4px;letter-spacing:.01em;}
+.nm-msg{font-size:.58rem;color:var(--t2);line-height:1.55;margin-bottom:11px;}
+.nm-cta{background:transparent;border:1px solid rgba(184,146,58,.32);color:rgba(184,146,58,.92);font-family:var(--font);font-size:.56rem;letter-spacing:.06em;padding:7px 12px;border-radius:var(--r);cursor:pointer;transition:all 180ms ease;}
+.nm-cta:hover{background:rgba(184,146,58,.08);border-color:rgba(184,146,58,.55);color:#d8b070;}
+.nm-card.nm-good .nm-cta{border-color:rgba(230,232,238,.22);color:rgba(230,232,238,.82);}
+.nm-card.nm-good .nm-cta:hover{background:rgba(230,232,238,.05);border-color:rgba(230,232,238,.45);color:var(--t1);}
+
+/* Pattern card → click-through (Axe 1) */
+.patt-card.patt-clickable{cursor:pointer;}
+.patt-card.patt-clickable:hover{border-color:rgba(184,146,58,.32);}
+.patt-cta-hint{font-size:.46rem;color:var(--t4);letter-spacing:.06em;margin-top:6px;opacity:0;transition:opacity 200ms ease;}
+.patt-card.patt-clickable:hover .patt-cta-hint{opacity:.85;}
+
+/* Context tag → clickable for action plan (Axe 1) */
+.tc-loss.tc-clickable{cursor:pointer;transition:all 180ms ease;}
+.tc-loss.tc-clickable:hover{background:rgba(184,146,58,.14);border-color:rgba(184,146,58,.45);}
+
+/* CTA at the bottom of ins-card (Activité vs impact) */
+.ins-cta-row{margin-top:10px;display:flex;justify-content:flex-end;}
+.ins-cta{background:transparent;border:1px solid var(--border-hi);color:var(--t2);font-family:var(--font);font-size:.52rem;letter-spacing:.06em;padding:5px 10px;border-radius:var(--r);cursor:pointer;transition:all 180ms ease;}
+.ins-cta:hover{border-color:rgba(184,146,58,.42);color:rgba(184,146,58,.92);background:rgba(184,146,58,.05);}
+
+/* v3.17 — Axe 2 : engagement visuel sobre (reveal, count-up, sparkline draw, citation cycle) */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal{opacity:0;transform:translateY(8px);transition:opacity 520ms cubic-bezier(.2,.6,.2,1),transform 520ms cubic-bezier(.2,.6,.2,1);will-change:opacity,transform;}
+  .reveal.in{opacity:1;transform:translateY(0);}
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal{opacity:1;transform:none;}
+}
+.reveal:nth-child(2).in{transition-delay:60ms;}
+.reveal:nth-child(3).in{transition-delay:120ms;}
+.reveal:nth-child(4).in{transition-delay:160ms;}
+.reveal:nth-child(5).in{transition-delay:200ms;}
+
+/* Sparkline draw animation */
+@media (prefers-reduced-motion: no-preference) {
+  .spark-line{stroke-dasharray:1200;stroke-dashoffset:1200;animation:sparkDraw 1100ms cubic-bezier(.25,.65,.3,1) forwards;animation-delay:280ms;}
+  .spark-dot{opacity:0;animation:sparkDot 320ms ease-out forwards;animation-delay:1280ms;}
+}
+@keyframes sparkDraw{to{stroke-dashoffset:0;}}
+@keyframes sparkDot{to{opacity:1;}}
+
+/* Citation cyclable — interactive hint */
+.dash-quote{cursor:pointer;}
+.dash-quote:active{transform:scale(.998);}
+.dash-quote .dq-hint{position:absolute;bottom:8px;right:12px;font-size:.42rem;letter-spacing:.08em;color:var(--t4);opacity:0;transition:opacity 240ms ease;text-transform:uppercase;}
+.dash-quote:hover .dq-hint{opacity:.7;}
+.dash-quote.cycling .dq-body{animation:quoteFade 380ms ease-out;}
+@keyframes quoteFade{0%{opacity:.35;transform:translateY(2px);}100%{opacity:1;transform:translateY(0);}}
+
+/* Count-up animated numbers — apply class .countup; JS will tween */
+.countup{font-variant-numeric:tabular-nums;}
 </style>
 </head>
 <body>
@@ -1935,13 +1999,14 @@ function renderDashQuote(days){
   const PAT_LABELS={high_clarity_success:'clarté élevée',high_dispersion_low_mit:'dispersion élevée',low_energy_mit_success:'faible énergie surmontée',high_resistance_mit_success:'résistance traversée',antifragile_day:'journée antifragile',if_then_effective:'stratégie efficace',strategy_helped_mit:'reprise réussie',micro_tasks_over_mit:'priorité diffuse',low_impact_productivity:'activité faible impact'};
   const domPat=sortedPats.find(p=>PAT_LABELS[p]);
   const patLabel=domPat?PAT_LABELS[domPat]:'';
-  return `<div class="dash-quote">
+  return `<div class="dash-quote reveal" onclick="cycleDashQuote()" title="Tap pour une autre citation">
     <div class="dq-mark">"</div>
     <div class="dq-body">
       <div class="dq-text">${esc(q.text)}</div>
       <div class="dq-author">— ${esc(q.author)}</div>
     </div>
     ${patLabel?`<div class="dq-pattern">pattern : ${patLabel}</div>`:''}
+    <div class="dq-hint">tap pour cycler</div>
   </div>`;
 }
 
@@ -1973,9 +2038,13 @@ function renderPatternCards(days,ins){
     const barCol=isPos?BAR_COLS[s.k]||'rgba(230,232,238,.45)':' rgba(195,150,90,.45)';
     const icon=SVG_ICONS[s.k]||SVG_ICONS.motivation;
     const desc=isPos?`→ priorité tenue dans ${v}%`:`→ priorité reculée (${v}%)`;
-    return `<div class="patt-card">${icon}<div class="patt-lbl">${s.l}${s.inv?' élevé·e':' élevé·e'}</div><div class="patt-val">${v}%</div><div class="patt-bar-wrap"><div class="patt-fill" style="width:${v}%;background:${barCol}"></div></div><div class="patt-sub">${desc}</div></div>`;
+    const hasAction=!!NM_METRIC_ACTION[s.k];
+    const cardCls=hasAction?'patt-card patt-clickable':'patt-card';
+    const cardOnclick=hasAction?` onclick="nmPattCardClick('${s.k}')"`:'';
+    const cardHint=hasAction?`<div class="patt-cta-hint">tap → préparer un plan</div>`:'';
+    return `<div class="${cardCls}"${cardOnclick}>${icon}<div class="patt-lbl">${s.l}${s.inv?' élevé·e':' élevé·e'}</div><div class="patt-val countup" data-target="${v}" data-suffix="%">${v}%</div><div class="patt-bar-wrap"><div class="patt-fill" style="width:${v}%;background:${barCol}"></div></div><div class="patt-sub">${desc}</div>${cardHint}</div>`;
   });
-  return `<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Patterns mentaux</div><div class="ins-n">${cards.length} actifs</div></div><div class="patt-grid">${cards.join('')}</div></div>`;
+  return `<div class="ins-card reveal"><div class="ins-hdr"><div class="ins-title">Patterns mentaux</div><div class="ins-n">${cards.length} actifs</div></div><div class="patt-grid">${cards.join('')}</div></div>`;
 }
 
 function renderCompactStability(stab){
@@ -2004,16 +2073,219 @@ function renderCompactStability(stab){
   return h;
 }
 
+/* ── NEXT-MOVE — Pattern→Action bridge (v3.17, Axe 1) ─────────────
+   Le Dashboard observe ; cette carte transforme l'observation en geste.
+   Ne réintroduit pas streaks/notif/AI-MIT (guardrails verrouillés).
+*/
+const NM_PATTERN_ACTION={
+  high_impact_avoidance: {
+    tone:'warn', title:"Tu évites l'essentiel",
+    msg:n=>`${n} jour${n>1?'s':''} où des tâches à fort impact sont restées intouchées.`,
+    cta:"Préparer un If-Then de reprise", actionType:'prefill_strat',
+    trigger:"je sens une résistance à entamer ma priorité",
+    response:"je m'engage à 10 min sans condition de résultat",
+  },
+  high_dispersion_low_mit: {
+    tone:'warn', title:"Dispersion qui mange la priorité",
+    msg:n=>`${n}j où l'attention s'est fragmentée avant la MIT.`,
+    cta:"Plan anti-dispersion", actionType:'prefill_strat',
+    trigger:"je commence à scroller ou m'éparpiller",
+    response:"je ferme tout, je reviens à ma MIT pour 10 min",
+  },
+  low_impact_productivity: {
+    tone:'warn', title:"Activité à faible impact",
+    msg:n=>`${n}j où les tâches accomplies n'ont pas changé la trajectoire.`,
+    cta:"Recadrer demain", actionType:'nudge_today',
+    nudge:"Demain, recadre ta MIT pour qu'elle ait vraiment de l'impact.",
+  },
+  micro_tasks_over_mit: {
+    tone:'warn', title:"Micro-actions plutôt que MIT",
+    msg:n=>`${n}j où l'élan a remplacé l'essentiel.`,
+    cta:"Plan de retour à la MIT", actionType:'prefill_strat',
+    trigger:"je multiplie les micro-tâches sans toucher à ma priorité",
+    response:"je m'arrête, je relis ma MIT, et j'y consacre 25 min",
+  },
+  high_clarity_success: {
+    tone:'good', title:"Clarté = ton vrai levier",
+    msg:n=>`${n}j confirment : quand la clarté est haute, la priorité tient.`,
+    cta:"Calibrer la clarté pour demain", actionType:'nudge_today',
+    nudge:"Demain matin, prends 2 min pour clarifier ta MIT avant tout.",
+  },
+  low_energy_mit_success: {
+    tone:'good', title:"Tu tiens même en énergie basse",
+    msg:n=>`${n}j où la priorité a été honorée malgré la fatigue.`,
+    cta:"Voir tes plans actifs", actionType:'goto_plans',
+  },
+  antifragile_day: {
+    tone:'good', title:"Journées antifragiles",
+    msg:n=>`${n}j de friction traversée — c'est ta signature.`,
+    cta:"Voir tes plans actifs", actionType:'goto_plans',
+  },
+};
+/* Priorité : on traite d'abord ce qui freine, puis on confirme ce qui marche. */
+const NM_PRIORITY=['high_impact_avoidance','high_dispersion_low_mit','low_impact_productivity','micro_tasks_over_mit','high_clarity_success','low_energy_mit_success','antifragile_day'];
+
+function buildNextMove(days){
+  const wt=days.filter(d=>d.tasks.length>0);
+  if(wt.length<3)return null;
+  const cnt={};
+  wt.forEach(d=>detectPatterns(d).forEach(p=>{cnt[p]=(cnt[p]||0)+1;}));
+  for(const p of NM_PRIORITY){
+    if(cnt[p]>=2&&NM_PATTERN_ACTION[p])return{pattern:p,count:cnt[p],spec:NM_PATTERN_ACTION[p]};
+  }
+  return null;
+}
+
+function renderNextMove(days){
+  const m=buildNextMove(days);if(!m)return '';
+  const cls=m.spec.tone==='good'?'nm-good':'nm-warn';
+  const msg=m.spec.msg(m.count);
+  let onclick='';
+  if(m.spec.actionType==='prefill_strat'){
+    onclick=`nmPrefillStrat(${JSON.stringify(m.spec.trigger)},${JSON.stringify(m.spec.response)})`;
+  } else if(m.spec.actionType==='nudge_today'){
+    onclick=`nmNudgeToday(${JSON.stringify(m.spec.nudge)})`;
+  } else if(m.spec.actionType==='goto_plans'){
+    onclick=`goPage('pg-plans')`;
+  }
+  return `<div class="nm-card ${cls} reveal">
+    <div class="nm-eyebrow">Ton prochain mouvement</div>
+    <div class="nm-title">${esc(m.spec.title)}</div>
+    <div class="nm-msg">${esc(msg)}</div>
+    <button class="nm-cta" onclick="${onclick.replace(/"/g,'&quot;')}">${esc(m.spec.cta)} →</button>
+  </div>`;
+}
+
+function nmPrefillStrat(trigger,response){
+  goPage('pg-plans');
+  setTimeout(()=>{
+    const ti=$('strat-trigger'),re=$('strat-response');
+    if(ti)ti.value=trigger;
+    if(re)re.value=response;
+    if(ti)ti.scrollIntoView({behavior:'smooth',block:'center'});
+    if(re)re.focus();
+    toast('Plan pré-rempli — ajuste si tu veux',2600);
+  },60);
+}
+
+function nmNudgeToday(msg){
+  goPage('pg-today');
+  setTimeout(()=>toast(msg,4000),60);
+}
+
+/* Mapping métrique (pattern card) → action concrète (Axe 1) */
+const NM_METRIC_ACTION={
+  clarte:    {trigger:"je commence ma journée sans avoir clarifié ma MIT", response:"je m'arrête 2 min et j'écris en une phrase ce qui rend la journée gagnante"},
+  dispersion:{trigger:"je commence à scroller ou m'éparpiller", response:"je ferme tout, je reviens à ma MIT pour 10 min"},
+  energie:   {trigger:"je sens que l'énergie tombe avant d'avoir touché ma MIT", response:"je m'engage à 10 min sur ma MIT, sans condition de résultat"},
+  stress:    {trigger:"je sens la tension monter et bloquer l'action", response:"je respire 4 cycles lents et je reprends ma MIT là où je l'ai laissée"},
+  motivation:{trigger:"je n'ai pas envie de commencer", response:"je m'engage à 5 min, pas plus — je décide ensuite"},
+  optimisme: {trigger:"je doute que l'effort en vaut la peine", response:"je m'occupe d'1 micro-action liée à ma MIT pour rouvrir l'élan"},
+};
+
+function nmPattCardClick(metricKey){
+  const a=NM_METRIC_ACTION[metricKey];if(!a)return;
+  nmPrefillStrat(a.trigger,a.response);
+}
+
+function nmTagClick(tag){
+  const pat=TAG_TO_PATTERN[tag];
+  const spec=pat&&NM_PATTERN_ACTION[pat];
+  if(spec&&spec.actionType==='prefill_strat'){
+    nmPrefillStrat(spec.trigger,spec.response);return;
+  }
+  /* Fallback : plan générique avec le contexte du tag */
+  nmPrefillStrat(`je remarque le contexte « ${tag} »`,"je relis ma MIT et je m'engage à 10 min dessus");
+}
+
+/* ── VISUAL ENGAGEMENT (Axe 2) ─────────────────────────────
+   Reveal au scroll, count-up animé, citation cyclable.
+   Pas de gamification — uniquement le plaisir d'exploration.
+*/
+let _revealObs=null;
+function applyRevealAndAnimations(rootEl){
+  if(!rootEl)return;
+  /* IntersectionObserver — fade-up une fois */
+  if(!_revealObs){
+    _revealObs=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('in');
+          _revealObs.unobserve(e.target);
+        }
+      });
+    },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+  }
+  rootEl.querySelectorAll('.reveal:not(.in)').forEach(el=>_revealObs.observe(el));
+  /* Count-up : trigger une fois visible via classe .in */
+  rootEl.querySelectorAll('.countup[data-target]').forEach(el=>{
+    if(el.dataset.tweened)return;
+    el.dataset.tweened='1';
+    const target=parseFloat(el.dataset.target);
+    const suffix=el.dataset.suffix||'';
+    const dur=480;
+    const start=performance.now();
+    const init=0;
+    el.textContent=`${init}${suffix}`;
+    function step(t){
+      const k=Math.min(1,(t-start)/dur);
+      const eased=1-Math.pow(1-k,3);
+      const v=Math.round(init+(target-init)*eased);
+      el.textContent=`${v}${suffix}`;
+      if(k<1)requestAnimationFrame(step);
+    }
+    /* Démarre quand la carte est révélée — sinon immédiat */
+    const card=el.closest('.reveal');
+    if(card&&!card.classList.contains('in')){
+      const obs=new IntersectionObserver(es=>{
+        if(es[0].isIntersecting){requestAnimationFrame(step);obs.disconnect();}
+      },{threshold:.1});
+      obs.observe(card);
+    } else {
+      requestAnimationFrame(step);
+    }
+  });
+}
+
+/* ── CITATION CYCLABLE (Axe 2) ─────────────────────────────── */
+let _dashQuotePool=[];
+let _dashQuoteIdx=0;
+function buildDashQuotePool(days){
+  const wt=days.filter(d=>d.tasks.length>0);
+  if(!wt.length)return [];
+  const allPats=wt.flatMap(d=>detectPatterns(d));
+  const cnt={};allPats.forEach(p=>{cnt[p]=(cnt[p]||0)+1;});
+  const sortedPats=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
+  /* Pool : citations dont au moins un pattern correspond aux patterns observés */
+  const pool=QUOTES.filter(q=>q.p&&q.p.some(p=>sortedPats.includes(p)));
+  /* Si rien, fallback toutes les citations */
+  return pool.length?pool:QUOTES.slice();
+}
+function cycleDashQuote(){
+  if(!_dashQuotePool.length)return;
+  _dashQuoteIdx=(_dashQuoteIdx+1)%_dashQuotePool.length;
+  const q=_dashQuotePool[_dashQuoteIdx];
+  const qEl=document.querySelector('.dash-quote');
+  if(!qEl)return;
+  const txt=qEl.querySelector('.dq-text');
+  const auth=qEl.querySelector('.dq-author');
+  if(!txt||!auth)return;
+  qEl.classList.remove('cycling');void qEl.offsetWidth;
+  qEl.classList.add('cycling');
+  txt.textContent=q.text;
+  auth.textContent=`— ${q.author}`;
+}
+
 /* ── RENDER: DASHBOARD ── */
-/* v3.14 — Hiérarchie restructurée (post-user feedback)
+/* v3.17 — Hiérarchie + pont vers l'action (Axe 1)
+   0. Prochain mouvement (carte CTA, nouvelle en v3.17)
    1. Citation
    2. Carte cognitive + insights
-   3. Patterns mentaux
+   3. Patterns mentaux  (+ CTA par carte)
    4. Patterns détaillés
-   5. Contextes associés
-   6. Activité vs impact (compact)
-   7. Historique compact (calendrier + sparkline)
-   Supprimé : donut, stabilité brute, heatmap (duplique patterns), KPI antifragile non expliqué */
+   5. Contextes associés  (+ CTA sur tags négatifs)
+   6. Activité vs impact (compact)  (+ CTA "Recadrer demain")
+   7. Historique compact (calendrier + sparkline) */
 function renderDashboard(){
   const days=filterDays(DF),wt=days.filter(d=>d.tasks.length>0);
   let h=`<div class="frow">${['7','30','all'].map(f=>`<button class="fbtn ${DF===f?'on':''}" onclick="setDF('${f}')">${f==='all'?'Tout':f+'j'}</button>`).join('')}</div>`;
@@ -2022,11 +2294,14 @@ function renderDashboard(){
   const ins=buildInsights(days);
   const impDist=buildImpactDist(days);
 
+  // 0. ── Prochain mouvement (Axe 1 — pont vers l'action)
+  h+=renderNextMove(days);
+
   // 1. ── Citation dynamique
   h+=renderDashQuote(days);
 
   // 2. ── Carte cognitive (insights déjà inclus en bas du SVG via generateCognitiveInsights)
-  h+=`<div class="cognitive-dash">${renderCognitiveMap(days)}</div>`;
+  h+=`<div class="cognitive-dash reveal">${renderCognitiveMap(days)}</div>`;
 
   // 3. ── Patterns mentaux (cards récurrentes)
   if(ins&&ins.length>=2)h+=renderPatternCards(days,ins);
@@ -2043,22 +2318,30 @@ function renderDashboard(){
       dispersion:'Attention fragmentée vs concentrée.',
     };
     const TINT_PAT={clarte:'cool',energie:'cool',motivation:'cool',optimisme:'cool',stress:'warm',dispersion:'warm'};
-    ins.forEach(s=>{
+    // v3.14 — On ne garde QUE les patterns avec contraste haut/bas significatif (delta dispo + |Δ| >= 8%)
+    // Les ressources "barre seule" sans contraste sont déjà couvertes par "Patterns mentaux"
+    const meaningful=ins.filter(s=>{
       const high=s.mrH!==null?s.mrH:s.scH;
       const low =s.mrL!==null?s.mrL:s.scL;
-      if(high===null)return;
-      const delta=(low!==null)?(high-low):null;
-      const deltaCls=delta===null?'':(delta>=0?'pos':'neg');
-      const deltaTxt=delta===null?'':(`${delta>=0?'+':''}${delta}%`);
+      if(high===null||low===null)return false;
+      return Math.abs(high-low)>=8;
+    });
+    if(meaningful.length===0){
+      h+=`<div style="font-size:.55rem;color:var(--t3);line-height:1.65;padding:8px 12px;background:rgba(255,255,255,.02);border:1px solid var(--border-lo);border-radius:6px">Pas encore de contraste fort entre tes états — continue d'enregistrer, les écarts émergeront.</div>`;
+    }
+    meaningful.forEach(s=>{
+      const high=s.mrH!==null?s.mrH:s.scH;
+      const low =s.mrL;
+      const delta=high-low;
+      const deltaCls=delta>=0?'pos':'neg';
+      const deltaTxt=`${delta>=0?'+':''}${delta}%`;
       const tint=TINT_PAT[s.k]||'cool';
       const insight=PCOMP_INSIGHT[s.k]||'';
-      h+=`<div class="pcomp" data-tint="${tint}">`;
-      h+=`<div class="pcomp-hdr"><span class="pcomp-title">${s.l}</span>${delta!==null?`<span class="pcomp-delta ${deltaCls}">Δ ${deltaTxt}</span>`:''}<span class="pcomp-n">n = ${s.nH}</span></div>`;
+      h+=`<div class="pcomp reveal" data-tint="${tint}">`;
+      h+=`<div class="pcomp-hdr"><span class="pcomp-title">${s.l}</span><span class="pcomp-delta ${deltaCls}">Δ ${deltaTxt}</span><span class="pcomp-n">n = ${s.nH}</span></div>`;
       h+=`<div class="pcomp-rows">`;
       h+=`<div class="pcomp-row high"><span class="pcomp-row-lbl">haut</span><div class="pcomp-row-track"><div class="pcomp-row-fill" style="width:${high}%"></div></div><span class="pcomp-row-val">${high}%</span></div>`;
-      if(low!==null){
-        h+=`<div class="pcomp-row low"><span class="pcomp-row-lbl">bas</span><div class="pcomp-row-track"><div class="pcomp-row-fill" style="width:${low}%"></div></div><span class="pcomp-row-val">${low}%</span></div>`;
-      }
+      h+=`<div class="pcomp-row low"><span class="pcomp-row-lbl">bas</span><div class="pcomp-row-track"><div class="pcomp-row-fill" style="width:${low}%"></div></div><span class="pcomp-row-val">${low}%</span></div>`;
       h+=`</div>`;
       if(insight)h+=`<div class="pcomp-insight">${insight}</div>`;
       h+=`</div>`;
@@ -2071,7 +2354,7 @@ function renderDashboard(){
     const topTag=(ti.neg[0]&&ti.neg[0][0])||(ti.pos[0]&&ti.pos[0][0])||null;
     const topPat=topTag?TAG_TO_PATTERN[topTag]:null;
     const ctxQuote=topPat?quoteForPattern(topPat):null;
-    h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Contextes associés</div></div>${ti.pos.length?`<div style="font-size:.5rem;color:var(--t3);margin-bottom:4px;letter-spacing:.04em">Présents lors des priorités accomplies (${ti.nW} jours)</div><div class="tag-chips">${ti.pos.map(([t,c])=>`<span class="tc-win">${esc(t)} <span class="tc-cnt">×${c}</span></span>`).join('')}</div>`:''}${ti.neg.length?`<div style="font-size:.5rem;color:rgba(210,180,140,.78);margin:9px 0 4px;letter-spacing:.04em">À travailler — présents lors des priorités manquées (${ti.nN} jours)</div><div class="tag-chips">${ti.neg.map(([t,c])=>`<span class="tc-loss">${esc(t)} <span class="tc-cnt">×${c}</span></span>`).join('')}</div>`:''}${ctxQuote?`<div class="ins-q" style="margin-top:11px">« ${esc(ctxQuote.text)} »<div class="ins-q-auth">— ${esc(ctxQuote.author)}${topTag?` · en lien avec « ${esc(topTag)} »`:''}</div></div>`:''}</div>`;
+    h+=`<div class="ins-card reveal"><div class="ins-hdr"><div class="ins-title">Contextes associés</div></div>${ti.pos.length?`<div style="font-size:.5rem;color:var(--t3);margin-bottom:4px;letter-spacing:.04em">Présents lors des priorités accomplies (${ti.nW} jours)</div><div class="tag-chips">${ti.pos.map(([t,c])=>`<span class="tc-win">${esc(t)} <span class="tc-cnt">×${c}</span></span>`).join('')}</div>`:''}${ti.neg.length?`<div style="font-size:.5rem;color:rgba(210,180,140,.78);margin:9px 0 4px;letter-spacing:.04em">À travailler — tap pour préparer un plan (${ti.nN} jours)</div><div class="tag-chips">${ti.neg.map(([t,c])=>`<span class="tc-loss tc-clickable" onclick="nmTagClick(${JSON.stringify(t).replace(/"/g,'&quot;')})">${esc(t)} <span class="tc-cnt">×${c}</span></span>`).join('')}</div>`:''}${ctxQuote?`<div class="ins-q" style="margin-top:11px">« ${esc(ctxQuote.text)} »<div class="ins-q-auth">— ${esc(ctxQuote.author)}${topTag?` · en lien avec « ${esc(topTag)} »`:''}</div></div>`:''}</div>`;
   }
 
   // 6. ── Activité vs impact réel (compact, 1 micro-note dynamique max)
@@ -2089,7 +2372,7 @@ function renderDashboard(){
     else if(lipDays>0) microNote=`${lipDays}j de remplissage à faible impact.`;
     else if(pctHi>=50) microNote="Activité concentrée sur le fort impact.";
 
-    h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Activité vs impact</div><div class="ins-n">${impTotal} tâches</div></div>`;
+    h+=`<div class="ins-card reveal"><div class="ins-hdr"><div class="ins-title">Activité vs impact</div><div class="ins-n">${impTotal} tâches</div></div>`;
     h+=`<div class="seg-bar" style="margin-top:10px">`;
     if(pctHi>0) h+=`<div class="seg-bar-cell high" style="flex:${pctHi}" title="Fort impact · ${impDist.hi} tâches · ${pctHi}%"></div>`;
     if(pctMid>0)h+=`<div class="seg-bar-cell mid"  style="flex:${pctMid}" title="Impact moyen · ${impDist.mid} tâches · ${pctMid}%"></div>`;
@@ -2101,12 +2384,20 @@ function renderDashboard(){
     h+=`<div class="seg-legend-item"><span class="seg-dot low"></span>Faible<span class="seg-pct">${pctLo}%</span></div>`;
     h+=`</div>`;
     if(microNote)h+=`<div style="font-size:.55rem;color:var(--t3);margin-top:9px;line-height:1.55">${microNote}</div>`;
+    // CTA — n'apparaît que si l'activité réelle pose problème (Axe 1)
+    const needsRecadr = pctLo>=50 || hiaDays>0 || lipDays>0;
+    if(needsRecadr){
+      const nudgeMsg = hiaDays>0
+        ? `Demain, engage la priorité d'abord — ${hiaDays}j d'évitement détectés.`
+        : `Demain, recadre ta MIT pour qu'elle ait vraiment de l'impact.`;
+      h+=`<div class="ins-cta-row"><button class="ins-cta" onclick="nmNudgeToday(${JSON.stringify(nudgeMsg).replace(/"/g,'&quot;')})">Recadrer demain →</button></div>`;
+    }
     h+=`</div>`;
   }
 
   // 7. ── Historique compact — calendrier 30j + tendance score
   const today=todayISO();
-  h+=`<div class="ins-card"><div class="ins-hdr"><div class="ins-title">Historique compact</div><div class="ins-n">30 jours</div></div>`;
+  h+=`<div class="ins-card reveal"><div class="ins-hdr"><div class="ins-title">Historique compact</div><div class="ins-n">30 jours</div></div>`;
   h+=`<div class="cal-grid" style="margin-bottom:14px">`;
   for(let i=29;i>=0;i--){
     const d=new Date(Date.now()-i*86400000).toISOString().slice(0,10);
@@ -2122,11 +2413,17 @@ function renderDashboard(){
     const W=500,H=44,pts=vals.map((v,i)=>({x:(i/(vals.length-1))*W,y:H-(v/100)*H}));
     const ln=pts.map((p,i)=>`${i===0?'M':'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
     const last=pts[pts.length-1];
-    h+=`<div class="spark-hdr" style="margin-top:4px"><span class="spark-lbl">Tendance du score</span><span class="spark-cur">${vals[vals.length-1]}% — ${fmtS(scored[scored.length-1].date)}</span></div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:44px;display:block"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(230,232,238,.18)"/><stop offset="100%" stop-color="rgba(230,232,238,.01)"/></linearGradient></defs><path d="${ln} L${W},${H} L0,${H} Z" fill="url(#sg)"/><path d="${ln}" fill="none" stroke="rgba(230,232,238,.58)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3" fill="rgba(235,238,245,.88)"/></svg><div style="display:flex;justify-content:space-between;font-size:.5rem;color:var(--t4);margin-top:3px"><span>${fmtS(scored[0].date)}</span><span>${fmtS(scored[scored.length-1].date)}</span></div>`;
+    h+=`<div class="spark-hdr" style="margin-top:4px"><span class="spark-lbl">Tendance du score</span><span class="spark-cur">${vals[vals.length-1]}% — ${fmtS(scored[scored.length-1].date)}</span></div><svg viewBox="0 0 ${W} ${H}" style="width:100%;height:44px;display:block"><defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(230,232,238,.18)"/><stop offset="100%" stop-color="rgba(230,232,238,.01)"/></linearGradient></defs><path d="${ln} L${W},${H} L0,${H} Z" fill="url(#sg)"/><path class="spark-line" d="${ln}" fill="none" stroke="rgba(230,232,238,.58)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle class="spark-dot" cx="${last.x.toFixed(1)}" cy="${last.y.toFixed(1)}" r="3" fill="rgba(235,238,245,.88)"/></svg><div style="display:flex;justify-content:space-between;font-size:.5rem;color:var(--t4);margin-top:3px"><span>${fmtS(scored[0].date)}</span><span>${fmtS(scored[scored.length-1].date)}</span></div>`;
   }
   h+=`</div>`;
 
   $('dash-in').innerHTML=h;
+
+  /* Axe 2 — engagement visuel : initialise le pool de citations cyclables,
+     puis lance les reveal + count-up + sparkline draw. */
+  _dashQuotePool=buildDashQuotePool(days);
+  _dashQuoteIdx=0;
+  applyRevealAndAnimations($('dash-in'));
 }
 function setDF(f){DF=f;renderDashboard();}
 
