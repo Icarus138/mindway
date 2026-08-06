@@ -62,7 +62,7 @@ Garde-fous à ne pas casser : `store.get` sert la copie mémoire quand elle exis
 Les deux différés sont faits, plus trois correctifs validés et une série de défauts trouvés en revue adversariale.
 
 1. **Règle des 45 min → recommandation** ✅ — `flowSecOpts`/`flowKeepSec` (flow) et `dayTaskOpts`/`keepDaySec`/`dayTaskToMit`/`pendToBacklog`/`reopenAddTask` (journée). Un choix « garder » >45 min survit aux retours dans le flow (`S.flow.keptLong`, respecté par `prepSec`).
-2. **Scène de validation** ✅ — 6,5 s, tap-pour-fermer conservé, et l'overlay ne s'ouvre plus pendant la checklist du bilan.
+2. **Scène de validation** ✅ — 9 s (3,4 s à l'origine, passée à 6,5 s puis allongée à l'usage), tap-pour-fermer conservé, et l'overlay ne s'ouvre plus pendant la checklist du bilan.
 3. **Correction d'un jour passé** ✅ — voir Logique métier.
 4. **Sauvegarde de secours** ✅ — voir Modèle de données.
 5. **Boucle d'apprentissage If-Then** ✅ — `deriveFb`, stats cumulées.
