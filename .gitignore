@@ -20,3 +20,10 @@ mindway_v2.html
 # Claude Code metadata (not part of the app)
 .claude/
 mindway_v3.html
+.gstack/
+
+# Sources de travail (le fichier racine est la source de vérité déployée)
+files/
+files2/
+*.zip
+mindway-v2-proto_*.html
