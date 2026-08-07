@@ -1486,6 +1486,7 @@ function renderFlow(){
    <div class="step-head" style="text-align:center">
     <div class="eyebrow">3 · Choisir</div>
     <div class="h2" style="margin-top:10px">Si tu ne termines qu'une seule chose aujourd'hui…</div>
+    <p class="small" style="margin-top:10px">Sa durée n'entre pas en compte : faite, elle rend la journée gagnante. L'impact et l'urgence t'orientent — tu décides.</p>
    </div>
    <div class="mitwrap" style="text-align:left">
     <div class="mitcard">
@@ -1512,6 +1513,7 @@ function renderFlow(){
     <div class="eyebrow">4 · Construire</div>
     <div class="h1">Le reste de la journée</div>
     <p class="sub" style="margin-top:10px">3 secondaires max (45 min ou moins conseillé), 5 micro-tâches (10 min ou moins). Le reste part en suggestions pour demain — rien n'est perdu.</p>
+    <p class="small" style="margin-top:8px">Ces ordres de grandeur gardent la journée tenable : c'est ce qui te permet de recommencer demain sans t'user.</p>
    </div>
    ${rest.length?`<div class="card" style="padding:6px 16px">
     ${rest.map(it=>{const on=sel.includes(it.id);const micro=it.est<=10;
@@ -1724,19 +1726,59 @@ function startTimer(kind,id){const d=day(todayISO());if(!d)return;
  const task=findTask(d,kind,id);if(!task||task.done)return;
  initAudio();
  d.timer={tid:id,kind,start:Date.now(),acc:0,paused:false,planned:task.est||30,alarmed:false};
- save();render()}
+ if(stopAtEnd())maybeAskNotif();
+ save();render();scheduleTimerAlarm()}
 function pauseTimer(){const d=day(todayISO()),t=d&&d.timer;if(!t)return;
+ if(t.stopped)return;
  if(t.paused){t.start=Date.now();t.paused=false}else{t.acc+=Date.now()-t.start;t.paused=true}
- save();if(t.kind==='m')paintTimer();else render()}
+ save();scheduleTimerAlarm();if(t.kind==='m')paintTimer();else render()}
+/* ── ALARME DE FIN DE SESSION ──
+   Le chrono s'arrête au temps prévu (réglable) : son, vibration, notification.
+   La tâche n'est jamais cochée à la place de l'utilisateur — il choisit Terminé ou Continuer. */
+function stopAtEnd(){return !(D&&D.settings&&D.settings.stopAtEnd===false)}
+function setStopAtEnd(v){
+ D.settings.stopAtEnd=!!v;save();
+ if(v)maybeAskNotif();
+ const d=day(todayISO());
+ if(!v&&d&&d.timer&&d.timer.stopped)resumeOver();
+ openSettings();scheduleTimerAlarm();
+ toast(v?'Le chrono s’arrêtera au temps prévu':'Le chrono continuera au-delà du temps prévu')}
+let almTO=null;
+function clearTimerAlarm(){if(almTO){clearTimeout(almTO);almTO=null}}
+function scheduleTimerAlarm(){
+ clearTimerAlarm();
+ try{
+  const d=day(todayISO()),t=d&&d.timer;
+  if(!t||t.paused||t.stopped||t.alarmed)return;
+  const rem=t.planned*60000-timerElapsed(t);
+  if(rem<=0||rem>12*3600*1000)return;
+  /* on repasse par paintTimer : un seul chemin décide du gel ET de l'alerte, jamais deux fois */
+  almTO=setTimeout(()=>{almTO=null;paintTimer()},rem);
+ }catch(e){}
+}
+function fireTimerAlarm(title){
+ try{initAudio()}catch(e){}          /* l'AudioContext peut être suspendu (arrière-plan iOS) ou perdu (rechargement) */
+ try{chime()}catch(e){}
+ buzz([30,80,30]);
+ try{
+  if('Notification' in window&&Notification.permission==='granted')
+   new Notification('Temps prévu atteint',{body:title?title+' — à toi de décider : terminé, ou tu continues ?':'À toi de décider : terminé, ou tu continues ?',tag:'mw-session'});
+ }catch(e){}
+}
+/* reprendre après l'arrêt : le décompte repart du temps prévu, en dépassement */
+function resumeOver(){
+ const d=day(todayISO()),t=d&&d.timer;if(!t||!t.stopped)return;
+ t.stopped=false;t.paused=false;t.start=Date.now();
+ save();render()}
 function finishTimer(){const d=day(todayISO()),t=d&&d.timer;if(!t)return;
  const task=findTask(d,t.kind,t.tid);const mins=Math.max(1,Math.round(timerElapsed(t)/60000));
  if(task){task.done=true;task.spent=mins}
- const wasMit=t.kind==='m';delete d.timer;
+ const wasMit=t.kind==='m';delete d.timer;clearTimerAlarm();
  if(wasMit)S.justWon=true;buzz(wasMit?[14,60,20]:12);
  save();render();
  if(!wasMit)vShow('Accomplie \u00b7 '+fmtMin(mins))}
 function abandonTimer(){const d=day(todayISO());if(!d||!d.timer)return;
- delete d.timer;save();render()}
+ delete d.timer;clearTimerAlarm();save();render()}
 function ensureTick(){if(!tickIv)tickIv=setInterval(paintTimer,500)}
 function stopTick(){if(tickIv){clearInterval(tickIv);tickIv=null}}
 const MC_C=364.42;
@@ -1745,20 +1787,30 @@ function fmtClock(ms){const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.fl
 function paintTimer(){
  const d=day(todayISO()),t=d&&d.timer;
  if(!t){stopTick();return}
- const el=timerElapsed(t),tot=t.planned*60000,rem=tot-el,over=rem<=0;
- if(over&&!t.alarmed){t.alarmed=true;save();chime();buzz([30,80,30])}
- const txt=(over?'+':'')+fmtClock(over?el-tot:rem);
+ let el=timerElapsed(t),tot=t.planned*60000,rem=tot-el;
+ /* fin de session : on gèle le chrono au temps prévu et on alerte — la décision reste à l'utilisateur */
+ /* `alarmed` garde ce bloc : une session n'est gelée qu'UNE fois — sinon « Continuer » serait annulé aussitôt */
+ if(rem<=0&&!t.stopped&&!t.alarmed&&stopAtEnd()&&!t.paused){
+  const d2=day(todayISO());
+  t.acc=tot;t.paused=true;t.stopped=true;t.alarmed=true;
+  const task=findTask(d2,t.kind,t.tid);fireTimerAlarm(task?task.title:'');
+  clearTimerAlarm();save();render();return;
+ }
+ const over=rem<=0;
+ if(t.stopped)stopTick();                        /* affichage figé : inutile de repeindre 2×/s */
+ if(over&&!t.alarmed&&!t.stopped){t.alarmed=true;save();const task=findTask(d,t.kind,t.tid);fireTimerAlarm(task?task.title:'')}
+ const txt=t.stopped?fmtClock(0):(over?'+':'')+fmtClock(over?el-tot:rem);
  const fr=over?1:Math.max(0,rem/tot);
  if(t.kind==='m'){
   const c=$('mitCard');if(!c)return;
-  c.classList.toggle('paused',!!t.paused);c.classList.toggle('over',over);
-  const s=$('mcS');if(s)s.textContent=over?'Temps dépassé':(t.paused?'En pause':'Session en cours');
+  c.classList.toggle('paused',!!t.paused&&!t.stopped);c.classList.toggle('over',over);
+  const s=$('mcS');if(s)s.textContent=t.stopped?'Temps écoulé':over?'Temps dépassé':(t.paused?'En pause':'Session en cours');
   const tt=$('mcT');if(tt)tt.textContent=txt;
-  const lb=$('mcLbl');if(lb)lb.textContent=over?'continue ou termine':(t.paused?'en pause':'restant');
+  const lb=$('mcLbl');if(lb)lb.textContent=t.stopped?fmtMin(t.planned)+' prévues':over?'continue ou termine':(t.paused?'en pause':'restant');
   const a=$('mcArc');if(a)a.style.strokeDashoffset=MC_C*(1-fr);
-  const p=$('mcPill');if(p)p.innerHTML=t.paused?I.play+'<span>Reprendre</span>':I.pause+'<span>Pause</span>';
+  const p=$('mcPill');if(p&&!t.stopped)p.innerHTML=t.paused?I.play+'<span>Reprendre</span>':I.pause+'<span>Pause</span>';
  }else{
-  const rt=$('rowT');if(rt)rt.textContent=txt;
+  const rt=$('rowT');if(rt)rt.textContent=t.stopped?'Temps écoulé':txt;
  }
 }
 /* — carte MIT (pièce maîtresse) — */
@@ -1773,22 +1825,24 @@ function mitCard(d){
   </button>`;
  }
  if(mine){
-  return`<div class="mitcard run ${t.paused?'paused':''}" id="mitCard">
-   <div class="mc-eyebrow" id="mcS">${t.paused?'En pause':'Session en cours'}</div>
+  return`<div class="mitcard run ${t.paused&&!t.stopped?'paused':''} ${t.stopped?'over':''}" id="mitCard">
+   <div class="mc-eyebrow" id="mcS">${t.stopped?'Temps écoulé':t.paused?'En pause':'Session en cours'}</div>
    <div class="mc-title sm">${esc(m.title)}</div>
    <div class="mc-ringrow"><div class="mc-ringwrap">
     <svg viewBox="0 0 150 150" width="150" height="150">
      <circle cx="75" cy="75" r="58" fill="none" stroke="var(--s2)" stroke-width="5"/>
      <circle id="mcArc" cx="75" cy="75" r="58" fill="none" stroke="var(--gold)" stroke-width="5" stroke-linecap="round" stroke-dasharray="${MC_C}"/>
     </svg>
-    <div class="mc-time"><div class="t" id="mcT">–</div><div class="s" id="mcLbl">restant</div></div>
+    <div class="mc-time"><div class="t" id="mcT">–</div><div class="s" id="mcLbl">${t.stopped?fmtMin(t.planned)+' prévues':'restant'}</div></div>
    </div></div>
    <div class="mc-ctrl">
-    <button class="pill" id="mcPill" onclick="pauseTimer()">${t.paused?I.play+'<span>Reprendre</span>':I.pause+'<span>Pause</span>'}</button>
+    ${t.stopped
+      ?`<button class="pill" onclick="resumeOver()">${I.play}<span>Continuer</span></button>`
+      :`<button class="pill" id="mcPill" onclick="pauseTimer()">${t.paused?I.play+'<span>Reprendre</span>':I.pause+'<span>Pause</span>'}</button>`}
     <button class="pill primary" onclick="finishTimer()">${I.check}<span>Terminé</span></button>
    </div>
    <button class="mc-drop" onclick="abandonTimer()">Abandonner la session</button>
-   <div class="mc-quote">“ ${esc(qPick('focus').text)} ”</div>
+   <div class="mc-quote">${t.stopped?'Le temps que tu t’étais donné est écoulé. Tu décides de la suite.':'“ '+esc(qPick('focus').text)+' ”'}</div>
   </div>`;
  }
  return`<div class="mitcard tappable" role="button" tabindex="0" onclick="startTimer('m','${m.id}')">
@@ -2115,7 +2169,7 @@ function render(){
  v.classList.remove('viewfade');void v.offsetWidth;v.classList.add('viewfade');
  window.scrollTo(0,0);
  const dT=day(todayISO());
- if(dT&&dT.timer){ensureTick();requestAnimationFrame(paintTimer)}else stopTick();
+ if(dT&&dT.timer){ensureTick();requestAnimationFrame(paintTimer);if(!almTO)scheduleTimerAlarm()}else{stopTick();clearTimerAlarm()}
  setAmb();bindMitTilt();
  ['deck','deckQ'].forEach(id=>{const dk=$(id);if(dk){bindDrag(dk);deckScroll(dk)}});
 }
@@ -2130,6 +2184,7 @@ function viewJour(){
    <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
     <button class="btn" onclick="startFlow()">Clarifier ma journée</button>
     <button class="btn quiet" onclick="dayOff()">Journée off</button>
+    <button class="linkbtn" style="align-self:center;margin-top:2px" onclick="openSystem()">Comment ça marche</button>
    </div></div>`;
  }
  if(d.off){
@@ -2187,8 +2242,10 @@ function viewJour(){
 function scard(t,kind='t'){
  const d=day(todayISO()),running=d&&d.timer&&d.timer.tid===t.id;
  let state;
- if(running)state=`<div class="sc-run"><span class="rowtime" id="rowT">…</span>
-   <button class="minib" onclick="pauseTimer()" aria-label="Pause">${d.timer.paused?I.play:I.pause}</button>
+ const stp=running&&d.timer.stopped;
+ if(running)state=`<div class="sc-run"><span class="rowtime" id="rowT">${stp?'Temps écoulé':'…'}</span>
+   ${stp?`<button class="minib" onclick="resumeOver()" aria-label="Continuer">${I.play}</button>`
+        :`<button class="minib" onclick="pauseTimer()" aria-label="Pause">${d.timer.paused?I.play:I.pause}</button>`}
    <button class="minib gold" onclick="finishTimer()" aria-label="Terminer">${I.check}</button>
    <button class="minib" onclick="abandonTimer()" aria-label="Abandonner">${I.x}</button></div>`;
  else if(t.done)state=`<div class="sc-done">${I.check}<span>Fait${t.spent?' · '+fmtMin(t.spent):''}</span>
@@ -2516,6 +2573,8 @@ function openSettings(){
  const hasV1=!!store.get('mindway_v1');
  openSheet(`
   <div class="h2" style="margin-bottom:6px">Réglages</div>
+  <div class="srow"><div>Le système<div class="sub">Comprendre la journée gagnante, la priorité et les ordres de grandeur</div></div>
+   <button class="linkbtn" onclick="openSystem()">Découvrir</button></div>
   <div class="srow"><div>Thème<div class="sub">Sombre ou clair, selon la planche</div></div>
    <div class="seg" style="width:150px">
     <button class="${D.settings.theme==='dark'?'on':''}" onclick="setTheme('dark');openSettings()">Sombre</button>
@@ -2531,10 +2590,59 @@ function openSettings(){
    <button class="linkbtn" onclick="${D.settings.demo?'demoOff()':'demoOn()'}">${D.settings.demo?'Désactiver':'Activer'}</button></div>
   <div class="srow"><div>Rituels<div class="sub">Jusqu'à 3 ancres quotidiennes — heure, jours, rappel</div></div>
    <button class="linkbtn" onclick="openRituals()">Gérer</button></div>
+  <div class="srow"><div>Fin de session<div class="sub">Le chrono s'arrête au temps prévu — son, vibration et notification. Tu décides ensuite : terminé, ou tu continues.</div></div>
+   <button class="linkbtn" onclick="setStopAtEnd(${stopAtEnd()?'false':'true'})">${stopAtEnd()?'Désactiver':'Activer'}</button></div>
   <div class="srow dis"><div>Notifications utiles<div class="sub">Priorité, rituels, bilan, reprise — avec la version native. Jamais de spam.</div></div><span class="small">Bientôt</span></div>
   <div class="srow"><div>Réinitialiser<div class="sub">Efface tout, définitivement</div></div>
    <button class="linkbtn danger" onclick="if(confirm('Tout effacer ? Cette action est définitive.')){store.del('mindway_v2_realbackup');D=blank();save();closeSheet();render();}">Effacer</button></div>
   <p class="small" style="margin-top:16px;text-align:center">Mindway v2 · prototype · 100 % local</p>`);
+}
+
+/* ── LE SYSTÈME — philosophie et ordres de grandeur ──
+   Consultable à tout moment depuis Réglages, proposé une fois au premier lancement. */
+function openSystem(first){
+ if(D.settings.seenSystem!==true){D.settings.seenSystem=true;save()}
+ openSheet(`
+  <div class="eyebrow" style="margin-bottom:6px">Le système</div>
+  <div class="h2" style="margin-bottom:14px">Une journée, une priorité</div>
+
+  <div class="card" style="padding:16px 18px;margin-bottom:10px">
+   <div class="eyebrow" style="margin-bottom:6px">La priorité du jour</div>
+   <p class="sub"><b style="color:var(--t1)">Une seule tâche décide de ta journée</b> — celle que tu choisis, toi.
+   Sa durée n'entre pas en compte : 20 minutes ou 4 heures, si elle est faite, la journée est gagnante.</p>
+   <p class="small" style="margin-top:8px">Elle pèse 60 points sur 100. Sans elle, aucune journée ne peut être gagnante — même en cochant tout le reste.</p>
+  </div>
+
+  <div class="card" style="padding:16px 18px;margin-bottom:10px">
+   <div class="eyebrow" style="margin-bottom:6px">Impact et urgence</div>
+   <p class="sub">Ils <b style="color:var(--t1)">t'orientent</b>, ils ne décident pas à ta place.
+   Mindway te propose la tâche qui a le plus de poids ; le dernier mot te revient toujours.</p>
+  </div>
+
+  <div class="card" style="padding:16px 18px;margin-bottom:10px">
+   <div class="eyebrow" style="margin-bottom:6px">Le reste de la journée</div>
+   <p class="sub"><b style="color:var(--t1)">3 secondaires</b> — 45 minutes ou moins conseillé.<br/>
+   <b style="color:var(--t1)">5 micro-tâches</b> — 10 minutes ou moins.</p>
+   <p class="small" style="margin-top:8px">Au-delà de 45 minutes, une secondaire devient une deuxième priorité : elle concurrence la première, et deux priorités se neutralisent.</p>
+  </div>
+
+  <div class="card" style="padding:16px 18px;margin-bottom:10px">
+   <div class="eyebrow" style="margin-bottom:6px">Pourquoi ces ordres de grandeur</div>
+   <p class="sub">Tenir ces limites, c'est rester capable de recommencer demain.
+   Une journée surchargée se paie sur la suivante ; une journée tenable s'enchaîne.
+   <b style="color:var(--t1)">Le but n'est pas d'en faire le plus, c'est de tenir sur la durée</b> — sans s'user, avec le minimum de friction.</p>
+  </div>
+
+  <div class="card" style="padding:16px 18px">
+   <div class="eyebrow" style="margin-bottom:6px">Rien n'est figé</div>
+   <p class="sub">Tu peux dépasser : Mindway te le dira, et te laissera choisir.
+   <b style="color:var(--t1)">Rien ne sera jamais corrigé à ta place</b>, rien ne sera jamais supprimé sans toi.</p>
+  </div>
+
+  <div style="margin-top:18px">${first
+    ?`<button class="btn" onclick="closeSheet();startFlow()">Clarifier ma journée</button>
+      <div style="margin-top:8px"><button class="btn quiet" style="width:100%" onclick="closeSheet()">Plus tard</button></div>`
+    :`<button class="btn" onclick="closeSheet()">J'ai compris</button>`}</div>`);
 }
 
 /* ── SCENERY ── */
@@ -2658,6 +2766,7 @@ function introCTA(){
  if(t&&t.review)return['Voir mon bilan',()=>{closeIntro();setTab('jour')}];
  if(t&&t.timer)return['Reprendre ma priorité',()=>{closeIntro();setTab('jour')}];
  if(t&&(t.mit||t.off))return['Continuer ma journée',()=>{closeIntro();setTab('jour')}];
+ if(firstRun())return['Découvrir Mindway',()=>{closeIntro();setTimeout(()=>openSystem(true),560)}];
  return['Clarifier ma journée',()=>{closeIntro();startFlow()}];
 }
 function qIntro(){
@@ -2678,6 +2787,8 @@ function showIntro(){
 }
 function closeIntro(){INTRO_OPEN=false;setAmb();
  const el=$('intro');el.classList.add('out');setTimeout(()=>el.classList.add('hide'),520)}
+/* tout premier lancement : le système s'explique AVANT le flow, jamais par-dessus */
+function firstRun(){return D.settings.seenSystem!==true&&!Object.keys(D.days||{}).length&&!D.settings.demo}
 
 /* ── INIT ── */
 load();

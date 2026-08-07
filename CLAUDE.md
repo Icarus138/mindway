@@ -22,7 +22,8 @@ localStorage `mindway_v2`, fallback mémoire si indisponible.
 - tâche : `{id,title,est,imp:0-3,urg:0-3,at|null,remind,done,spent}` (quick sans imp/urg)
 - `D.rituals[]` (max 3) : `{id,title,time|null,days[1-7],remind, est?,imp?,urg?,from?}` (champs hérités de l'ancrage tâche→rituel — `saveRitual` doit les préserver via spread)
 - `D.backlog[]` : `{id,title,est,imp,urg,when:'tomorrow'|'later',from}`
-- `D.settings{theme,demo,lastQ}` — défaut theme `'light'`, un choix existant est respecté.
+- `D.settings{theme,demo,lastQ,stopAtEnd,seenSystem}` — défaut theme `'light'`, un choix existant est respecté. `stopAtEnd` (défaut `true` par absence, lu via `stopAtEnd()`) : le chrono s'arrête au temps prévu. `seenSystem` : l'écran « Le système » a déjà été proposé.
+- `timer.stopped` (bool) : session gelée à l'échéance (`acc = planned×60000`, `paused:true`). `timer.alarmed` : l'alerte de fin a déjà été émise — jamais deux fois pour la même session.
 - `review.edited` (bool, optionnel) : jour corrigé après clôture — posé/retiré par comparaison avec l'état d'ouverture (`S.rcSnap`), jamais à l'aveugle.
 - `plan.tried` / `plan.helped` (entiers, optionnels) : boucle d'apprentissage If-Then, sur le plan du jour **et** sur l'entrée correspondante de `D.plans`.
 - Règles : champs additifs uniquement, defaults posés par `normalize()` (appelé par `load()` **et** après tout remplacement de `D`), import V1 et export/import JSON fonctionnels, **aucune réinitialisation, jamais**.
@@ -46,6 +47,8 @@ Garde-fous à ne pas casser : `store.get` sert la copie mémoire quand elle exis
 - Édition en journée : ajout (classé par les règles), report demain/plus tard (jamais si session en cours), remplacement de la MIT (jamais de suppression sèche — swap secondaire ou backlog).
 - Correction d'un jour passé : cocher/décocher + note depuis le récap, score recalculé par `computeParts`. Le commit est unique (bouton « Terminé » **et** fermeture par le fond) : mêmes écritures, même rendu, même toast. Revenir à l'état de départ n'est pas une correction — pas de flag, pas de toast.
 - Apprentissage If-Then : après « Je m'y tiens », un tap répond « Ça a aidé / Pas vraiment / Passer ». La stat affichée est cumulée depuis `D.plans`, jamais recalculée à la journée.
+- Fin de session : à l'échéance, le chrono se **gèle** au temps prévu (réglable, actif par défaut) — son, vibration et notification système. La tâche n'est **jamais** cochée à la place de l'utilisateur : « Terminé » ou « Continuer » (`resumeOver()` repart en dépassement). Réglage off = ancien comportement (dépassement continu), l'alerte est émise dans les deux cas. La notification est planifiée par `setTimeout` (`almTO`) pour survivre au throttling d'un onglet en arrière-plan ; elle est reprogrammée sur pause/reprise/boot et annulée à la fin ou à l'abandon.
+- Pédagogie : `openSystem()` explique le système (priorité unique dont la durée n'entre pas en compte, impact/urgence qui orientent sans décider, 3 secondaires ≤45 min conseillé, 5 micros ≤10 min, pourquoi ces ordres de grandeur, rien n'est figé). Accessible depuis Réglages et l'état vide, proposé **une seule fois** au premier lancement (jamais en démo, jamais si des jours existent). Deux rappels courts dans le flow (étapes Choisir et Construire). Toute affirmation chiffrée de cet écran doit rester vérifiable contre `computeParts` — « la priorité pèse 60 points » et « sans elle aucune journée n'est gagnante » (40 au mieux, seuil 70).
 - Notifications web : best-effort uniquement, l'UI ne promet jamais plus. La fiabilité = natif (P2).
 
 ## Méthode de validation OBLIGATOIRE (leçons de la session)
