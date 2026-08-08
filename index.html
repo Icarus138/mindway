@@ -1133,9 +1133,35 @@ function computeInsights(){
   const cW=mean(wc,d=>d.mindset.clarte),cO=mean(oc,d=>d.mindset.clarte);
   if(cW>=cO+0.6)out.push({ic:I.brain,txt:`Ton niveau de <b>clarté mentale</b> pèse directement sur tes journées : ${cW.toFixed(1)}/5 les jours gagnants, ${cO.toFixed(1)}/5 les autres.`,sub:`La calibration du matin n'est pas décorative`});
  }
+ // 5 · calibration des estimations — mesuré, pas déclaré (est vs spent des tâches chronométrées)
+ const sp=[];
+ cd.forEach(d=>[d.mit].concat(d.tasks||[],d.quick||[]).forEach(t=>{
+  if(t&&t.done&&t.spent>0&&t.est>0)sp.push(t.spent/t.est)}));
+ if(sp.length>=8){
+  const ratio=sp.reduce((s,x)=>s+x,0)/sp.length;
+  if(ratio>=1.25)out.push({ic:I.clock,txt:`Tu sous-estimes tes durées d'environ <b>${Math.round((ratio-1)*100)} %</b> : une tâche annoncée à 30 min t'en prend ${Math.round(30*ratio)}.`,sub:`Mesuré sur ${sp.length} tâches chronométrées — prévois large, tu tiendras mieux tes journées`});
+  else if(ratio<=0.78)out.push({ic:I.clock,txt:`Tu surestimes tes durées : tes tâches prennent <b>${Math.round((1-ratio)*100)} % de moins</b> que prévu.`,sub:`Mesuré sur ${sp.length} tâches — tu peux viser un peu plus grand`});
+ }
+ // 6 · ce qui traîne : évitement plutôt que manque de temps
+ const stale=(D.backlog||[]).filter(b=>b.from&&daysAgo(b.from)>=7);
+ if(stale.length>=2)out.push({ic:I.warn,txt:`<b>${stale.length} tâches</b> attendent depuis plus d'une semaine.`,sub:`Reporter est un choix ; découper en est un autre. Rarement une question de temps`});
+ // 7 · charge mentale
+ const wch=wins.filter(d=>d.mindset&&d.mindset.charge!=null),och=oth.filter(d=>d.mindset&&d.mindset.charge!=null);
+ if(wch.length>=3&&och.length>=3){
+  const a=mean(wch,d=>d.mindset.charge),b=mean(och,d=>d.mindset.charge);
+  if(b>=a+0.6)out.push({ic:I.brain,txt:`Tes journées gagnantes arrivent quand ta <b>charge mentale</b> est plus basse : ${a.toFixed(1)}/5 contre ${b.toFixed(1)}/5 les autres jours.`,sub:`Alléger la veille compte autant que planifier le matin`});
+ }
+ // 8 · élan
+ const wel=wins.filter(d=>d.mindset&&d.mindset.elan!=null),oel=oth.filter(d=>d.mindset&&d.mindset.elan!=null);
+ if(wel.length>=3&&oel.length>=3){
+  const a=mean(wel,d=>d.mindset.elan),b=mean(oel,d=>d.mindset.elan);
+  if(a>=b+0.6)out.push({ic:I.zap,txt:`Ton <b>élan</b> du matin annonce la journée : ${a.toFixed(1)}/5 les jours gagnants, ${b.toFixed(1)}/5 les autres.`,sub:`Quand il est bas, une priorité plus petite vaut mieux qu'une ambitieuse`});
+ }
  const pts=cd.filter(d=>d.mindset).map(d=>({x:d.mindset.clarte,y:d.review.score}));
  return{locked:false,list:out,pts,n:cd.length,wins:wins.length};
 }
+function daysAgo(iso){try{const a=new Date(iso+'T00:00:00'),b=new Date(todayISO()+'T00:00:00');
+ return Math.round((b-a)/86400000)}catch(e){return 0}}
 
 /* ── DÉMO (30 jours plausibles, corrélations volontaires) ── */
 function seedRng(seed){let s=seed;return()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff}}
@@ -1143,6 +1169,8 @@ const DEMO_MIT=["Tourner la vidéo Dropp","Finaliser la landing Icarus","Prépar
 const DEMO_SEC=["Répondre aux mails","Relancer le comptable","Mettre à jour le repo","Préparer le post X","Ranger le bureau","Faire la veille marché","Appeler maman","Aller courir"];
 const DEMO_Q=["Payer la facture","Réserver le créneau","Répondre à Théo","Sauvegarder le projet","Commander les câbles"];
 const CTX=['Calme','Motivé','Chargé','Fatigué','Distrait','Sous pression'];
+/* charge et élan sont additifs : les journées d'avant n'en ont pas, la lecture les tolère */
+function blankMindset(){return{clarte:3,energie:3,charge:3,elan:3,ctx:[],note:''}}
 function genDemo(){
  const r=seedRng(20260842),days={},now=new Date();
  for(let i=32;i>=1;i--){
@@ -1205,7 +1233,10 @@ function importV1(){
    if(mit&&mit.title)d.mit={id:mit.id||uid(),title:mit.title,est:mit.t||60,imp:cl3(mit.impact),urg:cl3(mit.urgency),done:!!mit.completed};
    (od.tasks||[]).filter(t=>t.type==='SECONDARY'&&t.title).slice(0,3).forEach(t=>d.tasks.push({id:t.id||uid(),title:t.title,est:t.t||45,imp:cl3(t.impact),urg:cl3(t.urgency),done:!!t.completed}));
    (od.tasks||[]).filter(t=>t.type==='MICRO'&&t.title).slice(0,5).forEach(t=>d.quick.push({id:t.id||uid(),title:t.title,est:t.t||10,done:!!t.completed}));
-   if(od.mood)d.mindset={clarte:od.mood.clarte||3,energie:od.mood.energie||3,ctx:(od.tags||[]).slice(0,3),note:''};
+   /* v1 avait 7 dimensions : on récupère celles que la v2 sait lire (stress→charge, motivation→élan) */
+   if(od.mood)d.mindset={clarte:od.mood.clarte||3,energie:od.mood.energie||3,
+    charge:od.mood.stress||3,elan:od.mood.motivation||3,
+    ctx:(od.tags||[]).slice(0,3),note:od.dailyNote||''};
    const any=(od.tasks||[]).some(t=>t.completed);
    if(any||od.guidedCompleted){const c=computeParts(d,null);d.review={score:c.score,status:c.status,parts:c.parts,estim:null,note:od.dailyNote||'',closedAt:od.date,imported:true}}
    D.days[od.date]=d;n++;
@@ -1378,6 +1409,37 @@ const QUOTES=[
   {id:'q100',text:"L'optimisme ici n'est pas une humeur. C'est une posture.",author:"Mindway",cat:'mindway',p:['optimisme_high']},
   {id:'q101',text:"Ce qui se mesure se transforme. Ce qui s'observe se calme.",author:"Mindway",cat:'mindway',p:['high_clarity_success']},
   {id:'q102',text:"Tu n'es pas tes journées. Tu es ce que tu en fais sur la durée.",author:"Mindway",cat:'mindway',p:['antifragile_day']},
+
+  /* ── Élargissement v3.11 · littérature, sciences humaines, incertitude ──
+     Attributions vérifiées une par une (source primaire ou édition) avant intégration. */
+  {id:'q103',text:"Ceux qui vivent, ce sont ceux qui luttent.",author:"Victor Hugo",cat:'victoire',p:['antifragile_day','optimisme_high']},
+  {id:'q104',text:"Rien n'est plus imminent que l'impossible, et ce qu'il faut toujours prévoir, c'est l'imprévu.",author:"Victor Hugo",cat:'antifragilite',p:['antifragile_day']},
+  {id:'q105',text:"Il n'existe pas de grand talent sans une grande volonté.",author:"Honoré de Balzac",cat:'creation',p:['high_impact_avoidance','strategy_helped_mit']},
+  {id:'q106',text:"À nous deux maintenant !",author:"Honoré de Balzac",cat:'reveil',p:['high_clarity_success']},
+  {id:'q107',text:"Soyez réglé dans votre vie et ordinaire comme un bourgeois, afin d'être violent et original dans vos œuvres.",author:"Gustave Flaubert",cat:'creation',p:['low_impact_productivity','high_clarity_success']},
+  {id:'q108',text:"Rien n'est plus lent que la véritable naissance d'un homme.",author:"Marguerite Yourcenar",cat:'philosophie',p:['low_energy_mit_success']},
+  {id:'q109',text:"Le travail bien fait est encore ce que j'ai de mieux pour me distraire.",author:"Jean Giono",cat:'creation',p:['high_clarity_success']},
+  {id:'q110',text:"La survivance est un naufrage dont le salut repose sur l'entêtement et non sur la providence.",author:"Yasmina Khadra",cat:'antifragilite',p:['antifragile_day']},
+  {id:'q111',text:"Penser, c'est dire non.",author:"Alain",cat:'philosophie',p:['high_dispersion_low_mit','micro_tasks_over_mit']},
+  {id:'q112',text:"Une difficulté est une lumière. Une difficulté insurmontable est un soleil.",author:"Paul Valéry",cat:'antifragilite',p:['antifragile_day','high_impact_avoidance']},
+  {id:'q113',text:"Rien ne va de soi. Rien n'est donné. Tout est construit.",author:"Gaston Bachelard",cat:'science',p:['high_impact_avoidance']},
+  {id:'q114',text:"Le vent éteint la bougie et anime le feu.",author:"Nassim Nicholas Taleb",cat:'antifragilite',p:['antifragile_day']},
+  {id:'q115',text:"Agir, au sens le plus général, signifie prendre une initiative, entreprendre.",author:"Hannah Arendt",cat:'philosophie',p:['high_impact_avoidance','strategy_helped_mit']},
+  {id:'q116',text:"Nous ne savons pas : nous pouvons seulement conjecturer.",author:"Karl Popper",cat:'science',p:['low_impact_productivity']},
+  {id:'q117',text:"L'abondance d'information crée une pénurie d'attention.",author:"Herbert Simon",cat:'science',p:['high_dispersion_low_mit','micro_tasks_over_mit']},
+  {id:'q118',text:"Rien dans la vie n'est aussi important que vous le pensez au moment où vous y pensez.",author:"Daniel Kahneman",cat:'psychologie',p:['high_dispersion_low_mit']},
+  {id:'q119',text:"Ce curieux paradoxe qui fait que c'est au moment où je m'accepte tel que je suis que je deviens capable de changer.",author:"Carl Rogers",cat:'psychologie',p:['low_energy_mit_success']},
+  {id:'q120',text:"La vie bonne est un processus, non un état ; une direction, non une destination.",author:"Carl Rogers",cat:'psychologie',p:['low_impact_productivity']},
+  {id:'q121',text:"La croissance doit être choisie encore et encore ; la peur doit être vaincue encore et encore.",author:"Abraham Maslow",cat:'psychologie',p:['high_impact_avoidance']},
+  {id:'q122',text:"Il faut apprendre à naviguer dans un océan d'incertitudes à travers des archipels de certitude.",author:"Edgar Morin",cat:'science',p:['antifragile_day']},
+  {id:'q123',text:"Tout ce qui ne se régénère pas dégénère.",author:"Edgar Morin",cat:'antifragilite',p:['antifragile_day']},
+  {id:'q124',text:"Il y a un but, mais pas de chemin ; ce que nous nommons chemin est hésitation.",author:"Franz Kafka",cat:'philosophie',p:['high_dispersion_low_mit']},
+  {id:'q125',text:"À partir d'un certain point, il n'y a plus de retour. C'est ce point qu'il faut atteindre.",author:"Franz Kafka",cat:'philosophie',p:['high_impact_avoidance']},
+  {id:'q126',text:"Il ne suffit pas d'être industrieux ; les fourmis le sont aussi. À quoi êtes-vous industrieux ?",author:"Henry David Thoreau",cat:'permission',p:['low_impact_productivity','micro_tasks_over_mit']},
+  {id:'q127',text:"L'angoisse est le vertige de la liberté.",author:"Søren Kierkegaard",cat:'philosophie',p:['high_impact_avoidance']},
+  {id:'q128',text:"Fais la chose et tu auras la force.",author:"Ralph Waldo Emerson",cat:'reveil',p:['high_impact_avoidance','strategy_helped_mit']},
+  {id:'q129',text:"Le temps est la substance dont je suis fait.",author:"Jorge Luis Borges",cat:'philosophie',p:['low_impact_productivity']},
+  {id:'q130',text:"Tu rencontreras peut-être bien des défaites, mais tu ne dois pas être vaincu.",author:"Maya Angelou",cat:'antifragilite',p:['antifragile_day']},
 ];
 
 /* moteur de citations contextuelles — audit éditorial à prévoir */
@@ -1395,7 +1457,7 @@ function qPick(ctx){
 function greeting(){const h=new Date().getHours();return h<5?'Bonsoir':h<12?'Bonjour':h<18?'Bon après-midi':'Bonsoir'}
 
 function startFlow(){
- S.flow={step:1,items:[],mitId:null,secIds:[],keptLong:[],mindset:{clarte:3,energie:3,ctx:[],note:''}};
+ S.flow={step:1,items:[],mitId:null,secIds:[],keptLong:[],mindset:blankMindset()};
  renderFlow();$('flow').classList.add('open');
 }
 function closeFlow(){$('flow').classList.remove('open');S.flow=null}
@@ -1531,7 +1593,7 @@ function renderFlow(){
  }
  /* ── 5 · CALIBRER ── */
  else if(F.step===5){
-  const M=F.mindset;
+  const M=Object.assign(blankMindset(),F.mindset);F.mindset=M;
   h=`<div class="step">${dots(4)}
    <div class="step-head">
     <div class="eyebrow">5 · Calibrer</div>
@@ -1543,10 +1605,16 @@ function renderFlow(){
     <input type="range" min="1" max="5" step="1" value="${M.clarte}" oninput="S.flow.mindset.clarte=+this.value;$('clV').textContent=this.value+'/5'"/>
     <div class="sect-h" style="margin:16px 0 2px"><span class="eyebrow">Énergie</span><span class="count" id="enV">${M.energie}/5</span></div>
     <input type="range" min="1" max="5" step="1" value="${M.energie}" oninput="S.flow.mindset.energie=+this.value;$('enV').textContent=this.value+'/5'"/>
+    <div class="sect-h" style="margin:16px 0 2px"><span class="eyebrow">Charge mentale</span><span class="count" id="chV">${M.charge}/5</span></div>
+    <input type="range" min="1" max="5" step="1" value="${M.charge}" oninput="S.flow.mindset.charge=+this.value;$('chV').textContent=this.value+'/5'"/>
+    <div class="sect-h" style="margin:16px 0 2px"><span class="eyebrow">Élan</span><span class="count" id="elV">${M.elan}/5</span></div>
+    <input type="range" min="1" max="5" step="1" value="${M.elan}" oninput="S.flow.mindset.elan=+this.value;$('elV').textContent=this.value+'/5'"/>
     <div class="eyebrow" style="margin:18px 0 10px">Contexte</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
      ${CTX.map(c=>`<button class="chip ${M.ctx.includes(c)?'on':''}" onclick="togCtx('${c}')">${c}</button>`).join('')}
     </div>
+    <div class="eyebrow" style="margin:18px 0 8px">Note libre <span style="text-transform:none;letter-spacing:0;color:var(--t3)">(optionnel)</span></div>
+    <textarea class="field" id="mdNote" placeholder="Ce qui te traverse, ce qui pèse, ce qui aide…" oninput="S.flow.mindset.note=this.value">${esc(M.note||'')}</textarea>
    </div>
    <div class="spacer"></div>
    <div class="flow-actions"><button class="btn" onclick="afterMindset()">Construire ma journée</button></div>
@@ -1563,7 +1631,7 @@ function renderFlow(){
    </div>
    <div class="card">
     <div class="eyebrow" style="margin-bottom:8px">Si</div>
-    <p style="font-size:15.5px;line-height:1.45">${esc(F.planIf)},</p>
+    <input class="field" id="planIf" value="${esc(F.planIf)}" placeholder="Si je…" maxlength="90" oninput="S.flow.planIf=this.value"/>
     <div class="eyebrow" style="margin:18px 0 4px">Alors</div>
     ${F.planOpts.map((o,i)=>`<button class="alt ${(!cust&&sel===i)?'sel':''}" style="width:100%;text-align:left" onclick="selPlan(${i})"><span class="r ${(!cust&&sel===i)?'on':''}"></span><span style="flex:1">${esc(o)}</span></button>`).join('')}
     <div class="eyebrow" style="margin:16px 0 8px">Ou mon propre plan</div>
@@ -1571,7 +1639,7 @@ function renderFlow(){
    </div>
    <div class="spacer"></div>
    <div class="flow-actions">
-    <button class="btn" onclick="S.flow.planCustom=($('planCust')?$('planCust').value:S.flow.planCustom);finishFlow(true)">Adopter ce plan</button>
+    <button class="btn" onclick="S.flow.planIf=(($('planIf')?$('planIf').value:S.flow.planIf)||'').trim()||S.flow.planIf;S.flow.planCustom=($('planCust')?$('planCust').value:S.flow.planCustom);finishFlow(true)">Adopter ce plan</button>
     <button class="btn quiet" onclick="finishFlow(false)">Passer</button>
    </div>
   </div>`;
@@ -1706,6 +1774,130 @@ function finishFlow(adopt){
  D.days[iso]=d;save();closeFlow();S.tab='jour';render();
  toast('Ta journée est prête');
 }
+
+/* ── CHEMIN EXPRESS ──
+   Deux écrans au lieu de six : tout coller, puis valider une structure proposée.
+   Les règles du système s'appliquent (1 priorité, 3 secondaires, 5 micros) ;
+   c'est l'utilisateur qui arbitre, l'app ne fait que proposer. */
+const EXP_EST=[5,10,15,30,45,60,90,120];
+const ROLE_LBL={mit:'Priorité',sec:'Secondaire',micro:'Micro',later:'Plus tard'};
+const ROLE_EST={mit:60,sec:30,micro:10,later:30};
+function startExpress(){S.exp={step:1,items:[]};S.flow=null;renderExpress();$('flow').classList.add('open')}
+function closeExpress(){$('flow').classList.remove('open');S.exp=null}
+function expParse(){
+ const raw=($('expRaw')&&$('expRaw').value)||'';
+ const lines=raw.split('\n').map(s=>s.replace(/^[\s•\-*–—]+/,'').replace(/^\d+[.)]\s*/,'').trim()).filter(s=>s.length);
+ if(!lines.length){toast('Écris au moins une chose');return}
+ S.exp.items=lines.slice(0,30).map((title,i)=>{
+  const role=i===0?'mit':i<=3?'sec':i<=8?'micro':'later';
+  return{id:uid(),title:title.slice(0,80),est:ROLE_EST[role],role}});
+ S.exp.step=2;renderExpress();
+}
+function expCount(role,skip){return S.exp.items.filter(x=>x.role===role&&x.id!==skip).length}
+function expRole(id){
+ const it=S.exp.items.find(x=>x.id===id);if(!it)return;
+ const order=['mit','sec','micro','later'];
+ let next=order[(order.indexOf(it.role)+1)%4],msg='';
+ for(let k=0;k<4;k++){
+  if(next==='sec'&&expCount('sec',id)>=3){msg='3 secondaires maximum — c’est le principe';next='micro';continue}
+  if(next==='micro'&&expCount('micro',id)>=5){msg='5 micro-tâches maximum — peu, mais tenu';next='later';continue}
+  break;
+ }
+ if(next==='mit'){const cur=S.exp.items.find(x=>x.role==='mit'&&x.id!==id);
+  if(cur){if(expCount('sec',id)>=3){cur.role='later';msg='L’ancienne priorité part pour plus tard'}else cur.role='sec'}}
+ it.role=next;if(it.est===ROLE_EST[order[(order.indexOf(next)+3)%4]])it.est=ROLE_EST[next];
+ renderExpress();if(msg)toast(msg);
+}
+function expEst(id){
+ const it=S.exp.items.find(x=>x.id===id);if(!it)return;
+ const i=EXP_EST.indexOf(it.est);
+ it.est=EXP_EST[(i<0?0:i+1)%EXP_EST.length];renderExpress();
+}
+function expDel(id){S.exp.items=S.exp.items.filter(x=>x.id!==id);renderExpress()}
+function renderExpress(){
+ const X=S.exp,el=$('flowIn');let h='';
+ if(X.step===1){
+  h=`<div class="step">
+   <div class="step-head">
+    <div class="eyebrow">Chemin express</div>
+    <div class="h1">Balance tout.</div>
+    <p class="sub" style="margin-top:10px">Une ligne par chose en tête. Mindway propose une structure, tu la corriges. Pas de tri à faire maintenant.</p>
+   </div>
+   <textarea class="field" id="expRaw" style="min-height:210px;line-height:1.7" placeholder="Appeler la banque
+Finir la présentation
+Mail à Paul
+Commencer le mémoire
+Courses"></textarea>
+   <div class="spacer"></div>
+   <div class="flow-actions">
+    <button class="btn" onclick="expParse()">Continuer</button>
+    <button class="btn quiet" onclick="closeExpress()">Annuler</button>
+   </div></div>`;
+ }else{
+  const tot=X.items.filter(x=>x.role!=='later').reduce((s,x)=>s+x.est,0);
+  const mit=X.items.find(x=>x.role==='mit');
+  h=`<div class="step">
+   <div class="step-head">
+    <div class="eyebrow">Chemin express · 2/2</div>
+    <div class="h1">Voilà ce que je propose</div>
+    <p class="sub" style="margin-top:10px">Touche un rôle ou une durée pour l'ajuster. Rien n'est figé.</p>
+   </div>
+   <div class="card" style="padding:6px 14px">
+    ${X.items.map(x=>`<div class="trow" style="gap:8px">
+     <button class="chip ${x.role==='mit'?'on':''}" style="min-width:88px;font-size:11.5px" onclick="expRole('${x.id}')">${ROLE_LBL[x.role]}</button>
+     <div class="tt" style="flex:1">${esc(x.title)}</div>
+     <button class="chip" style="font-size:11.5px" onclick="expEst('${x.id}')">${fmtMin(x.est)}</button>
+     <button class="minib" aria-label="Retirer" onclick="expDel('${x.id}')">${I.x}</button>
+    </div>`).join('')}
+   </div>
+   <p class="small" style="margin-top:10px;padding:0 2px">${tot} min planifiées${tot>360?` — au-delà de 6 h, le score d'organisation le notera`:''}${mit?'':' — il manque une priorité'}</p>
+   <div class="spacer"></div>
+   <div class="flow-actions">
+    <button class="btn" onclick="expBuild()" ${mit?'':'disabled'}>Construire ma journée</button>
+    <button class="btn quiet" onclick="S.exp.step=1;renderExpress()">Revenir</button>
+   </div></div>`;
+ }
+ el.innerHTML=h;
+}
+function expBuild(){
+ const X=S.exp,iso=todayISO(),d=mkDay(iso);
+ const m=X.items.find(x=>x.role==='mit');
+ if(!m){toast('Choisis une priorité');return}
+ d.mit={id:m.id,title:m.title,est:m.est,imp:2,urg:2,at:null,remind:false,done:false};
+ X.items.filter(x=>x.role==='sec').slice(0,3).forEach(x=>d.tasks.push({id:x.id,title:x.title,est:x.est,imp:1,urg:1,at:null,remind:false,done:false}));
+ X.items.filter(x=>x.role==='micro').slice(0,5).forEach(x=>d.quick.push({id:x.id,title:x.title,est:x.est,at:null,remind:false,done:false}));
+ X.items.filter(x=>x.role==='later').forEach(x=>D.backlog.push({id:x.id,title:x.title,est:x.est,imp:1,urg:1,when:'tomorrow',from:iso}));
+ d.startedHour=new Date().getHours();
+ d.mindset=null;                    /* pas calibré : on n'invente pas de données pour les insights */
+ D.days[iso]=d;save();closeExpress();S.tab='jour';render();scheduleWebNotifs();
+ toast('Ta journée est prête');
+}
+
+/* ── CALIBRATION À LA DEMANDE (après un chemin express, ou pour corriger) ── */
+function openMindset(){
+ const d=day(todayISO());if(!d)return;
+ S.md=Object.assign(blankMindset(),d.mindset||{});
+ const row=(k,lbl)=>`<div class="sect-h" style="margin:14px 0 2px"><span class="eyebrow">${lbl}</span><span class="count" id="md${k}">${S.md[k]}/5</span></div>
+  <input type="range" min="1" max="5" step="1" value="${S.md[k]}" oninput="S.md.${k}=+this.value;$('md${k}').textContent=this.value+'/5'"/>`;
+ openSheet(`<div class="h2" style="margin-bottom:4px">Où en es-tu&nbsp;?</div>
+  <p class="small" style="margin-bottom:6px">Pas un jugement — une lecture brute. C'est ce qui rend les patterns lisibles plus tard.</p>
+  ${row('clarte','Clarté mentale')}${row('energie','Énergie')}${row('charge','Charge mentale')}${row('elan','Élan')}
+  <div class="eyebrow" style="margin:18px 0 10px">Contexte</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+   ${CTX.map(c=>`<button class="chip ${S.md.ctx.includes(c)?'on':''}" onclick="togMdCtx('${c}',this)">${c}</button>`).join('')}
+  </div>
+  <div class="eyebrow" style="margin:18px 0 8px">Note libre <span style="text-transform:none;letter-spacing:0;color:var(--t3)">(optionnel)</span></div>
+  <textarea class="field" id="mdN" placeholder="Ce qui te traverse, ce qui pèse, ce qui aide…" oninput="S.md.note=this.value">${esc(S.md.note||'')}</textarea>
+  <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+   <button class="btn" onclick="saveMindset()">Enregistrer</button>
+   <button class="btn quiet" onclick="closeSheet()">Annuler</button>
+  </div>`);
+}
+function togMdCtx(c,el){const a=S.md.ctx,i=a.indexOf(c);if(i>=0)a.splice(i,1);else a.push(c);el.classList.toggle('on')}
+function saveMindset(){
+ const d=day(todayISO());if(!d||!S.md)return;
+ if($('mdN'))S.md.note=$('mdN').value;
+ d.mindset=S.md;S.md=null;save();closeSheet();render();toast('Calibration enregistrée')}
 
 /* ============================================================
    SESSIONS — chronomètre intégré à la carte + alarme
@@ -2183,6 +2375,7 @@ function viewJour(){
    <div class="card"><p class="sub">Quelques minutes suffisent : vider, choisir une priorité, calibrer. Le reste suit.</p>
    <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
     <button class="btn" onclick="startFlow()">Clarifier ma journée</button>
+    <button class="btn ghost" onclick="startExpress()">Chemin express — tout coller d'un coup</button>
     <button class="btn quiet" onclick="dayOff()">Journée off</button>
     <button class="linkbtn" style="align-self:center;margin-top:2px" onclick="openSystem()">Comment ça marche</button>
    </div></div>`;
@@ -2207,8 +2400,12 @@ function viewJour(){
  if(d.mindset)h+=`<div class="note-chip dimmable" style="margin-top:12px">
    <span class="mchip">Clarté <b>${d.mindset.clarte}/5</b></span>
    <span class="mchip">Énergie <b>${d.mindset.energie}/5</b></span>
+   ${d.mindset.charge!=null?`<span class="mchip">Charge <b>${d.mindset.charge}/5</b></span>`:''}
+   ${d.mindset.elan!=null?`<span class="mchip">Élan <b>${d.mindset.elan}/5</b></span>`:''}
    ${d.mindset.ctx.map(c=>`<span class="mchip">${esc(c)}</span>`).join('')}
   </div>`;
+ if(d.mindset&&(d.mindset.note||'').trim())h+=`<p class="small dimmable" style="margin-top:8px;padding:0 2px;font-style:italic">${esc(d.mindset.note.trim())}</p>`;
+ if(!d.review)h+=`<div class="dimmable" style="margin-top:${d.mindset?'6px':'12px'}"><button class="linkbtn" onclick="openMindset()">${d.mindset?'Ajuster ma calibration':'Calibrer mon état d’esprit'}</button></div>`;
  if(m)h+=`<div class="mitwrap" style="margin-top:16px">${mitCard(d)}</div>`;
  if(d.tasks.length){
   h+=`<div class="sect dimmable"><div class="sect-h"><span class="eyebrow">Tâches secondaires</span><span class="count">${d.tasks.filter(t=>t.done).length}/${d.tasks.length}</span></div>
