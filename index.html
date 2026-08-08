@@ -1036,7 +1036,8 @@ const KEY='mindway_v2', BAK='mindway_v2_realbackup', DBAK='mindway_v2_bak';
 let D=null;                                  // données persistées
 const S={tab:'jour',month:todayISO().slice(0,7),flow:null,bilan:null};
 
-function blank(){return{version:2,settings:{theme:'light',demo:false},plans:[],days:{}}}
+/* forme complète : tout chemin qui remplace D doit obtenir un objet utilisable sans normalize() */
+function blank(){return{version:2,settings:{theme:'light',demo:false},plans:[],days:{},rituals:[],backlog:[]}}
 function isObj(x){return !!x&&typeof x==='object'&&!Array.isArray(x)}
 /* defaults additifs — appliqués au chargement ET après tout remplacement de D (import) */
 function normalize(){
@@ -1207,7 +1208,7 @@ function demoOn(){
  let kept=true;try{if(store.ok&&localStorage.getItem(BAK)!==snap)kept=false}catch(e){kept=false}
  if(!kept&&hasReal){toast('Impossible de mettre tes données à l’abri — démo annulée');return}
  const nd=blank();nd.settings={...D.settings,demo:true};nd.days=genDemo();
- D=nd;save();closeSheet();S.month=todayISO().slice(0,7);render();
+ D=nd;normalize();save();closeSheet();S.month=todayISO().slice(0,7);render();
  toast('Mode démo activé — tes vraies données sont conservées');
 }
 function demoOff(){
@@ -1760,6 +1761,7 @@ function selPlan(i){S.flow.planSel=i;S.flow.planCustom='';renderFlow()}
 function skipFlow(){closeFlow();render()}
 function finishFlow(adopt){
  const F=S.flow,iso=todayISO(),d=mkDay(iso);
+ normalize();                       /* garde : aucun push sur un tableau absent */
  const mit=F.items.find(i=>i.id===F.mitId);
  if(mit)d.mit={id:mit.id,title:mit.title,est:mit.est,imp:mit.imp,urg:mit.urg,at:mit.at||null,remind:!!(mit.at&&mit.remind),done:false};
  F.items.filter(i=>i.id!==F.mitId).forEach(i=>{
@@ -1861,8 +1863,12 @@ Courses"></textarea>
 }
 function expBuild(){
  const X=S.exp,iso=todayISO(),d=mkDay(iso);
+ normalize();                       /* garde : aucun push sur un tableau absent */
  const m=X.items.find(x=>x.role==='mit');
  if(!m){toast('Choisis une priorité');return}
+ const prev=day(iso);               /* on n'écrase jamais une journée déjà commencée */
+ if(prev&&(prev.review||prev.timer||prev.mit||(prev.tasks||[]).length||(prev.quick||[]).length)){
+  closeExpress();render();toast('Ta journée existe déjà — ajoute plutôt une tâche');return}
  d.mit={id:m.id,title:m.title,est:m.est,imp:2,urg:2,at:null,remind:false,done:false};
  X.items.filter(x=>x.role==='sec').slice(0,3).forEach(x=>d.tasks.push({id:x.id,title:x.title,est:x.est,imp:1,urg:1,at:null,remind:false,done:false}));
  X.items.filter(x=>x.role==='micro').slice(0,5).forEach(x=>d.quick.push({id:x.id,title:x.title,est:x.est,at:null,remind:false,done:false}));
@@ -2791,7 +2797,7 @@ function openSettings(){
    <button class="linkbtn" onclick="setStopAtEnd(${stopAtEnd()?'false':'true'})">${stopAtEnd()?'Désactiver':'Activer'}</button></div>
   <div class="srow dis"><div>Notifications utiles<div class="sub">Priorité, rituels, bilan, reprise — avec la version native. Jamais de spam.</div></div><span class="small">Bientôt</span></div>
   <div class="srow"><div>Réinitialiser<div class="sub">Efface tout, définitivement</div></div>
-   <button class="linkbtn danger" onclick="if(confirm('Tout effacer ? Cette action est définitive.')){store.del('mindway_v2_realbackup');D=blank();save();closeSheet();render();}">Effacer</button></div>
+   <button class="linkbtn danger" onclick="if(confirm('Tout effacer ? Cette action est définitive.')){store.del('mindway_v2_realbackup');D=blank();normalize();save();closeSheet();render();}">Effacer</button></div>
   <p class="small" style="margin-top:16px;text-align:center">Mindway v2 · prototype · 100 % local</p>`);
 }
 
