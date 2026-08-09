@@ -1136,13 +1136,18 @@ function computeInsights(){
  }
  // 5 · calibration des estimations — mesuré, pas déclaré (est vs spent des tâches chronométrées)
  const sp=[];
+ /* Une session gelée à l'échéance ne mesure pas le temps réel, elle le plafonne : ces tâches
+    sont des observations censurées (« au moins le temps prévu »), jamais des ratios. */
+ let capped=0;
  cd.forEach(d=>[d.mit].concat(d.tasks||[],d.quick||[]).forEach(t=>{
-  if(t&&t.done&&t.spent>0&&t.est>0)sp.push(t.spent/t.est)}));
+  if(!t||!t.done||!(t.spent>0)||!(t.est>0))return;
+  if(t.capped)capped++;else sp.push(t.spent/t.est)}));
  if(sp.length>=8){
   const ratio=sp.reduce((s,x)=>s+x,0)/sp.length;
   if(ratio>=1.25)out.push({ic:I.clock,txt:`Tu sous-estimes tes durées d'environ <b>${Math.round((ratio-1)*100)} %</b> : une tâche annoncée à 30 min t'en prend ${Math.round(30*ratio)}.`,sub:`Mesuré sur ${sp.length} tâches chronométrées — prévois large, tu tiendras mieux tes journées`});
   else if(ratio<=0.78)out.push({ic:I.clock,txt:`Tu surestimes tes durées : tes tâches prennent <b>${Math.round((1-ratio)*100)} % de moins</b> que prévu.`,sub:`Mesuré sur ${sp.length} tâches — tu peux viser un peu plus grand`});
  }
+ else if(capped>=6)out.push({ic:I.clock,txt:`<b>${capped} sessions</b> se sont arrêtées pile au temps prévu : Mindway ne peut pas savoir combien de temps tu as réellement passé.`,sub:`Désactive « Fin de session » dans les réglages pour mesurer tes dépassements réels`});
  // 6 · ce qui traîne : évitement plutôt que manque de temps
  const stale=(D.backlog||[]).filter(b=>b.from&&daysAgo(b.from)>=7);
  if(stale.length>=2)out.push({ic:I.warn,txt:`<b>${stale.length} tâches</b> attendent depuis plus d'une semaine.`,sub:`Reporter est un choix ; découper en est un autre. Rarement une question de temps`});
@@ -1186,12 +1191,20 @@ function genDemo(){
   d.startedHour=7+Math.floor(r()*5);       // 7..11
   let p=0.14+0.10*clarte+(est<=90?0.15:0)+(nSec<=1?0.10:nSec===2?0.02:-0.10)+(d.startedHour<9?0.14:0);
   const mitDone=r()<Math.max(0.08,Math.min(0.88,p));
+  /* spent : ~25 % de sous-estimation, la démo doit pouvoir montrer la règle de calibration */
+  const sp=e=>Math.max(1,Math.round(e*(1.05+r()*0.5)));
   d.mit={id:uid(),title:DEMO_MIT[Math.floor(r()*DEMO_MIT.length)],est,done:mitDone};
+  if(mitDone)d.mit.spent=sp(est);
   const pool=[...DEMO_SEC].sort(()=>r()-0.5);
-  for(let j=0;j<nSec;j++)d.tasks.push({id:uid(),title:pool[j],est:[20,30,45,60][Math.floor(r()*4)],done:r()<(mitDone?0.62:0.36)});
+  for(let j=0;j<nSec;j++){const e=[20,30,45,60][Math.floor(r()*4)],dn=r()<(mitDone?0.62:0.36);
+   const t={id:uid(),title:pool[j],est:e,done:dn};if(dn)t.spent=sp(e);d.tasks.push(t)}
   const nQ=Math.floor(r()*3);
-  for(let j=0;j<nQ;j++)d.quick.push({id:uid(),title:DEMO_Q[Math.floor(r()*DEMO_Q.length)],est:10,done:r()<0.55});
-  d.mindset={clarte,energie,ctx:[CTX[Math.floor(r()*CTX.length)]],note:''};
+  for(let j=0;j<nQ;j++){const dn=r()<0.55;const t={id:uid(),title:DEMO_Q[Math.floor(r()*DEMO_Q.length)],est:10,done:dn};
+   if(dn)t.spent=sp(10);d.quick.push(t)}
+  /* charge et élan corrélés à la réussite : les règles 7 et 8 doivent avoir de quoi parler */
+  const charge=Math.max(1,Math.min(5,Math.round((mitDone?2.4:3.6)+(r()*2-1))));
+  const elan=Math.max(1,Math.min(5,Math.round((mitDone?3.8:2.6)+(r()*2-1))));
+  d.mindset={clarte,energie,charge,elan,ctx:[CTX[Math.floor(r()*CTX.length)]],note:''};
   const estim=r()<0.42?'juste':r()<0.78?'court':'rate';
   const c=computeParts(d,estim);
   d.review={score:c.score,status:c.status,parts:c.parts,estim,note:'',closedAt:iso};
@@ -1208,6 +1221,11 @@ function demoOn(){
  let kept=true;try{if(store.ok&&localStorage.getItem(BAK)!==snap)kept=false}catch(e){kept=false}
  if(!kept&&hasReal){toast('Impossible de mettre tes données à l’abri — démo annulée');return}
  const nd=blank();nd.settings={...D.settings,demo:true};nd.days=genDemo();
+ /* un backlog qui traîne : sinon la règle « ce que tu évites » n'a rien à montrer en démo */
+ const old=n=>{const dt=new Date();dt.setDate(dt.getDate()-n);return dt.toISOString().slice(0,10)};
+ nd.backlog=[{id:uid(),title:'Reprendre le dossier assurance',est:45,imp:2,urg:1,when:'later',from:old(23)},
+  {id:uid(),title:'Trier les photos de l’an dernier',est:60,imp:1,urg:0,when:'later',from:old(16)},
+  {id:uid(),title:'Rappeler le comptable',est:15,imp:2,urg:2,when:'tomorrow',from:old(9)}];
  D=nd;normalize();save();closeSheet();S.month=todayISO().slice(0,7);render();
  toast('Mode démo activé — tes vraies données sont conservées');
 }
@@ -2042,7 +2060,9 @@ function resumeOver(){
  save();render()}
 function finishTimer(){const d=day(todayISO()),t=d&&d.timer;if(!t)return;
  const task=findTask(d,t.kind,t.tid);const mins=Math.max(1,Math.round(timerElapsed(t)/60000));
- if(task){task.done=true;task.spent=mins}
+ /* session gelée à l'échéance et jamais reprise : le temps réel au-delà est INCONNU, pas égal au prévu.
+    On le marque pour que la calibration ne prenne pas ce plafond pour une mesure. */
+ if(task){task.done=true;task.spent=mins;if(t.stopped)task.capped=true;else delete task.capped}
  const wasMit=t.kind==='m';delete d.timer;clearTimerAlarm();
  if(wasMit)S.justWon=true;buzz(wasMit?[14,60,20]:12);
  save();render();
