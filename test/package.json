@@ -1,0 +1,11 @@
+{
+  "name": "mindway-tests",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Harness de non-régression jsdom pour Mindway",
+  "scripts": {
+    "test": "node boot-test.js ../index.html",
+    "check": "awk '/<script>/{f=1;next}/<\\/script>/{f=0}f' ../index.html > /tmp/mw-app.js && node --check /tmp/mw-app.js && echo 'syntaxe OK'"
+  },
+  "devDependencies": { "jsdom": "^26.0.0" }
+}

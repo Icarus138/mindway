@@ -54,12 +54,19 @@ Garde-fous à ne pas casser : `store.get` sert la copie mémoire quand elle exis
 - Pédagogie : `openSystem()` explique le système (priorité unique dont la durée n'entre pas en compte, impact/urgence qui orientent sans décider, 3 secondaires ≤45 min conseillé, 5 micros ≤10 min, pourquoi ces ordres de grandeur, rien n'est figé). Accessible depuis Réglages et l'état vide, proposé **une seule fois** au premier lancement (jamais en démo, jamais si des jours existent). Deux rappels courts dans le flow (étapes Choisir et Construire). Toute affirmation chiffrée de cet écran doit rester vérifiable contre `computeParts` — « la priorité pèse 60 points » et « sans elle aucune journée n'est gagnante » (40 au mieux, seuil 70).
 - Notifications web : best-effort uniquement, l'UI ne promet jamais plus. La fiabilité = natif (P2).
 
+## Health Stack
+
+- syntaxe : `awk '/<script>/{f=1;next}/<\/script>/{f=0}f' index.html > /tmp/mw.js && node --check /tmp/mw.js`
+- test : `cd test && npm test` (147 asserts jsdom)
+- boot : jsdom sans erreur console, `#inCTA` rempli, classes d'ambiance sur `#phone`
+- pas de typecheck, pas de linter, pas de dead-code : projet vanilla mono-fichier, assumé
+
 ## Méthode de validation OBLIGATOIRE (leçons de la session)
 
 1. **Syntaxe** : extraire le JS (`awk '/<script>/{f=1;next}/<\/script>/{f=0}f'`) → `node --check`.
 2. **Boot réel** : jsdom (`runScripts:'dangerously'`, polyfill `matchMedia` en `beforeParse`, URL Pages) → zéro erreur, `#inCTA` rempli, classes sur `#phone`. Le stub maison ment (getElementById magique) — **seul jsdom valide le boot**.
-3. **Régression métier** : re-calculer `computeParts` sur toute la démo (0 écart), `computeInsights` (4 règles), un flow complet, timer start/finish, ancrage, report, swap MIT, correction d'un jour passé, corruption/restauration.
-   Harness de référence : `boot-test.js` (71 asserts, jsdom). Pour simuler une **nouvelle session** (corruption, quota), vider `store.mem` avant `load()` — sinon la copie mémoire masque la panne et le test passe à tort.
+3. **Régression métier** : `cd test && npm test` — harness versionné (`test/boot-test.js`, 147 asserts jsdom). Couvre le recalcul de `computeParts` sur toute la démo (0 écart), `computeInsights`, le flow complet, le chemin express, timer et alarme de fin, dérive If-Then, correction d'un jour passé, corruption/restauration, intégrité du stock de citations.
+   Deux pièges qui ont déjà fait passer des tests à tort : (a) la copie mémoire de `store.mem` masque les corruptions — la vider avant `load()` pour simuler une nouvelle session ; (b) une assertion synchrone rate ce que `requestAnimationFrame` défait — appeler `paintTimer()` explicitement après une action qui rend. **Un nouveau test doit être vérifié rouge sur la version buguée avant d'être cru.**
 4. Édits par script avec **assert sur chaque remplacement** (`str.replace` silencieux = bug garanti).
 5. Pièges connus : aperçu Fichiers iOS = JS désactivé (noscript + sentinelle en place) ; banding OLED sur dégradés sombres ; budget backdrop-filter ≤4 simultanés ; inputs ≥16 px sinon zoom Safari ; `\uXXXX` interprété seulement en JS, jamais en HTML statique.
 

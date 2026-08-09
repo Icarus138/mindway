@@ -27,3 +27,7 @@ files/
 files2/
 *.zip
 mindway-v2-proto_*.html
+
+# tests : dépendances installées à la demande
+test/node_modules/
+test/package-lock.json
